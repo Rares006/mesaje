@@ -328,6 +328,27 @@
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
 
+        .individual-password-section {
+            background: rgba(76, 99, 210, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border: 2px solid rgba(76, 99, 210, 0.2);
+        }
+
+        .password-status {
+            background: rgba(255, 215, 0, 0.2);
+            border: 2px solid #ffd700;
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 15px;
+            color: #b8860b;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
         .success-message {
             background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
             color: white;
@@ -536,14 +557,14 @@
             </div>
         </div>
 
-        <!-- Mesaje Primite Tab -->
+        <!-- Mesaje Primite Tab (Admin) -->
         <div id="messages" class="tab-content">
-            <h2>Mesaje Primite</h2>
+            <h2>Mesaje Primite - Administrare</h2>
             
             <div id="passwordSection" class="password-section">
-                <h3>Acces la mesaje</h3>
+                <h3>Acces Administrator</h3>
                 <div class="form-group">
-                    <label for="adminPassword">Setează/Introdu parola (6 cifre):</label>
+                    <label for="adminPassword">Setează/Introdu parola admin (6 cifre):</label>
                     <input type="password" id="adminPassword" maxlength="6" pattern="\\d{6}" placeholder="******">
                 </div>
                 <button class="btn" id="checkPasswordBtn">🔓 Verifică Parola</button>
@@ -555,17 +576,41 @@
             </div>
         </div>
 
-        <!-- Mesaje Participant -->
+        <!-- Mesaje Participant Individual -->
         <div id="participantMessages" class="tab-content">
             <h2>Mesaje primite pentru <span id="participantMessagesName"></span></h2>
             
-            <div id="participantPasswordSection" class="password-section">
-                <h3>Acces la mesajele tale</h3>
-                <div class="form-group">
-                    <label for="participantPassword">Introdu parola (6 cifre):</label>
-                    <input type="password" id="participantPassword" maxlength="6" pattern="\\d{6}" placeholder="******">
+            <div id="participantPasswordSection" class="individual-password-section">
+                <h3>🔐 Acces la mesajele tale</h3>
+                
+                <div id="passwordStatus" class="password-status hidden">
+                    Acest participant are deja o parolă setată
                 </div>
-                <button class="btn" id="checkParticipantPasswordBtn">🔓 Verifică Parola</button>
+                
+                <div id="setPasswordForm" class="hidden">
+                    <p style="margin-bottom: 15px; color: #4c63d2; font-weight: 600;">
+                        Prima dată când accesezi contul, trebuie să setezi o parolă de 4 cifre:
+                    </p>
+                    <div class="form-group">
+                        <label for="newParticipantPassword">Setează parola ta (4 cifre):</label>
+                        <input type="password" id="newParticipantPassword" maxlength="4" pattern="\\d{4}" placeholder="****">
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmParticipantPassword">Confirmă parola (4 cifre):</label>
+                        <input type="password" id="confirmParticipantPassword" maxlength="4" pattern="\\d{4}" placeholder="****">
+                    </div>
+                    <button class="btn btn-success" id="setParticipantPasswordBtn">🔒 Setează Parola</button>
+                </div>
+                
+                <div id="enterPasswordForm" class="hidden">
+                    <div class="form-group">
+                        <label for="participantPassword">Introdu parola ta (4 cifre):</label>
+                        <input type="password" id="participantPassword" maxlength="4" pattern="\\d{4}" placeholder="****">
+                    </div>
+                    <button class="btn" id="checkParticipantPasswordBtn">🔓 Verifică Parola</button>
+                    <button class="btn btn-danger" id="resetParticipantPasswordBtn">🔄 Resetează Parola</button>
+                </div>
+                
                 <div id="participantPasswordError" class="error-message hidden"></div>
             </div>
 
@@ -591,7 +636,6 @@
         
         // ==================== UTILITY FUNCTIONS ====================
         function showMessage(message, type = 'info') {
-            // Remove any existing notifications
             const existingNotifications = document.querySelectorAll('.message-notification');
             existingNotifications.forEach(notif => notif.remove());
             
@@ -609,7 +653,6 @@
             
             document.body.appendChild(messageDiv);
             
-            // Auto remove after 3 seconds
             setTimeout(() => {
                 if (messageDiv.parentNode) {
                     messageDiv.remove();
@@ -659,7 +702,6 @@
         
         // ==================== TAB MANAGEMENT ====================
         function showTab(tabName) {
-            // Remove active class from all tabs
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.remove('active');
             });
@@ -667,14 +709,12 @@
                 btn.classList.remove('active');
             });
             
-            // Add active class to selected tab
             const targetTab = document.getElementById(tabName);
             const targetButton = document.querySelector(`[data-tab="${tabName}"]`);
             
             if (targetTab) targetTab.classList.add('active');
             if (targetButton) targetButton.classList.add('active');
             
-            // Load content based on tab
             switch (tabName) {
                 case 'admin':
                     loadParticipants();
@@ -713,13 +753,14 @@
                 name: sanitizeInput(name),
                 nickname: sanitizeInput(nickname),
                 color: color,
+                password: null, // Parola individuală
+                hasPassword: false,
                 messages: []
             };
             
             participants.push(participant);
             localStorage.setItem('participants', JSON.stringify(participants));
             
-            // Clear form
             nameInput.value = '';
             if (nicknameInput) nicknameInput.value = '';
             colorInput.value = '#4c63d2';
@@ -759,7 +800,6 @@
             loadParticipants();
             showMessage('Toate datele au fost șterse cu succes!', 'success');
             
-            // Reset UI
             const passwordSection = document.getElementById('passwordSection');
             const messagesList = document.getElementById('messagesList');
             
@@ -795,9 +835,14 @@
             
             const participantMessages = messages.filter(m => m.recipientId === participant.id);
             const messageCount = participantMessages.length;
+            const passwordStatusIcon = participant.hasPassword ? '🔒' : '🔓';
+            const passwordStatusText = participant.hasPassword ? 'Parolă setată' : 'Fără parolă';
             
             card.innerHTML = `
                 <div class="participant-name">${displayName}</div>
+                <div style="text-align: center; margin-bottom: 10px; color: #666; font-size: 12px;">
+                    ${passwordStatusIcon} ${passwordStatusText}
+                </div>
                 <div class="qr-code">
                     <canvas id="qr-${participant.id}" width="150" height="150"></canvas>
                 </div>
@@ -838,7 +883,6 @@
                 if (messageForm) messageForm.classList.remove('hidden');
             });
             
-            // Generate QR code after DOM insertion
             setTimeout(() => {
                 generateQRCode(participant.id, displayName);
             }, 100);
@@ -853,14 +897,11 @@
             const ctx = canvas.getContext('2d');
             const size = 150;
             
-            // Clear canvas
             ctx.clearRect(0, 0, size, size);
             
-            // White background
             ctx.fillStyle = '#ffffff';
             ctx.fillRect(0, 0, size, size);
             
-            // Generate QR-like pattern
             ctx.fillStyle = '#000000';
             const cellSize = size / 25;
             
@@ -873,10 +914,8 @@
                 }
             }
             
-            // Add positioning corners
             const cornerSize = 7;
             
-            // Top-left corner
             ctx.fillStyle = '#000000';
             ctx.fillRect(0, 0, cornerSize * cellSize, cornerSize * cellSize);
             ctx.fillStyle = '#ffffff';
@@ -884,7 +923,6 @@
             ctx.fillStyle = '#000000';
             ctx.fillRect(2 * cellSize, 2 * cellSize, (cornerSize - 4) * cellSize, (cornerSize - 4) * cellSize);
             
-            // Top-right corner
             ctx.fillStyle = '#000000';
             ctx.fillRect((25 - cornerSize) * cellSize, 0, cornerSize * cellSize, cornerSize * cellSize);
             ctx.fillStyle = '#ffffff';
@@ -892,13 +930,126 @@
             ctx.fillStyle = '#000000';
             ctx.fillRect((25 - cornerSize + 2) * cellSize, 2 * cellSize, (cornerSize - 4) * cellSize, (cornerSize - 4) * cellSize);
             
-            // Bottom-left corner
             ctx.fillStyle = '#000000';
             ctx.fillRect(0, (25 - cornerSize) * cellSize, cornerSize * cellSize, cornerSize * cellSize);
             ctx.fillStyle = '#ffffff';
             ctx.fillRect(cellSize, (25 - cornerSize + 1) * cellSize, (cornerSize - 2) * cellSize, (cornerSize - 2) * cellSize);
             ctx.fillStyle = '#000000';
             ctx.fillRect(2 * cellSize, (25 - cornerSize + 2) * cellSize, (cornerSize - 4) * cellSize, (cornerSize - 4) * cellSize);
+        }
+        
+        // ==================== INDIVIDUAL PASSWORD MANAGEMENT ====================
+        function setParticipantPassword() {
+            const newPasswordInput = document.getElementById('newParticipantPassword');
+            const confirmPasswordInput = document.getElementById('confirmParticipantPassword');
+            const errorDiv = document.getElementById('participantPasswordError');
+            
+            if (!newPasswordInput || !confirmPasswordInput || !errorDiv || !currentRecipient) {
+                showMessage('Eroare la setarea parolei!', 'error');
+                return;
+            }
+            
+            const newPassword = newPasswordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+            
+            if (!/^\d{4}$/.test(newPassword)) {
+                errorDiv.textContent = 'Parola trebuie să fie de exact 4 cifre!';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+            
+            if (newPassword !== confirmPassword) {
+                errorDiv.textContent = 'Parolele nu se potrivesc!';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+            
+            // Setează parola pentru participant
+            const participantIndex = participants.findIndex(p => p.id === currentRecipient.id);
+            if (participantIndex !== -1) {
+                participants[participantIndex].password = newPassword;
+                participants[participantIndex].hasPassword = true;
+                currentRecipient = participants[participantIndex];
+                
+                localStorage.setItem('participants', JSON.stringify(participants));
+                
+                // Ascunde formularul de setare și afișează mesajele
+                hidePasswordForms();
+                showParticipantMessagesList();
+                
+                errorDiv.classList.add('hidden');
+                showMessage('Parola a fost setată cu succes!', 'success');
+                
+                // Reîncarcă participanții pentru a actualiza statusul parolei
+                loadParticipants();
+            }
+        }
+        
+        function checkParticipantPassword() {
+            const passwordInput = document.getElementById('participantPassword');
+            const errorDiv = document.getElementById('participantPasswordError');
+            
+            if (!passwordInput || !errorDiv || !currentRecipient) {
+                showMessage('Eroare la verificarea parolei!', 'error');
+                return;
+            }
+            
+            const inputPassword = passwordInput.value;
+            
+            if (!/^\d{4}$/.test(inputPassword)) {
+                errorDiv.textContent = 'Parola trebuie să fie de exact 4 cifre!';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+            
+            if (inputPassword !== currentRecipient.password) {
+                errorDiv.textContent = 'Parolă incorectă!';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+            
+            // Parola corectă
+            hidePasswordForms();
+            showParticipantMessagesList();
+            
+            errorDiv.classList.add('hidden');
+            showMessage('Acces permis!', 'success');
+        }
+        
+        function resetParticipantPassword() {
+            if (!currentRecipient) return;
+            
+            if (!confirm('Sigur doriți să resetați parola? Va trebui să setați o parolă nouă.')) {
+                return;
+            }
+            
+            const participantIndex = participants.findIndex(p => p.id === currentRecipient.id);
+            if (participantIndex !== -1) {
+                participants[participantIndex].password = null;
+                participants[participantIndex].hasPassword = false;
+                currentRecipient = participants[participantIndex];
+                
+                localStorage.setItem('participants', JSON.stringify(participants));
+                
+                // Afișează din nou formularul de setare parolă
+                checkParticipantAccess();
+                
+                showMessage('Parola a fost resetată!', 'info');
+                loadParticipants();
+            }
+        }
+        
+        function hidePasswordForms() {
+            const passwordSection = document.getElementById('participantPasswordSection');
+            if (passwordSection) passwordSection.classList.add('hidden');
+        }
+        
+        function showParticipantMessagesList() {
+            const messagesList = document.getElementById('participantMessagesList');
+            if (messagesList) {
+                messagesList.classList.remove('hidden');
+                displayParticipantMessages();
+            }
         }
         
         // ==================== MESSAGE MANAGEMENT ====================
@@ -935,15 +1086,12 @@
             messages.push(message);
             localStorage.setItem('messages', JSON.stringify(messages));
             
-            // Update participant messages
             updateParticipantMessages();
             
-            // Clear form
             senderNameInput.value = '';
             messageContentInput.value = '';
             if (anonymousInput) anonymousInput.checked = false;
             
-            // Hide message form
             const messageForm = document.getElementById('messageForm');
             if (messageForm) messageForm.classList.add('hidden');
             
@@ -968,7 +1116,6 @@
             const input = passwordInput.value;
             
             if (!password) {
-                // Set new password
                 if (!/^\d{6}$/.test(input)) {
                     errorDiv.textContent = 'Parola trebuie să fie de 6 cifre!';
                     errorDiv.classList.remove('hidden');
@@ -984,7 +1131,6 @@
                 return;
             }
             
-            // Hide password section and show messages
             const passwordSection = document.getElementById('passwordSection');
             const messagesList = document.getElementById('messagesList');
             
@@ -999,42 +1145,33 @@
             displayAllMessages();
         }
         
-        function checkParticipantPassword() {
-            const passwordInput = document.getElementById('participantPassword');
-            const errorDiv = document.getElementById('participantPasswordError');
-            
-            if (!passwordInput || !errorDiv) return;
-            
-            const input = passwordInput.value;
-            
-            if (!password) {
-                if (!/^\d{6}$/.test(input)) {
-                    errorDiv.textContent = 'Parola trebuie să fie de 6 cifre!';
-                    errorDiv.classList.remove('hidden');
-                    return;
-                }
-                password = input;
-                localStorage.setItem('password', password);
-                localStorage.setItem('isLoggedIn', 'true');
-                isLoggedIn = true;
-            } else if (input !== password) {
-                errorDiv.textContent = 'Parola incorectă!';
-                errorDiv.classList.remove('hidden');
-                return;
-            }
+        function checkParticipantAccess() {
+            if (!currentRecipient) return;
             
             const passwordSection = document.getElementById('participantPasswordSection');
             const messagesList = document.getElementById('participantMessagesList');
+            const setPasswordForm = document.getElementById('setPasswordForm');
+            const enterPasswordForm = document.getElementById('enterPasswordForm');
+            const passwordStatus = document.getElementById('passwordStatus');
             
-            if (passwordSection) passwordSection.classList.add('hidden');
-            if (messagesList) messagesList.classList.remove('hidden');
+            if (!passwordSection || !messagesList || !setPasswordForm || !enterPasswordForm) return;
             
-            errorDiv.classList.add('hidden');
+            // Resetează toate formularele
+            passwordSection.classList.remove('hidden');
+            messagesList.classList.add('hidden');
+            setPasswordForm.classList.add('hidden');
+            enterPasswordForm.classList.add('hidden');
+            passwordStatus.classList.add('hidden');
             
-            isLoggedIn = true;
-            localStorage.setItem('isLoggedIn', 'true');
-            
-            displayParticipantMessages();
+            // Verifică dacă participantul are parolă setată
+            if (!currentRecipient.hasPassword || !currentRecipient.password) {
+                // Primul acces - trebuie să seteze parola
+                setPasswordForm.classList.remove('hidden');
+            } else {
+                // Are deja parolă - trebuie să o introducă
+                passwordStatus.classList.remove('hidden');
+                enterPasswordForm.classList.remove('hidden');
+            }
         }
         
         function checkMessagesAccess() {
@@ -1055,24 +1192,6 @@
             }
         }
         
-        function checkParticipantAccess() {
-            if (isLoggedIn && currentRecipient) {
-                const passwordSection = document.getElementById('participantPasswordSection');
-                const messagesList = document.getElementById('participantMessagesList');
-                
-                if (passwordSection) passwordSection.classList.add('hidden');
-                if (messagesList) messagesList.classList.remove('hidden');
-                
-                displayParticipantMessages();
-            } else {
-                const passwordSection = document.getElementById('participantPasswordSection');
-                const messagesList = document.getElementById('participantMessagesList');
-                
-                if (passwordSection) passwordSection.classList.remove('hidden');
-                if (messagesList) messagesList.classList.add('hidden');
-            }
-        }
-        
         // ==================== MESSAGE DISPLAY ====================
         function displayAllMessages() {
             const list = document.getElementById('messagesList');
@@ -1085,7 +1204,6 @@
             
             list.innerHTML = '<h3>Toate mesajele primite:</h3>';
             
-            // Group messages by participant
             const messagesByParticipant = {};
             messages.forEach(msg => {
                 const participant = participants.find(p => p.id === msg.recipientId);
@@ -1100,7 +1218,6 @@
                 }
             });
             
-            // Display grouped messages
             Object.values(messagesByParticipant).forEach(group => {
                 const participantDiv = document.createElement('div');
                 participantDiv.style.marginBottom = '30px';
@@ -1137,7 +1254,7 @@
         
         function displayParticipantMessages() {
             const list = document.getElementById('participantMessagesList');
-            if (!list || !isLoggedIn || !currentRecipient) return;
+            if (!list || !currentRecipient) return;
             
             const filteredMessages = messages.filter(m => m.recipientId === currentRecipient.id);
             
@@ -1207,7 +1324,6 @@
                 return;
             }
             
-            // Select a random participant for simulation
             const randomParticipant = participants[Math.floor(Math.random() * participants.length)];
             
             currentRecipient = randomParticipant;
@@ -1225,7 +1341,6 @@
             const messageForm = document.getElementById('messageForm');
             if (messageForm) messageForm.classList.add('hidden');
             
-            // Clear form
             const senderNameInput = document.getElementById('senderName');
             const messageContentInput = document.getElementById('messageContent');
             const anonymousInput = document.getElementById('anonymous');
@@ -1249,7 +1364,6 @@
         
         // ==================== EVENT LISTENERS ====================
         function setupEventListeners() {
-            // Tab navigation
             document.querySelectorAll('.nav-tab').forEach(tab => {
                 tab.addEventListener('click', () => {
                     const tabName = tab.getAttribute('data-tab');
@@ -1257,7 +1371,6 @@
                 });
             });
             
-            // Admin functions
             const addParticipantBtn = document.getElementById('addParticipantBtn');
             if (addParticipantBtn) {
                 addParticipantBtn.addEventListener('click', addParticipant);
@@ -1268,10 +1381,15 @@
                 clearAllDataBtn.addEventListener('click', clearAllData);
             }
             
-            // Password checking
             const checkPasswordBtn = document.getElementById('checkPasswordBtn');
             if (checkPasswordBtn) {
                 checkPasswordBtn.addEventListener('click', checkAdminPassword);
+            }
+            
+            // Event listeners pentru parolele individuale
+            const setParticipantPasswordBtn = document.getElementById('setParticipantPasswordBtn');
+            if (setParticipantPasswordBtn) {
+                setParticipantPasswordBtn.addEventListener('click', setParticipantPassword);
             }
             
             const checkParticipantPasswordBtn = document.getElementById('checkParticipantPasswordBtn');
@@ -1279,7 +1397,11 @@
                 checkParticipantPasswordBtn.addEventListener('click', checkParticipantPassword);
             }
             
-            // Message functions
+            const resetParticipantPasswordBtn = document.getElementById('resetParticipantPasswordBtn');
+            if (resetParticipantPasswordBtn) {
+                resetParticipantPasswordBtn.addEventListener('click', resetParticipantPassword);
+            }
+            
             const sendMessageBtn = document.getElementById('sendMessageBtn');
             if (sendMessageBtn) {
                 sendMessageBtn.addEventListener('click', sendMessage);
@@ -1295,7 +1417,6 @@
                 showParticipantMessagesBtn.addEventListener('click', showParticipantMessages);
             }
             
-            // QR scanning
             const startScanBtn = document.getElementById('startScanBtn');
             if (startScanBtn) {
                 startScanBtn.addEventListener('click', startScanning);
@@ -1311,13 +1432,12 @@
                 simulateQRBtn.addEventListener('click', simulateQRScan);
             }
             
-            // Back button
             const backToScanBtn = document.getElementById('backToScanBtn');
             if (backToScanBtn) {
                 backToScanBtn.addEventListener('click', () => showTab('scan'));
             }
             
-            // Enter key support for password fields
+            // Enter key support
             const adminPassword = document.getElementById('adminPassword');
             if (adminPassword) {
                 adminPassword.addEventListener('keypress', (e) => {
@@ -1336,7 +1456,25 @@
                 });
             }
             
-            // Enter key support for participant name
+            const newParticipantPassword = document.getElementById('newParticipantPassword');
+            if (newParticipantPassword) {
+                newParticipantPassword.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        const confirmInput = document.getElementById('confirmParticipantPassword');
+                        if (confirmInput) confirmInput.focus();
+                    }
+                });
+            }
+            
+            const confirmParticipantPassword = document.getElementById('confirmParticipantPassword');
+            if (confirmParticipantPassword) {
+                confirmParticipantPassword.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        setParticipantPassword();
+                    }
+                });
+            }
+            
             const participantNameInput = document.getElementById('participantName');
             if (participantNameInput) {
                 participantNameInput.addEventListener('keypress', (e) => {
@@ -1358,40 +1496,40 @@
         
         // ==================== INITIALIZATION ====================
         document.addEventListener('DOMContentLoaded', function() {
-            // Load initial data
+            // Load initial data și actualizează structura pentru parolele individuale
             participants = JSON.parse(localStorage.getItem('participants')) || [];
             messages = JSON.parse(localStorage.getItem('messages')) || [];
             
-            // Update participant messages
-            updateParticipantMessages();
+            // Actualizează participanții existenți pentru a include câmpurile pentru parolă
+            participants.forEach(participant => {
+                if (participant.password === undefined) {
+                    participant.password = null;
+                }
+                if (participant.hasPassword === undefined) {
+                    participant.hasPassword = false;
+                }
+            });
             
-            // Setup event listeners
+            localStorage.setItem('participants', JSON.stringify(participants));
+            
+            updateParticipantMessages();
             setupEventListeners();
             
-            // Initialize UI based on login state
             if (password && isLoggedIn) {
                 const passwordSection = document.getElementById('passwordSection');
                 const messagesList = document.getElementById('messagesList');
-                const participantPasswordSection = document.getElementById('participantPasswordSection');
-                const participantMessagesList = document.getElementById('participantMessagesList');
                 
                 if (passwordSection) passwordSection.classList.add('hidden');
                 if (messagesList) messagesList.classList.remove('hidden');
-                if (participantPasswordSection) participantPasswordSection.classList.add('hidden');
-                if (participantMessagesList) participantMessagesList.classList.remove('hidden');
             }
             
-            // Load participants initially
             loadParticipants();
-            
-            // Show welcome message
             showMessage('Aplicația a fost încărcată cu succes!', 'success');
         });
         
-        // Cleanup on page unload
         window.addEventListener('beforeunload', cleanup);
         
-        // Make functions available globally for debugging
+        // Make functions available globally
         window.participants = participants;
         window.messages = messages;
         window.showTab = showTab;
