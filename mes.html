@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabăra 2025 - Mesaje QR</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            color: #4c63d2;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+            margin-top: 10px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .nav-tab {
+            padding: 15px 30px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 2px solid transparent;
+            min-width: 160px;
+        }
+
+        .nav-tab.active {
+            background: rgba(255, 255, 255, 0.9);
+            color: #4c63d2;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            border-color: #4c63d2;
+        }
+
+        .nav-tab:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .tab-content {
+            display: none;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .tab-content h2 {
+            color: #4c63d2;
+            margin-bottom: 25px;
+            font-size: 1.8em;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #4c63d2;
+        }
+
+        .form-group input, 
+        .form-group select, 
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+            font-family: inherit;
+        }
+
+        .form-group input:focus, 
+        .form-group select:focus, 
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #4c63d2;
+            box-shadow: 0 0 0 3px rgba(76, 99, 210, 0.1);
+        }
+
+        .form-group input[type="color"] {
+            height: 50px;
+            cursor: pointer;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            filter: brightness(1.1);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+        }
+
+        .participants-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .participant-card {
+            background: linear-gradient(135deg, #f8f9ff 0%, #e8f0ff 100%);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 3px solid transparent;
+        }
+
+        .participant-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            border-color: #4c63d2;
+        }
+
+        .participant-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #4c63d2;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .qr-code {
+            text-align: center;
+            margin: 15px 0;
+        }
+
+        .qr-code canvas {
+            border: 3px solid #4c63d2;
+            border-radius: 10px;
+            padding: 10px;
+            background: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .message-form {
+            background: rgba(76, 99, 210, 0.05);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+            border: 2px solid rgba(76, 99, 210, 0.2);
+        }
+
+        .messages-container {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .message {
+            background: rgba(76, 99, 210, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid #4c63d2;
+            transition: all 0.3s ease;
+        }
+
+        .message:hover {
+            background: rgba(76, 99, 210, 0.15);
+            transform: translateX(5px);
+        }
+
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .message-sender {
+            font-weight: 600;
+            color: #4c63d2;
+        }
+
+        .message-time {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .message-content {
+            color: #333;
+            line-height: 1.5;
+        }
+
+        .password-section {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .success-message {
+            background: #4caf50;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .error-message {
+            background: #f44336;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container { padding: 15px; }
+            .nav-tabs { flex-direction: column; align-items: center; }
+            .nav-tab { width: 100%; max-width: 250px; }
+            .participants-grid { grid-template-columns: 1fr; }
+            .tab-content { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏕️ Tabăra 2025</h1>
+            <p>Sistem de mesaje cu coduri QR</p>
+        </div>
+
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showTab('admin')">👨‍💼 Administrare</button>
+            <button class="nav-tab" onclick="showTab('scan')">📱 Scanare QR</button>
+            <button class="nav-tab" onclick="showTab('messages')">📥 Mesaje Primite</button>
+        </div>
+
+        <!-- Administrare Tab -->
+        <div id="admin" class="tab-content active">
+            <h2>Administrare Participanți</h2>
+            
+            <div class="form-group">
+                <label for="participantName">Numele participantului:</label>
+                <input type="text" id="participantName" placeholder="Introduceți numele...">
+            </div>
+
+            <div class="form-group">
+                <label for="participantNickname">Porecla (opțional):</label>
+                <input type="text" id="participantNickname" placeholder="Porecla...">
+            </div>
+
+            <div class="form-group">
+                <label for="participantColor">Culoare personalizată:</label>
+                <input type="color" id="participantColor" value="#4c63d2">
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn" onclick="addParticipant()">➕ Adaugă Participant</button>
+                <button class="btn btn-danger" onclick="clearAllData()">🗑️ Șterge Toate Datele</button>
+            </div>
+
+            <div id="participantsContainer" class="participants-grid">
+                <!-- Participanții vor fi afișați aici -->
+            </div>
+        </div>
+
+        <!-- Scanare QR Tab -->
+        <div id="scan" class="tab-content">
+            <h2>Scanare Cod QR</h2>
+            
+            <div class="action-buttons">
+                <button class="btn" onclick="simulateQRScan()">🎯 Simulează Scanarea</button>
+            </div>
+
+            <div id="qrResult"></div>
+
+            <div id="messageForm" class="message-form hidden">
+                <h3>Trimite un mesaj către <span id="targetName"></span></h3>
+                
+                <div class="form-group">
+                    <label for="senderName">Numele tău:</label>
+                    <input type="text" id="senderName" placeholder="Cum te numești?">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="anonymous">
+                        <label for="anonymous">Trimite anonim</label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="messageType">Tipul mesajului:</label>
+                    <select id="messageType">
+                        <option value="mesaj">📝 Mesaj simplu</option>
+                        <option value="compliment">💝 Compliment</option>
+                        <option value="amintire">🌟 Amintire frumoasă</option>
+                        <option value="gluma">😂 Glumă</option>
+                        <option value="incurajare">💪 Încurajare</option>
+                        <option value="multumire">🙏 Mulțumire</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="messageContent">Mesajul tău:</label>
+                    <textarea id="messageContent" rows="4" placeholder="Scrie aici mesajul tău..."></textarea>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn" onclick="sendMessage()">📨 Trimite Mesajul</button>
+                    <button class="btn btn-danger" onclick="cancelMessage()">❌ Anulează</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mesaje Primite Tab -->
+        <div id="messages" class="tab-content">
+            <h2>Mesaje Primite</h2>
+            
+            <div id="passwordSection" class="password-section">
+                <h3>Acces la mesaje</h3>
+                <div class="form-group">
+                    <label for="adminPassword">Setează/Introdu parola (6 cifre):</label>
+                    <input type="password" id="adminPassword" maxlength="6" pattern="\\d{6}" placeholder="******">
+                </div>
+                <button class="btn" onclick="checkAdminPassword()">🔓 Verifică Parola</button>
+                <div id="passwordError" class="error-message hidden"></div>
+            </div>
+
+            <div id="messagesList" class="hidden">
+                <!-- Mesajele vor fi afișate aici -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let participants = [];
+        let messages = [];
+        let password = localStorage.getItem('password');
+        let isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+        let currentRecipient = null;
+
+        // Utility functions
+        function showMessage(message, type = 'info') {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = type === 'success' ? 'success-message' : 'error-message';
+            messageDiv.textContent = message;
+            messageDiv.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 20px;
+                border-radius: 8px;
+                color: white;
+                font-weight: 500;
+                z-index: 1000;
+                max-width: 300px;
+            `;
+            
+            document.body.appendChild(messageDiv);
+            
+            setTimeout(() => {
+                messageDiv.remove();
+            }, 3000);
+        }
+
+        function sanitizeInput(input) {
+            const div = document.createElement('div');
+            div.textContent = input;
+            return div.innerHTML;
+        }
+
+        function hashCode(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                const char = str.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash;
+            }
+            return Math.abs(hash);
+        }
+
+        function getMessageTypeIcon(type) {
+            const icons = {
+                'mesaj': '📝',
+                'compliment': '💝',
+                'amintire': '🌟',
+                'gluma': '😂',
+                'incurajare': '💪',
+                'multumire': '🙏'
+            };
+            return icons[type] || '📝';
+        }
+
+        function getMessageTypeName(type) {
+            const names = {
+                'mesaj': 'Mesaj simplu',
+                'compliment': 'Compliment',
+                'amintire': 'Amintire frumoasă',
+                'gluma': 'Glumă',
+                'incurajare': 'Încurajare',
+                'multumire': 'Mulțumire'
+            };
+            return names[type] || 'Mesaj';
+        }
+
+        // Tab management
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-tab').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            const targetTab = document.getElementById(tabName);
+            const targetButton = document.querySelector(`[onclick="showTab('${tabName}')"]`);
+            
+            if (targetTab) targetTab.classList.add('active');
+            if (targetButton) targetButton.classList.add('active');
+            
+            switch (tabName) {
+                case 'admin':
+                    loadParticipants();
+                    break;
+                case 'messages':
+                    checkMessagesAccess();
+                    break;
+            }
+        }
+
+        // Participant management
+        function addParticipant() {
+            const nameInput = document.getElementById('participantName');
+            const nicknameInput = document.getElementById('participantNickname');
+            const colorInput = document.getElementById('participantColor');
+            
+            const name = nameInput.value.trim();
+            const nickname = nicknameInput.value.trim();
+            const color = colorInput.value;
+            
+            if (!name) {
+                showMessage('Numele este obligatoriu!', 'error');
+                return;
+            }
+            
+            const participant = {
+                id: Date.now(),
+                name: sanitizeInput(name),
+                nickname: sanitizeInput(nickname),
+                color: color,
+                messages: []
+            };
+            
+            participants.push(participant);
+            localStorage.setItem('participants', JSON.stringify(participants));
+            
+            nameInput.value = '';
+            nicknameInput.value = '';
+            colorInput.value = '#4c63d2';
+            
+            loadParticipants();
+            showMessage('Participantul a fost adăugat cu succes!', 'success');
+        }
+
+        function deleteParticipant(participantId) {
+            if (!confirm('Sigur doriți să ștergeți acest participant și toate mesajele lui?')) {
+                return;
+            }
+            
+            participants = participants.filter(p => p.id !== participantId);
+            messages = messages.filter(m => m.recipientId !== participantId);
+            
+            localStorage.setItem('participants', JSON.stringify(participants));
+            localStorage.setItem('messages', JSON.stringify(messages));
+            
+            loadParticipants();
+            showMessage('Participantul a fost șters cu succes!', 'success');
+        }
+
+        function clearAllData() {
+            if (!confirm('ATENȚIE: Această acțiune va șterge toți participanții și toate mesajele! Sigur doriți să continuați?')) {
+                return;
+            }
+            
+            participants = [];
+            messages = [];
+            password = null;
+            isLoggedIn = false;
+            currentRecipient = null;
+            
+            localStorage.clear();
+            
+            loadParticipants();
+            showMessage('Toate datele au fost șterse cu succes!', 'success');
+            
+            const passwordSection = document.getElementById('passwordSection');
+            const messagesList = document.getElementById('messagesList');
+            
+            if (passwordSection) passwordSection.classList.remove('hidden');
+            if (messagesList) messagesList.classList.add('hidden');
+        }
+
+        function loadParticipants() {
+            const container = document.getElementById('participantsContainer');
+            if (!container) return;
+            
+            container.innerHTML = '';
+            
+            if (participants.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Nu există participanți adăugați.</p>';
+                return;
+            }
+            
+            participants.forEach(participant => {
+                const card = createParticipantCard(participant);
+                container.appendChild(card);
+            });
+        }
+
+        function createParticipantCard(participant) {
+            const card = document.createElement('div');
+            card.className = 'participant-card';
+            card.style.borderLeft = `5px solid ${participant.color}`;
+            
+            const displayName = participant.nickname ? 
+                `${participant.name} (${participant.nickname})` : 
+                participant.name;
+            
+            const messageCount = participant.messages ? participant.messages.length : 0;
+            
+            card.innerHTML = `
+                <div class="participant-name">${displayName}</div>
+                <div class="qr-code">
+                    <canvas id="qr-${participant.id}" width="150" height="150"></canvas>
+                </div>
+                <div style="text-align: center; margin: 10px 0;">
+                    <button class="btn btn-danger" onclick="deleteParticipant(${participant.id})">🗑️ Șterge</button>
+                </div>
+                <div class="messages-container">
+                    <strong>Mesaje primite (${messageCount}):</strong>
+                    <div id="messages-${participant.id}">
+                        ${participant.messages && participant.messages.length > 0 ? 
+                            participant.messages.map(msg => `
+                                <div class="message">
+                                    <div class="message-header">
+                                        <span class="message-sender">${getMessageTypeIcon(msg.type)} ${msg.sender}</span>
+                                        <span class="message-time">${new Date(msg.timestamp).toLocaleString('ro-RO')}</span>
+                                    </div>
+                                    <div class="message-content">${msg.content}</div>
+                                </div>
+                            `).join('') : 
+                            '<p style="color: #666; font-style: italic;">Nu există mesaje</p>'
+                        }
+                    </div>
+                </div>
+            `;
+            
+            card.addEventListener('click', () => {
+                currentRecipient = participant;
+                const targetName = document.getElementById('targetName');
+                
+                if (targetName) targetName.textContent = participant.name;
+                
+                showTab('scan');
+                
+                const messageForm = document.getElementById('messageForm');
+                if (messageForm) messageForm.classList.remove('hidden');
+            });
+            
+            setTimeout(() => {
+                generateQRCode(participant.id, displayName);
+            }, 100);
+            
+            return card;
+        }
+
+        function generateQRCode(participantId, name) {
+            const canvas = document.getElementById(`qr-${participantId}`);
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            const size = 150;
+            
+            ctx.clearRect(0, 0, size, size);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, size, size);
+            
+            ctx.fillStyle = '#000000';
+            const cellSize = size / 25;
+            
+            for (let i = 0; i < 25; i++) {
+                for (let j = 0; j < 25; j++) {
+                    const hash = hashCode(participantId.toString() + i + j);
+                    if (hash % 2 === 0) {
+                        ctx.fillRect(i * cellSize, j * cellSize, cellSize, cellSize);
+                    }
+                }
+            }
+            
+            const cornerSize = 7;
+            
+            // Top-left corner
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 0, cornerSize * cellSize, cornerSize * cellSize);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(cellSize, cellSize, (cornerSize - 2) * cellSize, (cornerSize - 2) * cellSize);
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(2 * cellSize, 2 * cellSize, (cornerSize - 4) * cellSize, (cornerSize - 4) * cellSize);
+            
+            // Top-right corner
+            ctx.fillStyle = '#000000';
+            ctx.fillRect((25 - cornerSize) * cellSize, 0, cornerSize * cellSize, cornerSize * cellSize);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect((25 - cornerSize + 1) * cellSize, cellSize, (cornerSize - 2) * cellSize, (cornerSize - 2) * cellSize);
+            ctx.fillStyle = '#000000';
+            ctx.fillRect((25 - cornerSize + 2) * cellSize, 2 * cellSize, (cornerSize - 4) * cellSize, (cornerSize - 4) * cellSize);
+            
+            // Bottom-left corner
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, (25 - cornerSize) * cellSize, cornerSize * cellSize, cornerSize * cellSize);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(cellSize, (25 - cornerSize + 1) * cellSize, (cornerSize - 2) * cellSize, (cornerSize - 2) * cellSize);
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(2 * cellSize, (25 - cornerSize + 2) * cellSize, (cornerSize - 4) * cellSize, (cornerSize - 4) * cellSize);
+        }
+
+        // Message functions
+        function sendMessage() {
+            const senderNameInput = document.getElementById('senderName');
+            const anonymousInput = document.getElementById('anonymous');
+            const messageTypeInput = document.getElementById('messageType');
+            const messageContentInput = document.getElementById('messageContent');
+            
+            const senderName = senderNameInput.value.trim();
+            const anonymous = anonymousInput.checked;
+            const messageType = messageTypeInput.value;
+            const content = messageContentInput.value.trim();
+            
+            if (!content || !currentRecipient) {
+                showMessage('Mesajul și destinatarul sunt obligatorii!', 'error');
+                return;
+            }
+            
+            const message = {
+                id: Date.now(),
+                recipientId: currentRecipient.id,
+                sender: anonymous ? 'Anonim' : (senderName || 'Anonim'),
+                type: messageType,
+                content: sanitizeInput(content),
+                timestamp: new Date().toISOString()
+            };
+            
+            messages.push(message);
+            localStorage.setItem('messages', JSON.stringify(messages));
+            
+            updateParticipantMessages();
+            
+            senderNameInput.value = '';
+            messageContentInput.value = '';
+            anonymousInput.checked = false;
+            
+            showMessage('Mesaj trimis cu succes!', 'success');
+            showTab('admin');
+        }
+
+        function cancelMessage() {
+            const messageForm = document.getElementById('messageForm');
+            if (messageForm) messageForm.classList.add('hidden');
+            
+            currentRecipient = null;
+            showTab('admin');
+        }
+
+        function simulateQRScan() {
+            if (participants.length === 0) {
+                showMessage('Nu există participanți adăugați!', 'error');
+                return;
+            }
+            
+            const randomIndex = Math.floor(Math.random() * participants.length);
+            const participant = participants[randomIndex];
+            
+            currentRecipient = participant;
+            const targetName = document.getElementById('targetName');
+            
+            if (targetName) targetName.textContent = participant.name;
+            
+            const messageForm = document.getElementById('messageForm');
+            if (messageForm) messageForm.classList.remove('hidden');
+            
+            showMessage(`Cod QR scanat pentru ${participant.name}!`, 'success');
+        }
+
+        function updateParticipantMessages() {
+            participants.forEach(participant => {
+                participant.messages = messages.filter(msg => msg.recipientId === participant.id);
+            });
+            localStorage.setItem('participants', JSON.stringify(participants));
+        }
+
+        // Authentication functions
+        function checkAdminPassword() {
+            const passwordInput = document.getElementById('adminPassword');
+            const errorDiv = document.getElementById('passwordError');
+            
+            if (!passwordInput || !errorDiv) return;
+            
+            const input = passwordInput.value;
+            
+            if (!password) {
+                if (!/^\\d{6}$/.test(input)) {
+                    errorDiv.textContent = 'Parola trebuie să fie de 6 cifre!';
+                    errorDiv.classList.remove('hidden');
+                    return;
+                }
+                password = input;
+                localStorage.setItem('password', password);
+                localStorage.setItem('isLoggedIn', 'true');
+                isLoggedIn = true;
+            } else if (input !== password) {
+                errorDiv.textContent = 'Parola incorectă'
