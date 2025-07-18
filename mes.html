@@ -100,8 +100,14 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { 
+                opacity: 0; 
+                transform: translateY(20px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
         }
 
         .tab-content h2 {
@@ -120,6 +126,7 @@
             margin-bottom: 8px;
             font-weight: 600;
             color: #4c63d2;
+            font-size: 14px;
         }
 
         .form-group input, 
@@ -141,6 +148,7 @@
             outline: none;
             border-color: #4c63d2;
             box-shadow: 0 0 0 3px rgba(76, 99, 210, 0.1);
+            background: rgba(255, 255, 255, 1);
         }
 
         .form-group input[type="color"] {
@@ -166,6 +174,9 @@
             margin-right: 10px;
             margin-bottom: 10px;
             display: inline-block;
+            text-decoration: none;
+            text-align: center;
+            min-width: 120px;
         }
 
         .btn:hover {
@@ -224,6 +235,22 @@
             padding: 10px;
             background: white;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            max-width: 100%;
+        }
+
+        .camera-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            margin: 20px auto;
+            text-align: center;
+        }
+
+        #video {
+            width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            background: #000;
         }
 
         .message-form {
@@ -263,21 +290,33 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 8px;
+            flex-wrap: wrap;
         }
 
         .message-sender {
             font-weight: 600;
             color: #4c63d2;
+            font-size: 14px;
         }
 
         .message-time {
             font-size: 12px;
             color: #666;
+            white-space: nowrap;
+        }
+
+        .message-type {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 8px;
+            font-style: italic;
         }
 
         .message-content {
             color: #333;
             line-height: 1.5;
+            font-size: 14px;
+            word-wrap: break-word;
         }
 
         .password-section {
@@ -286,28 +325,42 @@
             padding: 25px;
             margin-bottom: 20px;
             text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
 
         .success-message {
-            background: #4caf50;
+            background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
             color: white;
             padding: 15px;
             border-radius: 10px;
             margin-bottom: 20px;
             text-align: center;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
         }
 
         .error-message {
-            background: #f44336;
+            background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
             color: white;
             padding: 15px;
             border-radius: 10px;
             margin-bottom: 20px;
             text-align: center;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
         }
 
-        .hidden {
-            display: none !important;
+        .message-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            z-index: 1000;
+            max-width: 300px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
 
         .checkbox-group {
@@ -319,6 +372,19 @@
 
         .checkbox-group input[type="checkbox"] {
             width: auto;
+            margin: 0;
+            cursor: pointer;
+        }
+
+        .checkbox-group label {
+            margin: 0;
+            cursor: pointer;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .hidden {
+            display: none !important;
         }
 
         .action-buttons {
@@ -331,11 +397,46 @@
 
         /* Responsive Design */
         @media (max-width: 768px) {
-            .container { padding: 15px; }
-            .nav-tabs { flex-direction: column; align-items: center; }
-            .nav-tab { width: 100%; max-width: 250px; }
-            .participants-grid { grid-template-columns: 1fr; }
-            .tab-content { padding: 20px; }
+            .container {
+                padding: 15px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .nav-tabs {
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+            }
+            
+            .nav-tab {
+                width: 100%;
+                max-width: 250px;
+            }
+            
+            .participants-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .tab-content {
+                padding: 20px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
         }
     </style>
 </head>
@@ -347,9 +448,9 @@
         </div>
 
         <div class="nav-tabs">
-            <button class="nav-tab active" onclick="showTab('admin')">👨‍💼 Administrare</button>
-            <button class="nav-tab" onclick="showTab('scan')">📱 Scanare QR</button>
-            <button class="nav-tab" onclick="showTab('messages')">📥 Mesaje Primite</button>
+            <button class="nav-tab active" data-tab="admin">👨‍💼 Administrare</button>
+            <button class="nav-tab" data-tab="scan">📱 Scanare QR</button>
+            <button class="nav-tab" data-tab="messages">📥 Mesaje Primite</button>
         </div>
 
         <!-- Administrare Tab -->
@@ -372,8 +473,8 @@
             </div>
 
             <div class="action-buttons">
-                <button class="btn" onclick="addParticipant()">➕ Adaugă Participant</button>
-                <button class="btn btn-danger" onclick="clearAllData()">🗑️ Șterge Toate Datele</button>
+                <button class="btn" id="addParticipantBtn">➕ Adaugă Participant</button>
+                <button class="btn btn-danger" id="clearAllDataBtn">🗑️ Șterge Toate Datele</button>
             </div>
 
             <div id="participantsContainer" class="participants-grid">
@@ -385,8 +486,15 @@
         <div id="scan" class="tab-content">
             <h2>Scanare Cod QR</h2>
             
+            <div class="camera-container">
+                <video id="video" autoplay muted playsinline style="display: none;"></video>
+                <canvas id="canvas" style="display: none;"></canvas>
+            </div>
+            
             <div class="action-buttons">
-                <button class="btn" onclick="simulateQRScan()">🎯 Simulează Scanarea</button>
+                <button class="btn" id="startScanBtn">📷 Pornește Camera</button>
+                <button class="btn btn-danger" id="stopScanBtn">🛑 Oprește Camera</button>
+                <button class="btn" id="simulateQRBtn">🎯 Simulează QR (Test)</button>
             </div>
 
             <div id="qrResult"></div>
@@ -421,8 +529,9 @@
                 </div>
 
                 <div class="action-buttons">
-                    <button class="btn" onclick="sendMessage()">📨 Trimite Mesajul</button>
-                    <button class="btn btn-danger" onclick="cancelMessage()">❌ Anulează</button>
+                    <button class="btn" id="sendMessageBtn">📨 Trimite Mesajul</button>
+                    <button class="btn btn-success" id="showParticipantMessagesBtn">📥 Mesaje Primite</button>
+                    <button class="btn btn-danger" id="cancelMessageBtn">❌ Anulează</button>
                 </div>
             </div>
         </div>
@@ -437,7 +546,7 @@
                     <label for="adminPassword">Setează/Introdu parola (6 cifre):</label>
                     <input type="password" id="adminPassword" maxlength="6" pattern="\\d{6}" placeholder="******">
                 </div>
-                <button class="btn" onclick="checkAdminPassword()">🔓 Verifică Parola</button>
+                <button class="btn" id="checkPasswordBtn">🔓 Verifică Parola</button>
                 <div id="passwordError" class="error-message hidden"></div>
             </div>
 
@@ -445,46 +554,75 @@
                 <!-- Mesajele vor fi afișate aici -->
             </div>
         </div>
+
+        <!-- Mesaje Participant -->
+        <div id="participantMessages" class="tab-content">
+            <h2>Mesaje primite pentru <span id="participantMessagesName"></span></h2>
+            
+            <div id="participantPasswordSection" class="password-section">
+                <h3>Acces la mesajele tale</h3>
+                <div class="form-group">
+                    <label for="participantPassword">Introdu parola (6 cifre):</label>
+                    <input type="password" id="participantPassword" maxlength="6" pattern="\\d{6}" placeholder="******">
+                </div>
+                <button class="btn" id="checkParticipantPasswordBtn">🔓 Verifică Parola</button>
+                <div id="participantPasswordError" class="error-message hidden"></div>
+            </div>
+
+            <div id="participantMessagesList" class="hidden">
+                <!-- Mesajele participantului vor fi afișate aici -->
+            </div>
+            
+            <div class="action-buttons">
+                <button class="btn" id="backToScanBtn">❌ Înapoi</button>
+            </div>
+        </div>
     </div>
 
     <script>
-        // Global variables
+        // ==================== GLOBAL VARIABLES ====================
         let participants = [];
         let messages = [];
         let password = localStorage.getItem('password');
         let isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
         let currentRecipient = null;
-
-        // Utility functions
+        let videoStream = null;
+        let scanning = false;
+        
+        // ==================== UTILITY FUNCTIONS ====================
         function showMessage(message, type = 'info') {
+            // Remove any existing notifications
+            const existingNotifications = document.querySelectorAll('.message-notification');
+            existingNotifications.forEach(notif => notif.remove());
+            
             const messageDiv = document.createElement('div');
-            messageDiv.className = type === 'success' ? 'success-message' : 'error-message';
+            messageDiv.className = 'message-notification';
             messageDiv.textContent = message;
-            messageDiv.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                padding: 15px 20px;
-                border-radius: 8px;
-                color: white;
-                font-weight: 500;
-                z-index: 1000;
-                max-width: 300px;
-            `;
+            
+            const colors = {
+                'success': 'linear-gradient(135deg, #4caf50 0%, #45a049 100%)',
+                'error': 'linear-gradient(135deg, #f44336 0%, #d32f2f 100%)',
+                'info': 'linear-gradient(135deg, #2196f3 0%, #1976d2 100%)'
+            };
+            
+            messageDiv.style.background = colors[type] || colors.info;
             
             document.body.appendChild(messageDiv);
             
+            // Auto remove after 3 seconds
             setTimeout(() => {
-                messageDiv.remove();
+                if (messageDiv.parentNode) {
+                    messageDiv.remove();
+                }
             }, 3000);
         }
-
+        
         function sanitizeInput(input) {
             const div = document.createElement('div');
             div.textContent = input;
             return div.innerHTML;
         }
-
+        
         function hashCode(str) {
             let hash = 0;
             for (let i = 0; i < str.length; i++) {
@@ -494,7 +632,7 @@
             }
             return Math.abs(hash);
         }
-
+        
         function getMessageTypeIcon(type) {
             const icons = {
                 'mesaj': '📝',
@@ -506,7 +644,7 @@
             };
             return icons[type] || '📝';
         }
-
+        
         function getMessageTypeName(type) {
             const names = {
                 'mesaj': 'Mesaj simplu',
@@ -518,9 +656,10 @@
             };
             return names[type] || 'Mesaj';
         }
-
-        // Tab management
+        
+        // ==================== TAB MANAGEMENT ====================
         function showTab(tabName) {
+            // Remove active class from all tabs
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.remove('active');
             });
@@ -528,12 +667,14 @@
                 btn.classList.remove('active');
             });
             
+            // Add active class to selected tab
             const targetTab = document.getElementById(tabName);
-            const targetButton = document.querySelector(`[onclick="showTab('${tabName}')"]`);
+            const targetButton = document.querySelector(`[data-tab="${tabName}"]`);
             
             if (targetTab) targetTab.classList.add('active');
             if (targetButton) targetButton.classList.add('active');
             
+            // Load content based on tab
             switch (tabName) {
                 case 'admin':
                     loadParticipants();
@@ -541,17 +682,25 @@
                 case 'messages':
                     checkMessagesAccess();
                     break;
+                case 'participantMessages':
+                    checkParticipantAccess();
+                    break;
             }
         }
-
-        // Participant management
+        
+        // ==================== PARTICIPANT MANAGEMENT ====================
         function addParticipant() {
             const nameInput = document.getElementById('participantName');
             const nicknameInput = document.getElementById('participantNickname');
             const colorInput = document.getElementById('participantColor');
             
+            if (!nameInput || !colorInput) {
+                showMessage('Elementele formularului nu sunt disponibile!', 'error');
+                return;
+            }
+            
             const name = nameInput.value.trim();
-            const nickname = nicknameInput.value.trim();
+            const nickname = nicknameInput ? nicknameInput.value.trim() : '';
             const color = colorInput.value;
             
             if (!name) {
@@ -570,14 +719,15 @@
             participants.push(participant);
             localStorage.setItem('participants', JSON.stringify(participants));
             
+            // Clear form
             nameInput.value = '';
-            nicknameInput.value = '';
+            if (nicknameInput) nicknameInput.value = '';
             colorInput.value = '#4c63d2';
             
             loadParticipants();
             showMessage('Participantul a fost adăugat cu succes!', 'success');
         }
-
+        
         function deleteParticipant(participantId) {
             if (!confirm('Sigur doriți să ștergeți acest participant și toate mesajele lui?')) {
                 return;
@@ -592,7 +742,7 @@
             loadParticipants();
             showMessage('Participantul a fost șters cu succes!', 'success');
         }
-
+        
         function clearAllData() {
             if (!confirm('ATENȚIE: Această acțiune va șterge toți participanții și toate mesajele! Sigur doriți să continuați?')) {
                 return;
@@ -609,13 +759,14 @@
             loadParticipants();
             showMessage('Toate datele au fost șterse cu succes!', 'success');
             
+            // Reset UI
             const passwordSection = document.getElementById('passwordSection');
             const messagesList = document.getElementById('messagesList');
             
             if (passwordSection) passwordSection.classList.remove('hidden');
             if (messagesList) messagesList.classList.add('hidden');
         }
-
+        
         function loadParticipants() {
             const container = document.getElementById('participantsContainer');
             if (!container) return;
@@ -632,7 +783,7 @@
                 container.appendChild(card);
             });
         }
-
+        
         function createParticipantCard(participant) {
             const card = document.createElement('div');
             card.className = 'participant-card';
@@ -642,7 +793,8 @@
                 `${participant.name} (${participant.nickname})` : 
                 participant.name;
             
-            const messageCount = participant.messages ? participant.messages.length : 0;
+            const participantMessages = messages.filter(m => m.recipientId === participant.id);
+            const messageCount = participantMessages.length;
             
             card.innerHTML = `
                 <div class="participant-name">${displayName}</div>
@@ -655,13 +807,14 @@
                 <div class="messages-container">
                     <strong>Mesaje primite (${messageCount}):</strong>
                     <div id="messages-${participant.id}">
-                        ${participant.messages && participant.messages.length > 0 ? 
-                            participant.messages.map(msg => `
+                        ${participantMessages.length > 0 ? 
+                            participantMessages.map(msg => `
                                 <div class="message">
                                     <div class="message-header">
                                         <span class="message-sender">${getMessageTypeIcon(msg.type)} ${msg.sender}</span>
                                         <span class="message-time">${new Date(msg.timestamp).toLocaleString('ro-RO')}</span>
                                     </div>
+                                    <div class="message-type">${getMessageTypeName(msg.type)}</div>
                                     <div class="message-content">${msg.content}</div>
                                 </div>
                             `).join('') : 
@@ -674,8 +827,10 @@
             card.addEventListener('click', () => {
                 currentRecipient = participant;
                 const targetName = document.getElementById('targetName');
+                const participantMessagesName = document.getElementById('participantMessagesName');
                 
                 if (targetName) targetName.textContent = participant.name;
+                if (participantMessagesName) participantMessagesName.textContent = participant.name;
                 
                 showTab('scan');
                 
@@ -683,13 +838,14 @@
                 if (messageForm) messageForm.classList.remove('hidden');
             });
             
+            // Generate QR code after DOM insertion
             setTimeout(() => {
                 generateQRCode(participant.id, displayName);
             }, 100);
             
             return card;
         }
-
+        
         function generateQRCode(participantId, name) {
             const canvas = document.getElementById(`qr-${participantId}`);
             if (!canvas) return;
@@ -697,10 +853,14 @@
             const ctx = canvas.getContext('2d');
             const size = 150;
             
+            // Clear canvas
             ctx.clearRect(0, 0, size, size);
+            
+            // White background
             ctx.fillStyle = '#ffffff';
             ctx.fillRect(0, 0, size, size);
             
+            // Generate QR-like pattern
             ctx.fillStyle = '#000000';
             const cellSize = size / 25;
             
@@ -713,6 +873,7 @@
                 }
             }
             
+            // Add positioning corners
             const cornerSize = 7;
             
             // Top-left corner
@@ -739,16 +900,21 @@
             ctx.fillStyle = '#000000';
             ctx.fillRect(2 * cellSize, (25 - cornerSize + 2) * cellSize, (cornerSize - 4) * cellSize, (cornerSize - 4) * cellSize);
         }
-
-        // Message functions
+        
+        // ==================== MESSAGE MANAGEMENT ====================
         function sendMessage() {
             const senderNameInput = document.getElementById('senderName');
             const anonymousInput = document.getElementById('anonymous');
             const messageTypeInput = document.getElementById('messageType');
             const messageContentInput = document.getElementById('messageContent');
             
+            if (!senderNameInput || !messageTypeInput || !messageContentInput) {
+                showMessage('Formularul nu este complet!', 'error');
+                return;
+            }
+            
             const senderName = senderNameInput.value.trim();
-            const anonymous = anonymousInput.checked;
+            const anonymous = anonymousInput ? anonymousInput.checked : false;
             const messageType = messageTypeInput.value;
             const content = messageContentInput.value.trim();
             
@@ -769,52 +935,30 @@
             messages.push(message);
             localStorage.setItem('messages', JSON.stringify(messages));
             
+            // Update participant messages
             updateParticipantMessages();
             
+            // Clear form
             senderNameInput.value = '';
             messageContentInput.value = '';
-            anonymousInput.checked = false;
+            if (anonymousInput) anonymousInput.checked = false;
+            
+            // Hide message form
+            const messageForm = document.getElementById('messageForm');
+            if (messageForm) messageForm.classList.add('hidden');
             
             showMessage('Mesaj trimis cu succes!', 'success');
             showTab('admin');
         }
-
-        function cancelMessage() {
-            const messageForm = document.getElementById('messageForm');
-            if (messageForm) messageForm.classList.add('hidden');
-            
-            currentRecipient = null;
-            showTab('admin');
-        }
-
-        function simulateQRScan() {
-            if (participants.length === 0) {
-                showMessage('Nu există participanți adăugați!', 'error');
-                return;
-            }
-            
-            const randomIndex = Math.floor(Math.random() * participants.length);
-            const participant = participants[randomIndex];
-            
-            currentRecipient = participant;
-            const targetName = document.getElementById('targetName');
-            
-            if (targetName) targetName.textContent = participant.name;
-            
-            const messageForm = document.getElementById('messageForm');
-            if (messageForm) messageForm.classList.remove('hidden');
-            
-            showMessage(`Cod QR scanat pentru ${participant.name}!`, 'success');
-        }
-
+        
         function updateParticipantMessages() {
             participants.forEach(participant => {
                 participant.messages = messages.filter(msg => msg.recipientId === participant.id);
             });
             localStorage.setItem('participants', JSON.stringify(participants));
         }
-
-        // Authentication functions
+        
+        // ==================== AUTHENTICATION ====================
         function checkAdminPassword() {
             const passwordInput = document.getElementById('adminPassword');
             const errorDiv = document.getElementById('passwordError');
@@ -824,7 +968,8 @@
             const input = passwordInput.value;
             
             if (!password) {
-                if (!/^\\d{6}$/.test(input)) {
+                // Set new password
+                if (!/^\d{6}$/.test(input)) {
                     errorDiv.textContent = 'Parola trebuie să fie de 6 cifre!';
                     errorDiv.classList.remove('hidden');
                     return;
@@ -834,4 +979,422 @@
                 localStorage.setItem('isLoggedIn', 'true');
                 isLoggedIn = true;
             } else if (input !== password) {
-                errorDiv.textContent = 'Parola incorectă'
+                errorDiv.textContent = 'Parola incorectă!';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+            
+            // Hide password section and show messages
+            const passwordSection = document.getElementById('passwordSection');
+            const messagesList = document.getElementById('messagesList');
+            
+            if (passwordSection) passwordSection.classList.add('hidden');
+            if (messagesList) messagesList.classList.remove('hidden');
+            
+            errorDiv.classList.add('hidden');
+            
+            isLoggedIn = true;
+            localStorage.setItem('isLoggedIn', 'true');
+            
+            displayAllMessages();
+        }
+        
+        function checkParticipantPassword() {
+            const passwordInput = document.getElementById('participantPassword');
+            const errorDiv = document.getElementById('participantPasswordError');
+            
+            if (!passwordInput || !errorDiv) return;
+            
+            const input = passwordInput.value;
+            
+            if (!password) {
+                if (!/^\d{6}$/.test(input)) {
+                    errorDiv.textContent = 'Parola trebuie să fie de 6 cifre!';
+                    errorDiv.classList.remove('hidden');
+                    return;
+                }
+                password = input;
+                localStorage.setItem('password', password);
+                localStorage.setItem('isLoggedIn', 'true');
+                isLoggedIn = true;
+            } else if (input !== password) {
+                errorDiv.textContent = 'Parola incorectă!';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+            
+            const passwordSection = document.getElementById('participantPasswordSection');
+            const messagesList = document.getElementById('participantMessagesList');
+            
+            if (passwordSection) passwordSection.classList.add('hidden');
+            if (messagesList) messagesList.classList.remove('hidden');
+            
+            errorDiv.classList.add('hidden');
+            
+            isLoggedIn = true;
+            localStorage.setItem('isLoggedIn', 'true');
+            
+            displayParticipantMessages();
+        }
+        
+        function checkMessagesAccess() {
+            if (isLoggedIn) {
+                const passwordSection = document.getElementById('passwordSection');
+                const messagesList = document.getElementById('messagesList');
+                
+                if (passwordSection) passwordSection.classList.add('hidden');
+                if (messagesList) messagesList.classList.remove('hidden');
+                
+                displayAllMessages();
+            } else {
+                const passwordSection = document.getElementById('passwordSection');
+                const messagesList = document.getElementById('messagesList');
+                
+                if (passwordSection) passwordSection.classList.remove('hidden');
+                if (messagesList) messagesList.classList.add('hidden');
+            }
+        }
+        
+        function checkParticipantAccess() {
+            if (isLoggedIn && currentRecipient) {
+                const passwordSection = document.getElementById('participantPasswordSection');
+                const messagesList = document.getElementById('participantMessagesList');
+                
+                if (passwordSection) passwordSection.classList.add('hidden');
+                if (messagesList) messagesList.classList.remove('hidden');
+                
+                displayParticipantMessages();
+            } else {
+                const passwordSection = document.getElementById('participantPasswordSection');
+                const messagesList = document.getElementById('participantMessagesList');
+                
+                if (passwordSection) passwordSection.classList.remove('hidden');
+                if (messagesList) messagesList.classList.add('hidden');
+            }
+        }
+        
+        // ==================== MESSAGE DISPLAY ====================
+        function displayAllMessages() {
+            const list = document.getElementById('messagesList');
+            if (!list || !isLoggedIn) return;
+            
+            if (messages.length === 0) {
+                list.innerHTML = '<p style="text-align: center; color: #666;">Nu există mesaje primite.</p>';
+                return;
+            }
+            
+            list.innerHTML = '<h3>Toate mesajele primite:</h3>';
+            
+            // Group messages by participant
+            const messagesByParticipant = {};
+            messages.forEach(msg => {
+                const participant = participants.find(p => p.id === msg.recipientId);
+                if (participant) {
+                    if (!messagesByParticipant[participant.id]) {
+                        messagesByParticipant[participant.id] = {
+                            participant: participant,
+                            messages: []
+                        };
+                    }
+                    messagesByParticipant[participant.id].messages.push(msg);
+                }
+            });
+            
+            // Display grouped messages
+            Object.values(messagesByParticipant).forEach(group => {
+                const participantDiv = document.createElement('div');
+                participantDiv.style.marginBottom = '30px';
+                participantDiv.style.padding = '20px';
+                participantDiv.style.border = `3px solid ${group.participant.color}`;
+                participantDiv.style.borderRadius = '15px';
+                participantDiv.style.background = 'rgba(255, 255, 255, 0.8)';
+                
+                const participantName = group.participant.nickname ? 
+                    `${group.participant.name} (${group.participant.nickname})` : 
+                    group.participant.name;
+                
+                participantDiv.innerHTML = `
+                    <h4 style="color: ${group.participant.color}; margin-bottom: 15px;">
+                        📬 Mesaje pentru ${participantName} (${group.messages.length})
+                    </h4>
+                    <div class="messages-container">
+                        ${group.messages.map(msg => `
+                            <div class="message" style="border-left: 4px solid ${group.participant.color};">
+                                <div class="message-header">
+                                    <span class="message-sender">${getMessageTypeIcon(msg.type)} ${msg.sender}</span>
+                                    <span class="message-time">${new Date(msg.timestamp).toLocaleString('ro-RO')}</span>
+                                </div>
+                                <div class="message-type">${getMessageTypeName(msg.type)}</div>
+                                <div class="message-content">${msg.content}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                
+                list.appendChild(participantDiv);
+            });
+        }
+        
+        function displayParticipantMessages() {
+            const list = document.getElementById('participantMessagesList');
+            if (!list || !isLoggedIn || !currentRecipient) return;
+            
+            const filteredMessages = messages.filter(m => m.recipientId === currentRecipient.id);
+            
+            if (filteredMessages.length === 0) {
+                list.innerHTML = '<p style="text-align: center; color: #666;">Nu există mesaje primite pentru acest participant.</p>';
+                return;
+            }
+            
+            list.innerHTML = `<h3>Mesaje pentru ${currentRecipient.name} (${filteredMessages.length}):</h3>`;
+            
+            filteredMessages.forEach(msg => {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message';
+                messageDiv.style.borderLeft = `4px solid ${currentRecipient.color}`;
+                
+                messageDiv.innerHTML = `
+                    <div class="message-header">
+                        <span class="message-sender">${getMessageTypeIcon(msg.type)} ${msg.sender}</span>
+                        <span class="message-time">${new Date(msg.timestamp).toLocaleString('ro-RO')}</span>
+                    </div>
+                    <div class="message-type">${getMessageTypeName(msg.type)}</div>
+                    <div class="message-content">${msg.content}</div>
+                `;
+                
+                list.appendChild(messageDiv);
+            });
+        }
+        
+        // ==================== QR SCANNING ====================
+        function startScanning() {
+            navigator.mediaDevices.getUserMedia({ 
+                video: { facingMode: 'environment' } 
+            }).then(stream => {
+                videoStream = stream;
+                const video = document.getElementById('video');
+                
+                if (video) {
+                    video.srcObject = stream;
+                    video.style.display = 'block';
+                }
+                
+                scanning = true;
+                showMessage('Camera pornită! Scanează un cod QR...', 'info');
+            }).catch(err => {
+                console.error('Eroare la pornirea camerei:', err);
+                showMessage('Nu pot accesa camera! Folosește butonul de simulare pentru test.', 'error');
+            });
+        }
+        
+        function stopScanning() {
+            if (videoStream) {
+                videoStream.getTracks().forEach(track => track.stop());
+                videoStream = null;
+            }
+            
+            scanning = false;
+            
+            const video = document.getElementById('video');
+            if (video) video.style.display = 'none';
+            
+            showMessage('Camera oprită!', 'info');
+        }
+        
+        function simulateQRScan() {
+            if (participants.length === 0) {
+                showMessage('Nu există participanți! Adaugă primul participant în secțiunea Administrare.', 'error');
+                return;
+            }
+            
+            // Select a random participant for simulation
+            const randomParticipant = participants[Math.floor(Math.random() * participants.length)];
+            
+            currentRecipient = randomParticipant;
+            const targetName = document.getElementById('targetName');
+            
+            if (targetName) targetName.textContent = randomParticipant.name;
+            
+            const messageForm = document.getElementById('messageForm');
+            if (messageForm) messageForm.classList.remove('hidden');
+            
+            showMessage(`QR scanat! Participant selectat: ${randomParticipant.name}`, 'success');
+        }
+        
+        function cancelMessage() {
+            const messageForm = document.getElementById('messageForm');
+            if (messageForm) messageForm.classList.add('hidden');
+            
+            // Clear form
+            const senderNameInput = document.getElementById('senderName');
+            const messageContentInput = document.getElementById('messageContent');
+            const anonymousInput = document.getElementById('anonymous');
+            
+            if (senderNameInput) senderNameInput.value = '';
+            if (messageContentInput) messageContentInput.value = '';
+            if (anonymousInput) anonymousInput.checked = false;
+            
+            currentRecipient = null;
+            showMessage('Mesaj anulat!', 'info');
+        }
+        
+        function showParticipantMessages() {
+            if (!currentRecipient) {
+                showMessage('Nu există participant selectat!', 'error');
+                return;
+            }
+            
+            showTab('participantMessages');
+        }
+        
+        // ==================== EVENT LISTENERS ====================
+        function setupEventListeners() {
+            // Tab navigation
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabName = tab.getAttribute('data-tab');
+                    showTab(tabName);
+                });
+            });
+            
+            // Admin functions
+            const addParticipantBtn = document.getElementById('addParticipantBtn');
+            if (addParticipantBtn) {
+                addParticipantBtn.addEventListener('click', addParticipant);
+            }
+            
+            const clearAllDataBtn = document.getElementById('clearAllDataBtn');
+            if (clearAllDataBtn) {
+                clearAllDataBtn.addEventListener('click', clearAllData);
+            }
+            
+            // Password checking
+            const checkPasswordBtn = document.getElementById('checkPasswordBtn');
+            if (checkPasswordBtn) {
+                checkPasswordBtn.addEventListener('click', checkAdminPassword);
+            }
+            
+            const checkParticipantPasswordBtn = document.getElementById('checkParticipantPasswordBtn');
+            if (checkParticipantPasswordBtn) {
+                checkParticipantPasswordBtn.addEventListener('click', checkParticipantPassword);
+            }
+            
+            // Message functions
+            const sendMessageBtn = document.getElementById('sendMessageBtn');
+            if (sendMessageBtn) {
+                sendMessageBtn.addEventListener('click', sendMessage);
+            }
+            
+            const cancelMessageBtn = document.getElementById('cancelMessageBtn');
+            if (cancelMessageBtn) {
+                cancelMessageBtn.addEventListener('click', cancelMessage);
+            }
+            
+            const showParticipantMessagesBtn = document.getElementById('showParticipantMessagesBtn');
+            if (showParticipantMessagesBtn) {
+                showParticipantMessagesBtn.addEventListener('click', showParticipantMessages);
+            }
+            
+            // QR scanning
+            const startScanBtn = document.getElementById('startScanBtn');
+            if (startScanBtn) {
+                startScanBtn.addEventListener('click', startScanning);
+            }
+            
+            const stopScanBtn = document.getElementById('stopScanBtn');
+            if (stopScanBtn) {
+                stopScanBtn.addEventListener('click', stopScanning);
+            }
+            
+            const simulateQRBtn = document.getElementById('simulateQRBtn');
+            if (simulateQRBtn) {
+                simulateQRBtn.addEventListener('click', simulateQRScan);
+            }
+            
+            // Back button
+            const backToScanBtn = document.getElementById('backToScanBtn');
+            if (backToScanBtn) {
+                backToScanBtn.addEventListener('click', () => showTab('scan'));
+            }
+            
+            // Enter key support for password fields
+            const adminPassword = document.getElementById('adminPassword');
+            if (adminPassword) {
+                adminPassword.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        checkAdminPassword();
+                    }
+                });
+            }
+            
+            const participantPassword = document.getElementById('participantPassword');
+            if (participantPassword) {
+                participantPassword.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        checkParticipantPassword();
+                    }
+                });
+            }
+            
+            // Enter key support for participant name
+            const participantNameInput = document.getElementById('participantName');
+            if (participantNameInput) {
+                participantNameInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        addParticipant();
+                    }
+                });
+            }
+        }
+        
+        // ==================== CLEANUP ====================
+        function cleanup() {
+            if (videoStream) {
+                videoStream.getTracks().forEach(track => track.stop());
+                videoStream = null;
+            }
+            scanning = false;
+        }
+        
+        // ==================== INITIALIZATION ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load initial data
+            participants = JSON.parse(localStorage.getItem('participants')) || [];
+            messages = JSON.parse(localStorage.getItem('messages')) || [];
+            
+            // Update participant messages
+            updateParticipantMessages();
+            
+            // Setup event listeners
+            setupEventListeners();
+            
+            // Initialize UI based on login state
+            if (password && isLoggedIn) {
+                const passwordSection = document.getElementById('passwordSection');
+                const messagesList = document.getElementById('messagesList');
+                const participantPasswordSection = document.getElementById('participantPasswordSection');
+                const participantMessagesList = document.getElementById('participantMessagesList');
+                
+                if (passwordSection) passwordSection.classList.add('hidden');
+                if (messagesList) messagesList.classList.remove('hidden');
+                if (participantPasswordSection) participantPasswordSection.classList.add('hidden');
+                if (participantMessagesList) participantMessagesList.classList.remove('hidden');
+            }
+            
+            // Load participants initially
+            loadParticipants();
+            
+            // Show welcome message
+            showMessage('Aplicația a fost încărcată cu succes!', 'success');
+        });
+        
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', cleanup);
+        
+        // Make functions available globally for debugging
+        window.participants = participants;
+        window.messages = messages;
+        window.showTab = showTab;
+    </script>
+</body>
+</html>
