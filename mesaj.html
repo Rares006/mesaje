@@ -1,0 +1,1687 @@
+
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabăra 2025 - Mesaje QR</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            color: #4c63d2;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+            margin-top: 10px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .nav-tab {
+            padding: 15px 30px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 2px solid transparent;
+            min-width: 160px;
+        }
+
+        .nav-tab.active {
+            background: rgba(255, 255, 255, 0.9);
+            color: #4c63d2;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            border-color: #4c63d2;
+        }
+
+        .nav-tab:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .nav-tab:active {
+            transform: translateY(0);
+        }
+
+        .tab-content {
+            display: none;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { 
+                opacity: 0; 
+                transform: translateY(20px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+
+        .tab-content h2 {
+            color: #4c63d2;
+            margin-bottom: 25px;
+            font-size: 1.8em;
+            text-align: center;
+        }
+
+        .tab-content h3 {
+            color: #4c63d2;
+            margin-bottom: 20px;
+            font-size: 1.4em;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #4c63d2;
+            font-size: 14px;
+        }
+
+        .form-group input, 
+        .form-group select, 
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+            font-family: inherit;
+        }
+
+        .form-group input:focus, 
+        .form-group select:focus, 
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #4c63d2;
+            box-shadow: 0 0 0 3px rgba(76, 99, 210, 0.1);
+            background: rgba(255, 255, 255, 1);
+        }
+
+        .form-group input[type="color"] {
+            height: 50px;
+            cursor: pointer;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            display: inline-block;
+            text-decoration: none;
+            text-align: center;
+            min-width: 120px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            filter: brightness(1.1);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn:disabled:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        .participants-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .participant-card {
+            background: linear-gradient(135deg, #f8f9ff 0%, #e8f0ff 100%);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 3px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .participant-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            border-color: #4c63d2;
+        }
+
+        .participant-card:active {
+            transform: translateY(-2px);
+        }
+
+        .participant-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #4c63d2;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .qr-code {
+            text-align: center;
+            margin: 15px 0;
+        }
+
+        .qr-code canvas {
+            border: 3px solid #4c63d2;
+            border-radius: 10px;
+            padding: 10px;
+            background: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            max-width: 100%;
+        }
+
+        .camera-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            margin: 20px auto;
+            text-align: center;
+        }
+
+        #video {
+            width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            background: #000;
+        }
+
+        .scan-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: 200px;
+            border: 3px solid #4c63d2;
+            border-radius: 10px;
+            background: rgba(76, 99, 210, 0.1);
+            pointer-events: none;
+        }
+
+        .scan-overlay::before {
+            content: '';
+            position: absolute;
+            top: -3px;
+            left: -3px;
+            right: -3px;
+            bottom: -3px;
+            border: 3px solid #4c63d2;
+            border-radius: 10px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { 
+                box-shadow: 0 0 0 0 rgba(76, 99, 210, 0.7); 
+            }
+            70% { 
+                box-shadow: 0 0 0 20px rgba(76, 99, 210, 0); 
+            }
+            100% { 
+                box-shadow: 0 0 0 0 rgba(76, 99, 210, 0); 
+            }
+        }
+
+        .message-form {
+            background: rgba(76, 99, 210, 0.05);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+            border: 2px solid rgba(76, 99, 210, 0.2);
+        }
+
+        .message-form h3 {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .messages-container {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .messages-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .messages-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .messages-container::-webkit-scrollbar-thumb {
+            background: #4c63d2;
+            border-radius: 10px;
+        }
+
+        .messages-container::-webkit-scrollbar-thumb:hover {
+            background: #3d52c7;
+        }
+
+        .message {
+            background: rgba(76, 99, 210, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid #4c63d2;
+            transition: all 0.3s ease;
+        }
+
+        .message:hover {
+            background: rgba(76, 99, 210, 0.15);
+            transform: translateX(5px);
+        }
+
+        .message:last-child {
+            margin-bottom: 0;
+        }
+
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
+
+        .message-sender {
+            font-weight: 600;
+            color: #4c63d2;
+            font-size: 14px;
+        }
+
+        .message-time {
+            font-size: 12px;
+            color: #666;
+            white-space: nowrap;
+        }
+
+        .message-type {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 8px;
+            font-style: italic;
+        }
+
+        .message-content {
+            color: #333;
+            line-height: 1.5;
+            font-size: 14px;
+            word-wrap: break-word;
+        }
+
+        .password-section {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .password-section h3 {
+            color: #4c63d2;
+            margin-bottom: 15px;
+        }
+
+        .success-message, .message-notification.success {
+            background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        .error-message, .message-notification.error {
+            background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
+        }
+
+        .message-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            z-index: 1000;
+            max-width: 300px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .message-notification.info {
+            background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+            cursor: pointer;
+        }
+
+        .checkbox-group label {
+            margin: 0;
+            cursor: pointer;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        .loading::after {
+            content: '';
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #4c63d2;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .participant-messages-section {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 2px solid #e0e0e0;
+        }
+
+        .participant-messages-section h4 {
+            color: #4c63d2;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            padding: 40px 20px;
+        }
+
+        .empty-state::before {
+            content: '📭';
+            display: block;
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .stats-card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .stats-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #4c63d2;
+        }
+
+        .stats-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .nav-tabs {
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+            }
+            
+            .nav-tab {
+                width: 100%;
+                max-width: 250px;
+            }
+            
+            .participants-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .tab-content {
+                padding: 20px;
+            }
+            
+            .message-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+            
+            .message-notification {
+                right: 10px;
+                left: 10px;
+                max-width: none;
+            }
+            
+            .camera-container {
+                max-width: 100%;
+            }
+            
+            .scan-overlay {
+                width: 150px;
+                height: 150px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.5em;
+            }
+            
+            .nav-tab {
+                padding: 12px 20px;
+                font-size: 14px;
+            }
+            
+            .tab-content {
+                padding: 15px;
+            }
+            
+            .participant-card {
+                padding: 15px;
+            }
+            
+            .message-form {
+                padding: 15px;
+            }
+            
+            .password-section {
+                padding: 15px;
+            }
+        }
+
+        /* Animation for slide effects */
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
+        /* Focus styles for accessibility */
+        .nav-tab:focus,
+        .btn:focus,
+        .participant-card:focus {
+            outline: 2px solid #4c63d2;
+            outline-offset: 2px;
+        }
+
+        /* Print styles */
+        @media print {
+            body {
+                background: white;
+                color: black;
+            }
+            
+            .nav-tabs,
+            .btn,
+            .camera-container {
+                display: none;
+            }
+            
+            .tab-content {
+                background: white;
+                box-shadow: none;
+            }
+            
+            .participant-card {
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏕️ Tabăra 2025</h1>
+            <p>Sistem de mesaje cu coduri QR</p>
+        </div>
+
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showTab('admin')">👨‍💼 Administrare</button>
+            <button class="nav-tab" onclick="showTab('scan')">📱 Scanare QR</button>
+            <button class="nav-tab" onclick="showTab('messages')">📥 Mesaje Primite</button>
+        </div>
+
+        <!-- Administrare Tab -->
+        <div id="admin" class="tab-content active">
+            <h2>Administrare Participanți</h2>
+            
+            <div class="form-group">
+                <label for="participantName">Numele participantului:</label>
+                <input type="text" id="participantName" placeholder="Introduceți numele...">
+            </div>
+
+            <div class="form-group">
+                <label for="participantNickname">Porecla (opțional):</label>
+                <input type="text" id="participantNickname" placeholder="Porecla...">
+            </div>
+
+            <div class="form-group">
+                <label for="participantColor">Culoare personalizată:</label>
+                <input type="color" id="participantColor" value="#4c63d2">
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn" onclick="addParticipant()">➕ Adaugă Participant</button>
+                <button class="btn btn-danger" onclick="clearAllData()">🗑️ Șterge Toate Datele</button>
+            </div>
+
+            <div id="participantsContainer" class="participants-grid">
+                <!-- Participanții vor fi afișați aici -->
+            </div>
+        </div>
+
+        <!-- Scanare QR Tab -->
+        <div id="scan" class="tab-content">
+            <h2>Scanare Cod QR</h2>
+            
+            <div class="camera-container">
+                <video id="video" autoplay muted playsinline style="display: none;"></video>
+                <div class="scan-overlay" style="display: none;"></div>
+                <canvas id="canvas" style="display: none;"></canvas>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="btn" onclick="startScanning()">📷 Pornește Camera</button>
+                <button class="btn btn-danger" onclick="stopScanning()">🛑 Oprește Camera</button>
+            </div>
+
+            <div id="qrResult"></div>
+
+            <div id="messageForm" class="message-form hidden">
+                <h3>Trimite un mesaj către <span id="targetName"></span></h3>
+                
+                <div class="form-group">
+                    <label for="senderName">Numele tău:</label>
+                    <input type="text" id="senderName" placeholder="Cum te numești?">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="anonymous">
+                        <label for="anonymous">Trimite anonim</label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="messageType">Tipul mesajului:</label>
+                    <select id="messageType">
+                        <option value="mesaj">📝 Mesaj simplu</option>
+                        <option value="compliment">💝 Compliment</option>
+                        <option value="amintire">🌟 Amintire frumoasă</option>
+                        <option value="gluma">😂 Glumă</option>
+                        <option value="incurajare">💪 Încurajare</option>
+                        <option value="multumire">🙏 Mulțumire</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="messageContent">Mesajul tău:</label>
+                    <textarea id="messageContent" rows="4" placeholder="Scrie aici mesajul tău..."></textarea>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn" onclick="sendMessage()">📨 Trimite Mesajul</button>
+                    <button class="btn btn-success" onclick="showParticipantMessages()">📥 Mesaje Primite</button>
+                    <button class="btn btn-danger" onclick="cancelMessage()">❌ Anulează</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mesaje Primite Tab -->
+        <div id="messages" class="tab-content">
+            <h2>Mesaje Primite</h2>
+            
+            <div id="passwordSection" class="password-section">
+                <h3>Acces la mesaje</h3>
+                <div class="form-group">
+                    <label for="adminPassword">Setează/Introdu parola (6 cifre):</label>
+                    <input type="password" id="adminPassword" maxlength="6" pattern="\d{6}" placeholder="******">
+                </div>
+                <button class="btn" onclick="checkAdminPassword()">🔓 Verifică Parola</button>
+                <div id="passwordError" class="error-message hidden"></div>
+            </div>
+
+            <div id="messagesList" class="hidden">
+                <!-- Mesajele vor fi afișate aici -->
+            </div>
+        </div>
+
+        <!-- Mesaje Participant -->
+        <div id="participantMessages" class="tab-content">
+            <h2>Mesaje primite pentru <span id="participantMessagesName"></span></h2>
+            
+            <div id="participantPasswordSection" class="password-section">
+                <h3>Acces la mesajele tale</h3>
+                <div class="form-group">
+                    <label for="participantPassword">Introdu parola (6 cifre):</label>
+                    <input type="password" id="participantPassword" maxlength="6" pattern="\d{6}" placeholder="******">
+                </div>
+                <button class="btn" onclick="checkParticipantPassword()">🔓 Verifică Parola</button>
+                <div id="participantPasswordError" class="error-message hidden"></div>
+            </div>
+
+            <div id="participantMessagesList" class="hidden">
+                <!-- Mesajele participantului vor fi afișate aici -->
+            </div>
+            
+            <div class="action-buttons">
+                <button class="btn" onclick="showTab('scan')">❌ Înapoi</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    <script>
+
+    // ==================== FIREBASE CONFIGURATION ====================
+
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+    import { getFirestore, collection, getDocs, query, orderBy, deleteDoc, doc, where, Timestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+    import { getStorage, ref, deleteObject } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
+    
+    // Firebase configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyAA1ytLJrwh7JHSOwGQrf2t_5imgtiWLk4",
+        authDomain: "tabara-2025-95ff5.firebaseapp.com",
+        projectId: "tabara-2025-95ff5",
+        storageBucket: "tabara-2025-95ff5.firebasestorage.app",
+        messagingSenderId: "552618851743",
+        appId: "1:552618851743:web:tabara2025app"
+    };
+    
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+    
+    // ==================== GLOBAL VARIABLES ====================
+    let participants = [];
+    let messages = [];
+    let password = localStorage.getItem('password');
+    let isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    let currentRecipient = null;
+    let videoStream = null;
+    let scanning = false;
+    let refreshInterval = null;
+    
+    // ==================== UTILITY FUNCTIONS ====================
+    function showMessage(message, type = 'info') {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message-notification ${type}`;
+        messageDiv.textContent = message;
+        messageDiv.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 1000;
+            animation: slideIn 0.3s ease-out;
+            background: ${type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : '#007bff'};
+        `;
+        
+        document.body.appendChild(messageDiv);
+        
+        setTimeout(() => {
+            messageDiv.style.animation = 'slideOut 0.3s ease-in';
+            setTimeout(() => messageDiv.remove(), 300);
+        }, 3000);
+    }
+    
+    function sanitizeInput(input) {
+        const div = document.createElement('div');
+        div.textContent = input;
+        return div.innerHTML;
+    }
+    
+    function hashCode(str) {
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+            const char = str.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash;
+        }
+        return Math.abs(hash);
+    }
+    
+    function getMessageTypeIcon(type) {
+        const icons = {
+            'mesaj': '📝',
+            'compliment': '💝',
+            'amintire': '🌟',
+            'gluma': '😂',
+            'incurajare': '💪',
+            'multumire': '🙏'
+        };
+        return icons[type] || '📝';
+    }
+    
+    function getMessageTypeName(type) {
+        const names = {
+            'mesaj': 'Mesaj simplu',
+            'compliment': 'Compliment',
+            'amintire': 'Amintire frumoasă',
+            'gluma': 'Glumă',
+            'incurajare': 'Încurajare',
+            'multumire': 'Mulțumire'
+        };
+        return names[type] || 'Mesaj';
+    }
+    
+    // ==================== FIREBASE FUNCTIONS ====================
+    async function loadParticipantsFromFirebase() {
+        try {
+            const querySnapshot = await getDocs(collection(db, 'participants'));
+            const firebaseParticipants = [];
+            
+            querySnapshot.forEach((doc) => {
+                firebaseParticipants.push({
+                    id: doc.id,
+                    ...doc.data()
+                });
+            });
+            
+            participants = firebaseParticipants;
+            localStorage.setItem('participants', JSON.stringify(participants));
+            
+            if (document.getElementById('participantsContainer')) {
+                loadParticipants();
+            }
+            
+        } catch (error) {
+            console.error('Eroare la încărcarea participanților:', error);
+            showMessage('Eroare la încărcarea participanților din Firebase!', 'error');
+            // Fallback la localStorage
+            participants = JSON.parse(localStorage.getItem('participants')) || [];
+        }
+    }
+    
+    async function loadMessagesFromFirebase() {
+        try {
+            const q = query(collection(db, 'messages'), orderBy('timestamp', 'desc'));
+            const querySnapshot = await getDocs(q);
+            const firebaseMessages = [];
+            
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                firebaseMessages.push({
+                    id: doc.id,
+                    ...data,
+                    timestamp: data.timestamp?.toDate?.() || new Date(data.timestamp)
+                });
+            });
+            
+            messages = firebaseMessages;
+            localStorage.setItem('messages', JSON.stringify(messages));
+            
+            updateParticipantMessages();
+            
+        } catch (error) {
+            console.error('Eroare la încărcarea mesajelor:', error);
+            showMessage('Eroare la încărcarea mesajelor din Firebase!', 'error');
+            // Fallback la localStorage
+            messages = JSON.parse(localStorage.getItem('messages')) || [];
+        }
+    }
+    
+    function updateParticipantMessages() {
+        participants.forEach(participant => {
+            participant.messages = messages.filter(msg => msg.recipientId === participant.id);
+        });
+        localStorage.setItem('participants', JSON.stringify(participants));
+    }
+    
+    // ==================== TAB MANAGEMENT ====================
+    function showTab(tabName) {
+        // Remove active class from all tabs
+        document.querySelectorAll('.tab-content').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        document.querySelectorAll('.nav-tab').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        // Add active class to selected tab
+        const targetTab = document.getElementById(tabName);
+        const targetButton = document.querySelector(`[onclick="showTab('${tabName}')"]`);
+        
+        if (targetTab) targetTab.classList.add('active');
+        if (targetButton) targetButton.classList.add('active');
+        
+        // Load content based on tab
+        switch (tabName) {
+            case 'admin':
+                loadParticipants();
+                break;
+            case 'messages':
+                checkMessagesAccess();
+                break;
+            case 'participantMessages':
+                checkParticipantAccess();
+                break;
+        }
+    }
+    
+    // ==================== PARTICIPANT MANAGEMENT ====================
+    function addParticipant() {
+        const nameInput = document.getElementById('participantName');
+        const nicknameInput = document.getElementById('participantNickname');
+        const colorInput = document.getElementById('participantColor');
+        
+        if (!nameInput || !colorInput) {
+            showMessage('Elementele formularului nu sunt disponibile!', 'error');
+            return;
+        }
+        
+        const name = nameInput.value.trim();
+        const nickname = nicknameInput ? nicknameInput.value.trim() : '';
+        const color = colorInput.value;
+        
+        if (!name) {
+            showMessage('Numele este obligatoriu!', 'error');
+            return;
+        }
+        
+        const participant = {
+            id: Date.now(),
+            name: sanitizeInput(name),
+            nickname: sanitizeInput(nickname),
+            color: color,
+            messages: []
+        };
+        
+        participants.push(participant);
+        localStorage.setItem('participants', JSON.stringify(participants));
+        
+        // Clear form
+        nameInput.value = '';
+        if (nicknameInput) nicknameInput.value = '';
+        colorInput.value = '#4c63d2';
+        
+        loadParticipants();
+        showMessage('Participantul a fost adăugat cu succes!', 'success');
+    }
+    
+    function deleteParticipant(participantId) {
+        if (!confirm('Sigur doriți să ștergeți acest participant și toate mesajele lui?')) {
+            return;
+        }
+        
+        participants = participants.filter(p => p.id !== participantId);
+        messages = messages.filter(m => m.recipientId !== participantId);
+        
+        localStorage.setItem('participants', JSON.stringify(participants));
+        localStorage.setItem('messages', JSON.stringify(messages));
+        
+        loadParticipants();
+        showMessage('Participantul a fost șters cu succes!', 'success');
+    }
+    
+    function clearAllData() {
+        if (!confirm('ATENȚIE: Această acțiune va șterge toți participanții și toate mesajele! Sigur doriți să continuați?')) {
+            return;
+        }
+        
+        participants = [];
+        messages = [];
+        password = null;
+        isLoggedIn = false;
+        currentRecipient = null;
+        
+        localStorage.clear();
+        
+        loadParticipants();
+        showMessage('Toate datele au fost șterse cu succes!', 'success');
+        
+        // Reset UI
+        const passwordSection = document.getElementById('passwordSection');
+        const messagesList = document.getElementById('messagesList');
+        
+        if (passwordSection) passwordSection.classList.remove('hidden');
+        if (messagesList) messagesList.classList.add('hidden');
+    }
+    
+    function loadParticipants() {
+        const container = document.getElementById('participantsContainer');
+        if (!container) return;
+        
+        container.innerHTML = '';
+        
+        if (participants.length === 0) {
+            container.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Nu există participanți adăugați.</p>';
+            return;
+        }
+        
+        participants.forEach(participant => {
+            const card = createParticipantCard(participant);
+            container.appendChild(card);
+        });
+    }
+    
+    function createParticipantCard(participant) {
+        const card = document.createElement('div');
+        card.className = 'participant-card';
+        card.style.borderLeft = `5px solid ${participant.color}`;
+        
+        const displayName = participant.nickname ? 
+            `${participant.name} (${participant.nickname})` : 
+            participant.name;
+        
+        const messageCount = participant.messages ? participant.messages.length : 0;
+        
+        card.innerHTML = `
+            <div class="participant-name">${displayName}</div>
+            <div class="qr-code">
+                <canvas id="qr-${participant.id}" width="150" height="150"></canvas>
+            </div>
+            <div style="text-align: center; margin: 10px 0;">
+                <button class="btn btn-danger" onclick="deleteParticipant(${participant.id})">🗑️ Șterge</button>
+            </div>
+            <div class="messages-container">
+                <strong>Mesaje primite (${messageCount}):</strong>
+                <div id="messages-${participant.id}">
+                    ${participant.messages && participant.messages.length > 0 ? 
+                        participant.messages.map(msg => `
+                            <div class="message">
+                                <div class="message-header">
+                                    <span class="message-sender">${getMessageTypeIcon(msg.type)} ${msg.sender}</span>
+                                    <span class="message-time">${new Date(msg.timestamp).toLocaleString('ro-RO')}</span>
+                                </div>
+                                <div class="message-type">${getMessageTypeName(msg.type)}</div>
+                                <div class="message-content">${msg.content}</div>
+                            </div>
+                        `).join('') : 
+                        '<p style="color: #666; font-style: italic;">Nu există mesaje</p>'
+                    }
+                </div>
+            </div>
+        `;
+        
+        card.addEventListener('click', () => {
+            currentRecipient = participant;
+            const targetName = document.getElementById('targetName');
+            const participantMessagesName = document.getElementById('participantMessagesName');
+            
+            if (targetName) targetName.textContent = participant.name;
+            if (participantMessagesName) participantMessagesName.textContent = participant.name;
+            
+            showTab('scan');
+            
+            const messageForm = document.getElementById('messageForm');
+            if (messageForm) messageForm.classList.remove('hidden');
+        });
+        
+        // Generate QR code after DOM insertion
+        setTimeout(() => {
+            generateQRCode(participant.id, displayName);
+        }, 100);
+        
+        return card;
+    }
+    
+    function generateQRCode(participantId, name) {
+        const canvas = document.getElementById(`qr-${participantId}`);
+        if (!canvas) return;
+        
+        const ctx = canvas.getContext('2d');
+        const size = 150;
+        
+        // Clear canvas
+        ctx.clearRect(0, 0, size, size);
+        
+        // White background
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, size, size);
+        
+        // Generate QR-like pattern
+        ctx.fillStyle = '#000000';
+        const cellSize = size / 25;
+        
+        for (let i = 0; i < 25; i++) {
+            for (let j = 0; j < 25; j++) {
+                const hash = hashCode(participantId.toString() + i + j);
+                if (hash % 2 === 0) {
+                    ctx.fillRect(i * cellSize, j * cellSize, cellSize, cellSize);
+                }
+            }
+        }
+        
+        // Add positioning corners
+        const cornerSize = 7;
+        
+        // Top-left corner
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(0, 0, cornerSize * cellSize, cornerSize * cellSize);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(cellSize, cellSize, (cornerSize - 2) * cellSize, (cornerSize - 2) * cellSize);
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(2 * cellSize, 2 * cellSize, (cornerSize - 4) * cellSize, (cornerSize - 4) * cellSize);
+        
+        // Top-right corner
+        ctx.fillStyle = '#000000';
+        ctx.fillRect((25 - cornerSize) * cellSize, 0, cornerSize * cellSize, cornerSize * cellSize);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect((25 - cornerSize + 1) * cellSize, cellSize, (cornerSize - 2) * cellSize, (cornerSize - 2) * cellSize);
+        ctx.fillStyle = '#000000';
+        ctx.fillRect((25 - cornerSize + 2) * cellSize, 2 * cellSize, (cornerSize - 4) * cellSize, (cornerSize - 4) * cellSize);
+        
+        // Bottom-left corner
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(0, (25 - cornerSize) * cellSize, cornerSize * cellSize, cornerSize * cellSize);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(cellSize, (25 - cornerSize + 1) * cellSize, (cornerSize - 2) * cellSize, (cornerSize - 2) * cellSize);
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(2 * cellSize, (25 - cornerSize + 2) * cellSize, (cornerSize - 4) * cellSize, (cornerSize - 4) * cellSize);
+    }
+    
+    // ==================== MESSAGE MANAGEMENT ====================
+    function sendMessage() {
+        const senderNameInput = document.getElementById('senderName');
+        const anonymousInput = document.getElementById('anonymous');
+        const messageTypeInput = document.getElementById('messageType');
+        const messageContentInput = document.getElementById('messageContent');
+        
+        if (!senderNameInput || !messageTypeInput || !messageContentInput) {
+            showMessage('Formularul nu este complet!', 'error');
+            return;
+        }
+        
+        const senderName = senderNameInput.value.trim();
+        const anonymous = anonymousInput ? anonymousInput.checked : false;
+        const messageType = messageTypeInput.value;
+        const content = messageContentInput.value.trim();
+        
+        if (!content || !currentRecipient) {
+            showMessage('Mesajul și destinatarul sunt obligatorii!', 'error');
+            return;
+        }
+        
+        const message = {
+            id: Date.now(),
+            recipientId: currentRecipient.id,
+            sender: anonymous ? 'Anonim' : (senderName || 'Anonim'),
+            type: messageType,
+            content: sanitizeInput(content),
+            timestamp: new Date().toISOString()
+        };
+        
+        messages.push(message);
+        localStorage.setItem('messages', JSON.stringify(messages));
+        
+        // Update participant messages
+        updateParticipantMessages();
+        
+        // Clear form
+        senderNameInput.value = '';
+        messageContentInput.value = '';
+        if (anonymousInput) anonymousInput.checked = false;
+        
+        showMessage('Mesaj trimis cu succes!', 'success');
+        showTab('admin');
+    }
+    
+    // ==================== AUTHENTICATION ====================
+    function checkAdminPassword() {
+        const passwordInput = document.getElementById('adminPassword');
+        const errorDiv = document.getElementById('passwordError');
+        
+        if (!passwordInput || !errorDiv) return;
+        
+        const input = passwordInput.value;
+        
+        if (!password) {
+            // Set new password
+            if (!/^\d{6}$/.test(input)) {
+                errorDiv.textContent = 'Parola trebuie să fie de 6 cifre!';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+            password = input;
+            localStorage.setItem('password', password);
+            localStorage.setItem('isLoggedIn', 'true');
+            isLoggedIn = true;
+        } else if (input !== password) {
+            errorDiv.textContent = 'Parola incorectă!';
+            errorDiv.classList.remove('hidden');
+            return;
+        }
+        
+        // Hide password section and show messages
+        const passwordSection = document.getElementById('passwordSection');
+        const messagesList = document.getElementById('messagesList');
+        
+        if (passwordSection) passwordSection.classList.add('hidden');
+        if (messagesList) messagesList.classList.remove('hidden');
+        
+        errorDiv.classList.add('hidden');
+        
+        isLoggedIn = true;
+        localStorage.setItem('isLoggedIn', 'true');
+        
+        // Load messages and display
+        loadMessagesFromFirebase().then(() => {
+            displayAllMessages();
+        });
+    }
+    
+    function checkParticipantPassword() {
+        const passwordInput = document.getElementById('participantPassword');
+        const errorDiv = document.getElementById('participantPasswordError');
+        
+        if (!passwordInput || !errorDiv) return;
+        
+        const input = passwordInput.value;
+        
+        if (!password) {
+            if (!/^\d{6}$/.test(input)) {
+                errorDiv.textContent = 'Parola trebuie să fie de 6 cifre!';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+            password = input;
+            localStorage.setItem('password', password);
+            localStorage.setItem('isLoggedIn', 'true');
+            isLoggedIn = true;
+        } else if (input !== password) {
+            errorDiv.textContent = 'Parola incorectă!';
+            errorDiv.classList.remove('hidden');
+            return;
+        }
+        
+        const passwordSection = document.getElementById('participantPasswordSection');
+        const messagesList = document.getElementById('participantMessagesList');
+        
+        if (passwordSection) passwordSection.classList.add('hidden');
+        if (messagesList) messagesList.classList.remove('hidden');
+        
+        errorDiv.classList.add('hidden');
+        
+        isLoggedIn = true;
+        localStorage.setItem('isLoggedIn', 'true');
+        
+        displayParticipantMessages();
+    }
+    
+    function checkMessagesAccess() {
+        if (isLoggedIn) {
+            const passwordSection = document.getElementById('passwordSection');
+            const messagesList = document.getElementById('messagesList');
+            
+            if (passwordSection) passwordSection.classList.add('hidden');
+            if (messagesList) messagesList.classList.remove('hidden');
+            
+            loadMessagesFromFirebase().then(() => {
+                displayAllMessages();
+            });
+        } else {
+            const passwordSection = document.getElementById('passwordSection');
+            const messagesList = document.getElementById('messagesList');
+            
+            if (passwordSection) passwordSection.classList.remove('hidden');
+            if (messagesList) messagesList.classList.add('hidden');
+        }
+    }
+    
+    function checkParticipantAccess() {
+        if (isLoggedIn && currentRecipient) {
+            const passwordSection = document.getElementById('participantPasswordSection');
+            const messagesList = document.getElementById('participantMessagesList');
+            
+            if (passwordSection) passwordSection.classList.add('hidden');
+            if (messagesList) messagesList.classList.remove('hidden');
+            
+            loadMessagesFromFirebase().then(() => {
+                displayParticipantMessages();
+            });
+        } else {
+            const passwordSection = document.getElementById('participantPasswordSection');
+            const messagesList = document.getElementById('participantMessagesList');
+            
+            if (passwordSection) passwordSection.classList.remove('hidden');
+            if (messagesList) messagesList.classList.add('hidden');
+        }
+    }
+    
+    // ==================== MESSAGE DISPLAY ====================
+    function displayAllMessages() {
+        const list = document.getElementById('messagesList');
+        if (!list || !isLoggedIn) return;
+        
+        if (messages.length === 0) {
+            list.innerHTML = '<p style="text-align: center; color: #666;">Nu există mesaje primite.</p>';
+            return;
+        }
+        
+        list.innerHTML = '<h3>Toate mesajele primite:</h3>';
+        
+        // Group messages by participant
+        const messagesByParticipant = {};
+        messages.forEach(msg => {
+            const participant = participants.find(p => p.id === msg.recipientId);
+            if (participant) {
+                if (!messagesByParticipant[participant.id]) {
+                    messagesByParticipant[participant.id] = {
+                        participant: participant,
+                        messages: []
+                    };
+                }
+                messagesByParticipant[participant.id].messages.push(msg);
+            }
+        });
+        
+        // Display grouped messages
+        Object.values(messagesByParticipant).forEach(group => {
+            const participantDiv = document.createElement('div');
+            participantDiv.style.marginBottom = '30px';
+            participantDiv.style.padding = '20px';
+            participantDiv.style.border = `3px solid ${group.participant.color}`;
+            participantDiv.style.borderRadius = '15px';
+            participantDiv.style.background = 'rgba(255, 255, 255, 0.8)';
+            
+            const participantName = group.participant.nickname ? 
+                `${group.participant.name} (${group.participant.nickname})` : 
+                group.participant.name;
+            
+            participantDiv.innerHTML = `
+                <h4 style="color: ${group.participant.color}; margin-bottom: 15px;">
+                    📬 Mesaje pentru ${participantName} (${group.messages.length})
+                </h4>
+                <div class="messages-container">
+                    ${group.messages.map(msg => `
+                        <div class="message" style="border-left: 4px solid ${group.participant.color};">
+                            <div class="message-header">
+                                <span class="message-sender">${getMessageTypeIcon(msg.type)} ${msg.sender}</span>
+                                <span class="message-time">${new Date(msg.timestamp).toLocaleString('ro-RO')}</span>
+                            </div>
+                            <div class="message-type">${getMessageTypeName(msg.type)}</div>
+                            <div class="message-content">${msg.content}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            
+            list.appendChild(participantDiv);
+        });
+    }
+    
+    function displayParticipantMessages() {
+        const list = document.getElementById('participantMessagesList');
+        if (!list || !isLoggedIn || !currentRecipient) return;
+        
+        const filteredMessages = messages.filter(m => m.recipientId === currentRecipient.id);
+        
+        if (filteredMessages.length === 0) {
+            list.innerHTML = '<p style="text-align: center; color: #666;">Nu există mesaje primite pentru acest participant.</p>';
+            return;
+        }
+        
+        list.innerHTML = `<h3>Mesaje pentru ${currentRecipient.name} (${filteredMessages.length}):</h3>`;
+        
+        filteredMessages.forEach(msg => {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message';
+            messageDiv.style.borderLeft = `4px solid ${currentRecipient.color}`;
+            
+            messageDiv.innerHTML = `
+                <div class="message-header">
+                    <span class="message-sender">${getMessageTypeIcon(msg.type)} ${msg.sender}</span>
+                    <span class="message-time">${new Date(msg.timestamp).toLocaleString('ro-RO')}</span>
+                </div>
+                <div class="message-type">${getMessageTypeName(msg.type)}</div>
+                <div class="message-content">${msg.content}</div>
+            `;
+            
+            list.appendChild(messageDiv);
+        });
+    }
+    
+    // ==================== QR SCANNING ====================
+    function startScanning() {
+        navigator.mediaDevices.getUserMedia({ 
+            video: { facingMode: 'environment' } 
+        }).then(stream => {
+            videoStream = stream;
+            const video = document.getElementById('video');
+            const scanOverlay = document.querySelector('.scan-overlay');
+            
+            if (video) {
+                video.srcObject = stream;
+                video.style.display = 'block';
+            }
+            
+            if (scanOverlay) {
+                scanOverlay.style.display = 'block';
+            }
+            
+            scanning = true;
+            scanQRCode();
+        }).catch(err => {
+            console.error('Eroare la pornirea camerei:', err);
+            showMessage('Nu pot accesa camera!', 'error');
+        });
+    }
+    
+    function stopScanning() {
+        if (videoStream) {
+            videoStream.getTracks().forEach(track => track.stop());
+            videoStream = null;
+        }
+        
+        scanning = false;
+        
+        const video = document.getElementById('video');
+        const scanOverlay = document.querySelector('.scan-overlay');
+        
+        if (video) video.style.display = 'none';
+        if (scanOverlay) scanOverlay.style.display = 'none';
+    }
+    
+    function scanQRCode() {
+        if (!scanning || !videoStream) return;
+        
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        
+        if (!video || !canvas) return;
+        
+        const context = canvas.getContext('2d');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        
+        const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+        
+        // Here you would integrate with jsQR library
+        // For now, we'll simulate QR detection
+        
+        if (scanning) {
+            requestAnimationFrame(scanQRCode);
+        }
+    }
+    
+    // ==================== REFRESH AND CLEANUP ====================
+    function startAutoRefresh() {
+        if (refreshInterval) {
+            clearInterval(refreshInterval);
+        }
+        
+        refreshInterval = setInterval(async () => {
+            if (isLoggedIn) {
+                await loadMessagesFromFirebase();
+                
+                // Update display based on active tab
+                const activeTab = document.querySelector('.tab-content.active');
+                if (activeTab) {
+                    switch (activeTab.id) {
+                        case 'messages':
+                            displayAllMessages();
+                            break;
+                        case 'participantMessages':
+                            displayParticipantMessages();
+                            break;
+                        case 'admin':
+                            loadParticipants();
+                            break;
+                    }
+                }
+            }
+        }, 30000); // Refresh every 30 seconds
+    }
+    
+    function cleanup() {
+        if (refreshInterval) {
+            clearInterval(refreshInterval);
+            refreshInterval = null;
+        }
+        
+        if (videoStream) {
+            videoStream.getTracks().forEach(track => track.stop());
+            videoStream = null;
+        }
+        
+        scanning = false;
+    }
+    
+    // ==================== INITIALIZATION ====================
+    document.addEventListener('DOMContentLoaded', async function() {
+        // Load initial data
+        participants = JSON.parse(localStorage.getItem('participants')) || [];
+        messages = JSON.parse(localStorage.getItem('messages')) || [];
+        
+        // Load data from Firebase
+        await loadParticipantsFromFirebase();
+        await loadMessagesFromFirebase();
+        
+        // Initialize UI based on login state
+        if (password && isLoggedIn) {
+            const passwordSection = document.getElementById('passwordSection');
+            const messagesList = document.getElementById('messagesList');
+            const participantPasswordSection = document.getElementById('participantPasswordSection');
+            const participantMessagesList = document.getElementById('participantMessagesList');
+            
+            if (passwordSection) passwordSection.classList.add('hidden');
+            if (messagesList) messagesList.classList.remove('hidden');
+            if (participantPasswordSection) participantPasswordSection.classList.add('hidden');
+            if (participantMessagesList) participantMessagesList.classList.remove('hidden');
+        }
+        
+        // Start auto-refresh
+        startAutoRefresh();
+        
+        // Load participants initially
+        loadParticipants();
+    });
+    
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', cleanup);
+    
+    // ==================== GLOBAL EXPORTS ====================
+    // Make functions available globally for HTML onclick handlers
+    window.showTab = showTab;
+    window.addParticipant = addParticipant;
+    window.deleteParticipant = deleteParticipant;
+    window.clearAllData = clearAllData;
+    window.sendMessage = sendMessage;
+    window.checkAdminPassword = checkAdminPassword;
+    window.checkParticipantPassword = checkParticipantPassword;
+    window.startScanning = startScanning;
+    window.stopScanning = stopScanning;
+</script>
+</body>
+</html>
