@@ -1,242 +1,4 @@
-</style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>🏕️ Tabăra 2025</h1>
-            <p>Sistem de mesaje cu coduri QR</p>
-        </div>
-
-    <script>
-        // Include toate părțile JavaScript aici
-        // Copiază conținutul din artifactele camp_messages_part2, part3 și part4
-        // și lipește-le în ordine aici pentru a avea aplicația completă
-        
-        // Pentru a folosi aplicația, copiază tot conținutul JavaScript 
-        // din celelalte 3 artefacte și pune-l între aceste tag-uri script
-        
-        console.log("Pentru aplicația completă, adaugă JavaScript-ul din celelalte părți!");
-    </script>
-    
-</body>
-</html>
-
-        <div class="nav-tabs">
-            <button class="nav-tab active" data-tab="admin">👨‍💼 Admin</button>
-            <button class="nav-tab" data-tab="scan">📱 Scanare</button>
-            <button class="nav-tab" data-tab="messages">📥 Mesaje</button>
-        </div>
-
-        <!-- Administrare Tab -->
-        <div id="admin" class="tab-content active">
-            <h2>Administrare Participanți</h2>
-            
-            <div class="form-group">
-                <label for="participantName">Numele participantului:</label>
-                <input type="text" id="participantName" placeholder="Introduceți numele...">
-            </div>
-
-            <div class="form-group">
-                <label for="participantNickname">Porecla (opțional):</label>
-                <input type="text" id="participantNickname" placeholder="Porecla...">
-            </div>
-
-            <div class="form-group">
-                <label for="participantColor">Culoare personalizată:</label>
-                <input type="color" id="participantColor" value="#4c63d2">
-            </div>
-
-            <div class="action-buttons">
-                <button class="btn" id="addParticipantBtn">➕ Adaugă</button>
-                <button class="btn btn-danger" id="clearAllDataBtn">🗑️ Șterge Tot</button>
-            </div>
-
-            <div id="participantsContainer" class="participants-grid">
-                <!-- Participanții vor fi afișați aici -->
-            </div>
-        </div>
-
-        <!-- Scanare QR Tab -->
-        <div id="scan" class="tab-content">
-            <h2>Scanare Cod QR</h2>
-            
-            <div class="camera-container">
-                <video id="video" autoplay muted playsinline style="display: none;"></video>
-                <canvas id="canvas" style="display: none;"></canvas>
-            </div>
-            
-            <div class="action-buttons">
-                <button class="btn" id="startScanBtn">📷 Camera</button>
-                <button class="btn btn-danger" id="stopScanBtn">🛑 Stop</button>
-                <button class="btn" id="simulateQRBtn">🎯 Test</button>
-            </div>
-
-            <!-- Quick Participants List -->
-            <div id="quickParticipants" class="quick-participants">
-                <h3>🎯 Acces Rapid la Participanți</h3>
-                <div id="quickParticipantList" class="quick-participant-list">
-                    <!-- Lista va fi populată dinamic -->
-                </div>
-            </div>
-
-            <div id="qrResult"></div>
-
-            <div id="messageForm" class="message-form hidden">
-                <h3>Mesaj către <span id="targetName"></span></h3>
-                
-                <div class="form-group">
-                    <label for="senderName">Numele tău:</label>
-                    <input type="text" id="senderName" placeholder="Cum te numești?">
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="anonymous">
-                        <label for="anonymous">Trimite anonim</label>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="messageType">Tipul mesajului:</label>
-                    <select id="messageType">
-                        <option value="mesaj">📝 Mesaj simplu</option>
-                        <option value="compliment">💝 Compliment</option>
-                        <option value="amintire">🌟 Amintire frumoasă</option>
-                        <option value="gluma">😂 Glumă</option>
-                        <option value="incurajare">💪 Încurajare</option>
-                        <option value="multumire">🙏 Mulțumire</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="messageContent">Mesajul tău:</label>
-                    <textarea id="messageContent" rows="4" placeholder="Scrie aici mesajul tău..."></textarea>
-                </div>
-
-                <div class="action-buttons">
-                    <button class="btn" id="sendMessageBtn">📨 Trimite</button>
-                    <button class="btn btn-success" id="showParticipantMessagesBtn">📥 Vezi Mesaje</button>
-                    <button class="btn btn-danger" id="cancelMessageBtn">❌ Anulează</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Mesaje Primite Tab (Admin) -->
-        <div id="messages" class="tab-content">
-            <h2>Mesaje - Administrare</h2>
-            
-            <div id="passwordSection" class="password-section">
-                <h3>Acces Administrator</h3>
-                <div class="form-group">
-                    <label for="adminPassword">Parola admin (6 cifre):</label>
-                    <input type="password" id="adminPassword" maxlength="6" pattern="\\d{6}" placeholder="******">
-                </div>
-                <button class="btn" id="checkPasswordBtn">🔓 Verifică</button>
-                <div id="passwordError" class="error-message hidden"></div>
-            </div>
-
-            <div id="messagesList" class="hidden">
-                <!-- Mesajele vor fi afișate aici -->
-            </div>
-        </div>
-
-        <!-- Mesaje Participant Individual -->
-        <div id="participantMessages" class="tab-content">
-            <h2>Mesaje pentru <span id="participantMessagesName"></span></h2>
-
-            <div id="participantPasswordSection" class="individual-password-section">
-                <h3>🔐 Acces la mesajele tale</h3>
-                
-                <div id="passwordStatus" class="password-status hidden">
-                    Acest participant are deja o parolă setată
-                </div>
-                
-                <div id="setPasswordForm" class="hidden">
-                    <p style="margin-bottom: 15px; color: #4c63d2; font-weight: 600;">
-                        Prima dată când accesezi contul, setează o parolă de 4 cifre:
-                    </p>
-                    
-                    <div class="keypad-container">
-                        <div class="password-display">
-                            <span id="newPasswordDisplay" class="password-dots"></span>
-                        </div>
-                        
-                        <div class="numeric-keypad">
-                            <button class="numeric-key" data-key="1" data-keypad="new">1</button>
-                            <button class="numeric-key" data-key="2" data-keypad="new">2</button>
-                            <button class="numeric-key" data-key="3" data-keypad="new">3</button>
-                            <button class="numeric-key" data-key="4" data-keypad="new">4</button>
-                            <button class="numeric-key" data-key="5" data-keypad="new">5</button>
-                            <button class="numeric-key" data-key="6" data-keypad="new">6</button>
-                            <button class="numeric-key" data-key="7" data-keypad="new">7</button>
-                            <button class="numeric-key" data-key="8" data-keypad="new">8</button>
-                            <button class="numeric-key" data-key="9" data-keypad="new">9</button>
-                            <button class="numeric-key delete" data-key="delete" data-keypad="new">🔙 Șterge</button>
-                            <button class="numeric-key" data-key="0" data-keypad="new">0</button>
-                        </div>
-                        
-                        <p style="color: #4c63d2; font-weight: 600; margin: 10px 0;">Confirmă parola:</p>
-                        
-                        <div class="password-display">
-                            <span id="confirmPasswordDisplay" class="password-dots"></span>
-                        </div>
-                        
-                        <div class="numeric-keypad">
-                            <button class="numeric-key" data-key="1" data-keypad="confirm">1</button>
-                            <button class="numeric-key" data-key="2" data-keypad="confirm">2</button>
-                            <button class="numeric-key" data-key="3" data-keypad="confirm">3</button>
-                            <button class="numeric-key" data-key="4" data-keypad="confirm">4</button>
-                            <button class="numeric-key" data-key="5" data-keypad="confirm">5</button>
-                            <button class="numeric-key" data-key="6" data-keypad="confirm">6</button>
-                            <button class="numeric-key" data-key="7" data-keypad="confirm">7</button>
-                            <button class="numeric-key" data-key="8" data-keypad="confirm">8</button>
-                            <button class="numeric-key" data-key="9" data-keypad="confirm">9</button>
-                            <button class="numeric-key delete" data-key="delete" data-keypad="confirm">🔙 Șterge</button>
-                            <button class="numeric-key" data-key="0" data-keypad="confirm">0</button>
-                        </div>
-                        
-                        <div class="action-buttons">
-                            <button class="btn btn-success" id="setParticipantPasswordBtn">🔒 Setează Parola</button>
-                        </div>
-                    </div>
-                </div>
-                
-                <div id="enterPasswordForm" class="hidden">
-                    <div class="keypad-container">
-                        <div class="password-display">
-                            <span id="enterPasswordDisplay" class="password-dots"></span>
-                        </div>
-                        
-                        <div class="numeric-keypad">
-                            <button class="numeric-key" data-key="1" data-keypad="enter">1</button>
-                            <button class="numeric-key" data-key="2" data-keypad="enter">2</button>
-                            <button class="numeric-key" data-key="3" data-keypad="enter">3</button>
-                            <button class="numeric-key" data-key="4" data-keypad="enter">4</button>
-                            <button class="numeric-key" data-key="5" data-keypad="enter">5</button>
-                            <button class="numeric-key" data-key="6" data-keypad="enter">6</button>
-                            <button class="numeric-key" data-key="7" data-keypad="enter">7</button>
-                            <button class="numeric-key" data-key="8" data-keypad="enter">8</button>
-                            <button class="numeric-key" data-key="9" data-keypad="enter">9</button>
-                            <button class="numeric-key delete" data-key="delete" data-keypad="enter">🔙 Șterge</button>
-                            <button class="numeric-key" data-key="0" data-keypad="enter">0</button>
-                        </div>
-                        
-                        <div class="action-buttons">
-                            <button class="btn" id="checkParticipantPasswordBtn">🔓 Verifică</button>
-                            <button class="btn btn-danger" id="resetParticipantPasswordBtn">🔄 Reset</button>
-                        </div>
-                    </div>
-                </div>
-                
-                <div id="participantPasswordError" class="error-message hidden"></div>
-            </div>
-
-            <div id="participantMessagesList" class="hidden">
-                <!-- Mesajele participantului vor fi afișate aici -->
-            </div>
-            
-            <div class="action-buttons">
-                <button class="btn" id="backToScanBtn">❌ Înapoi</button>
-            </div>
-        </div>
-    </div><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ro">
 <head>
     <meta charset="UTF-8">
@@ -404,6 +166,11 @@
             padding: 5px;
         }
 
+        .form-group input[type="file"] {
+            padding: 8px 12px;
+            cursor: pointer;
+        }
+
         .form-group textarea {
             resize: vertical;
             min-height: 100px;
@@ -442,6 +209,10 @@
             background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
         }
 
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+        }
+
         .participants-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -473,7 +244,7 @@
             text-align: center;
         }
 
-        /* Quick Access Participants List - Optimizat pentru mobile */
+        /* Quick Access Participants List */
         .quick-participants {
             background: rgba(255, 255, 255, 0.95);
             border-radius: 15px;
@@ -582,6 +353,40 @@
             border: 2px solid rgba(76, 99, 210, 0.2);
         }
 
+        /* Photo upload styles */
+        .photo-upload-section {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            border: 2px dashed #4c63d2;
+            text-align: center;
+        }
+
+        .photo-preview {
+            margin-top: 15px;
+            display: none;
+        }
+
+        .photo-preview img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .remove-photo {
+            margin-top: 10px;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
         .messages-container {
             max-height: 300px;
             overflow-y: auto;
@@ -640,7 +445,69 @@
             word-wrap: break-word;
         }
 
-        /* Custom Numeric Keypad - Optimizat pentru mobile */
+        .message-photo {
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .message-photo img {
+            max-width: 100%;
+            max-height: 150px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .message-photo img:hover {
+            transform: scale(1.05);
+        }
+
+        /* Photo modal */
+        .photo-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(5px);
+        }
+
+        .photo-modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-width: 90%;
+            max-height: 90%;
+        }
+
+        .photo-modal img {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        }
+
+        .photo-modal-close {
+            position: absolute;
+            top: 15px;
+            right: 25px;
+            color: white;
+            font-size: 35px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 2001;
+        }
+
+        .photo-modal-close:hover {
+            color: #ccc;
+        }
+
+        /* Numeric Keypad */
         .numeric-keypad {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -684,10 +551,6 @@
             background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
             grid-column: span 2;
             font-size: 14px;
-        }
-
-        .numeric-key.delete:hover, .numeric-key.delete:active {
-            background: linear-gradient(135deg, #ff5252 0%, #d32f2f 100%);
         }
 
         .password-display {
@@ -738,17 +601,6 @@
             text-align: center;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             border: 2px solid rgba(76, 99, 210, 0.2);
-        }
-
-        .password-status {
-            background: rgba(255, 215, 0, 0.2);
-            border: 2px solid #ffd700;
-            border-radius: 10px;
-            padding: 10px;
-            margin-bottom: 12px;
-            color: #b8860b;
-            font-weight: 600;
-            font-size: 13px;
         }
 
         .success-message {
@@ -819,7 +671,7 @@
             margin-top: 15px;
         }
 
-        /* Responsive Design - Optimizat pentru mobile */
+        /* Responsive Design */
         @media (max-width: 768px) {
             .container {
                 padding: 8px;
@@ -908,434 +760,776 @@
             .form-group input, 
             .form-group select, 
             .form-group textarea {
-                font-size: 16px; /* Previne zoom-ul pe iOS */
-            }
-        }
-
-        @media (max-width: 480px) {
-            .header h1 {
-                font-size: 1.6em;
-            }
-            
-            .numeric-keypad {
-                max-width: 200px;
-                gap: 8px;
-            }
-            
-            .numeric-key {
-                min-height: 40px;
                 font-size: 16px;
             }
-            
-            .quick-participant-list {
-                grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+
+            .photo-modal-content {
+                max-width: 95%;
+                max-height: 95%;
+            }
+
+            .photo-modal-close {
+                top: 10px;
+                right: 15px;
+                font-size: 28px;
             }
         }
     </style>
 </head>
-<script>
-    // ==================== GLOBAL VARIABLES ====================
-    let participants = [];
-    let messages = [];
-    let password = localStorage.getItem('password');
-    let isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-    let currentRecipient = null;
-    let videoStream = null;
-    let scanning = false;
-    
-    // Password input states for numeric keypad
-    let adminPasswordInput = '';
-    let newPasswordInput = '';
-    let confirmPasswordInput = '';
-    let enterPasswordInput = '';
-    
-    // ==================== UTILITY FUNCTIONS ====================
-    function showMessage(message, type = 'info') {
-        const existingNotifications = document.querySelectorAll('.message-notification');
-        existingNotifications.forEach(notif => notif.remove());
-        
-        const messageDiv = document.createElement('div');
-        messageDiv.className = 'message-notification';
-        messageDiv.textContent = message;
-        
-        const colors = {
-            'success': 'linear-gradient(135deg, #4caf50 0%, #45a049 100%)',
-            'error': 'linear-gradient(135deg, #f44336 0%, #d32f2f 100%)',
-            'info': 'linear-gradient(135deg, #2196f3 0%, #1976d2 100%)'
-        };
-        
-        messageDiv.style.background = colors[type] || colors.info;
-        messageDiv.style.position = 'fixed';
-        messageDiv.style.top = '20px';
-        messageDiv.style.right = '20px';
-        messageDiv.style.padding = '12px 16px';
-        messageDiv.style.borderRadius = '10px';
-        messageDiv.style.color = 'white';
-        messageDiv.style.fontWeight = '600';
-        messageDiv.style.zIndex = '1000';
-        messageDiv.style.maxWidth = '280px';
-        messageDiv.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.2)';
-        messageDiv.style.fontSize = '14px';
-        
-        document.body.appendChild(messageDiv);
-        
-        setTimeout(() => {
-            if (messageDiv.parentNode) {
-                messageDiv.remove();
-            }
-        }, 3000);
-    }
-    
-    function sanitizeInput(input) {
-        const div = document.createElement('div');
-        div.textContent = input;
-        return div.innerHTML;
-    }
-    
-    function hashCode(str) {
-        let hash = 0;
-        for (let i = 0; i < str.length; i++) {
-            const char = str.charCodeAt(i);
-            hash = ((hash << 5) - hash) + char;
-            hash = hash & hash;
-        }
-        return Math.abs(hash);
-    }
-    
-    function getMessageTypeIcon(type) {
-        const icons = {
-            'mesaj': '📝',
-            'compliment': '💝',
-            'amintire': '🌟',
-            'gluma': '😂',
-            'incurajare': '💪',
-            'multumire': '🙏'
-        };
-        return icons[type] || '📝';
-    }
-    
-    function getMessageTypeName(type) {
-        const names = {
-            'mesaj': 'Mesaj simplu',
-            'compliment': 'Compliment',
-            'amintire': 'Amintire frumoasă',
-            'gluma': 'Glumă',
-            'incurajare': 'Încurajare',
-            'multumire': 'Mulțumire'
-        };
-        return names[type] || 'Mesaj';
-    }
-    
-    // ==================== TAB MANAGEMENT ====================
-    function showTab(tabName) {
-        document.querySelectorAll('.tab-content').forEach(tab => {
-            tab.classList.remove('active');
-        });
-        document.querySelectorAll('.nav-tab').forEach(btn => {
-            btn.classList.remove('active');
-        });
-        
-        const targetTab = document.getElementById(tabName);
-        const targetButton = document.querySelector(`[data-tab="${tabName}"]`);
-        
-        if (targetTab) targetTab.classList.add('active');
-        if (targetButton) targetButton.classList.add('active');
-        
-        switch (tabName) {
-            case 'admin':
-                loadParticipants();
-                break;
-            case 'scan':
-                loadQuickParticipants();
-                break;
-            case 'messages':
-                checkMessagesAccess();
-                break;
-            case 'participantMessages':
-                checkParticipantAccess();
-                break;
-        }
-    }
-    
-    // ==================== NUMERIC KEYPAD FUNCTIONS ====================
-    function updatePasswordDisplay(keypadType, password) {
-        const displays = {
-            'admin': 'adminPasswordDisplay',
-            'new': 'newPasswordDisplay', 
-            'confirm': 'confirmPasswordDisplay',
-            'enter': 'enterPasswordDisplay'
-        };
-        
-        const displayId = displays[keypadType];
-        const display = document.getElementById(displayId);
-        
-        if (display) {
-            display.textContent = '●'.repeat(password.length);
-        }
-    }
-    
-    function handleKeypadInput(keypadType, key) {
-        const maxLengths = {
-            'admin': 6,
-            'new': 4,
-            'confirm': 4, 
-            'enter': 4
-        };
-        
-        const maxLength = maxLengths[keypadType];
-        
-        if (key === 'delete') {
-            switch(keypadType) {
-                case 'admin':
-                    adminPasswordInput = adminPasswordInput.slice(0, -1);
-                    break;
-                case 'new':
-                    newPasswordInput = newPasswordInput.slice(0, -1);
-                    break;
-                case 'confirm':
-                    confirmPasswordInput = confirmPasswordInput.slice(0, -1);
-                    break;
-                case 'enter':
-                    enterPasswordInput = enterPasswordInput.slice(0, -1);
-                    break;
-            }
-        } else if (key >= '0' && key <= '9') {
-            switch(keypadType) {
-                case 'admin':
-                    if (adminPasswordInput.length < maxLength) {
-                        adminPasswordInput += key;
-                    }
-                    break;
-                case 'new':
-                    if (newPasswordInput.length < maxLength) {
-                        newPasswordInput += key;
-                    }
-                    break;
-                case 'confirm':
-                    if (confirmPasswordInput.length < maxLength) {
-                        confirmPasswordInput += key;
-                    }
-                    break;
-                case 'enter':
-                    if (enterPasswordInput.length < maxLength) {
-                        enterPasswordInput += key;
-                    }
-                    break;
-            }
-        }
-        
-        // Update display
-        const passwords = {
-            'admin': adminPasswordInput,
-            'new': newPasswordInput,
-            'confirm': confirmPasswordInput,
-            'enter': enterPasswordInput
-        };
-        
-        updatePasswordDisplay(keypadType, passwords[keypadType]);
-        
-        // Haptic feedback
-        if (navigator.vibrate) {
-            navigator.vibrate(50);
-        }
-    }
-    
-    function setupNumericKeypad() {
-        document.querySelectorAll('.numeric-key').forEach(key => {
-            key.addEventListener('click', function() {
-                const keyValue = this.getAttribute('data-key');
-                const keypadType = this.getAttribute('data-keypad') || 'admin';
-                
-                handleKeypadInput(keypadType, keyValue);
-            });
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏕️ Tabăra 2025</h1>
+            <p>Sistem de mesaje cu coduri QR și poze</p>
+        </div>
+
+        <div class="nav-tabs">
+            <button class="nav-tab active" data-tab="admin">👨‍💼 Admin</button>
+            <button class="nav-tab" data-tab="scan">📱 Scanare</button>
+            <button class="nav-tab" data-tab="messages">📥 Mesaje</button>
+        </div>
+
+        <!-- Administrare Tab -->
+        <div id="admin" class="tab-content active">
+            <h2>Administrare Participanți</h2>
             
-            // Add touch effects
-            key.addEventListener('touchstart', function(e) {
-                e.preventDefault();
-                this.style.transform = 'translateY(-2px) scale(1.05)';
-            });
+            <div class="form-group">
+                <label for="participantName">Numele participantului:</label>
+                <input type="text" id="participantName" placeholder="Introduceți numele...">
+            </div>
+
+            <div class="form-group">
+                <label for="participantNickname">Porecla (opțional):</label>
+                <input type="text" id="participantNickname" placeholder="Porecla...">
+            </div>
+
+            <div class="form-group">
+                <label for="participantColor">Culoare personalizată:</label>
+                <input type="color" id="participantColor" value="#4c63d2">
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn" id="addParticipantBtn">➕ Adaugă</button>
+                <button class="btn btn-danger" id="clearAllDataBtn">🗑️ Șterge Tot</button>
+            </div>
+
+            <div id="participantsContainer" class="participants-grid">
+                <!-- Participanții vor fi afișați aici -->
+            </div>
+        </div>
+
+        <!-- Scanare QR Tab -->
+        <div id="scan" class="tab-content">
+            <h2>Scanare Cod QR</h2>
             
-            key.addEventListener('touchend', function(e) {
-                e.preventDefault();
-                setTimeout(() => {
-                    this.style.transform = '';
-                }, 150);
-            });
-        });
-    }
-    
-    // ==================== PARTICIPANT MANAGEMENT ====================
-    function addParticipant() {
-        const nameInput = document.getElementById('participantName');
-        const nicknameInput = document.getElementById('participantNickname');
-        const colorInput = document.getElementById('participantColor');
-        
-        if (!nameInput || !colorInput) {
-            showMessage('Elementele formularului nu sunt disponibile!', 'error');
-            return;
-        }
-        
-        const name = nameInput.value.trim();
-        const nickname = nicknameInput ? nicknameInput.value.trim() : '';
-        const color = colorInput.value;
-        
-        if (!name) {
-            showMessage('Numele este obligatoriu!', 'error');
-            return;
-        }
-        
-        const participant = {
-            id: Date.now(),
-            name: sanitizeInput(name),
-            nickname: sanitizeInput(nickname),
-            color: color,
-            password: null,
-            hasPassword: false,
-            messages: []
-        };
-        
-        participants.push(participant);
-        localStorage.setItem('participants', JSON.stringify(participants));
-        
-        nameInput.value = '';
-        if (nicknameInput) nicknameInput.value = '';
-        colorInput.value = '#4c63d2';
-        
-        loadParticipants();
-        loadQuickParticipants();
-        showMessage('Participantul a fost adăugat cu succes!', 'success');
-    }
-    
-    function deleteParticipant(participantId) {
-        if (!confirm('Sigur doriți să ștergeți acest participant și toate mesajele lui?')) {
-            return;
-        }
-        
-        participants = participants.filter(p => p.id !== participantId);
-        messages = messages.filter(m => m.recipientId !== participantId);
-        
-        localStorage.setItem('participants', JSON.stringify(participants));
-        localStorage.setItem('messages', JSON.stringify(messages));
-        
-        loadParticipants();
-        loadQuickParticipants();
-        showMessage('Participantul a fost șters cu succes!', 'success');
-    }
-    
-    function clearAllData() {
-        if (!confirm('ATENȚIE: Această acțiune va șterge toți participanții și toate mesajele! Sigur doriți să continuați?')) {
-            return;
-        }
-        
-        participants = [];
-        messages = [];
-        password = null;
-        isLoggedIn = false;
-        currentRecipient = null;
-        
-        // Clear password inputs
-        adminPasswordInput = '';
-        newPasswordInput = '';
-        confirmPasswordInput = '';
-        enterPasswordInput = '';
-        
-        localStorage.clear();
-        
-        loadParticipants();
-        loadQuickParticipants();
-        showMessage('Toate datele au fost șterse cu succes!', 'success');
-        
-        const passwordSection = document.getElementById('passwordSection');
-        const messagesList = document.getElementById('messagesList');
-        
-        if (passwordSection) passwordSection.classList.remove('hidden');
-        if (messagesList) messagesList.classList.add('hidden');
-    }
-    
-    function loadParticipants() {
-        const container = document.getElementById('participantsContainer');
-        if (!container) return;
-        
-        container.innerHTML = '';
-        
-        if (participants.length === 0) {
-            container.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Nu există participanți adăugați.</p>';
-            return;
-        }
-        
-        participants.forEach(participant => {
-            const card = createParticipantCard(participant);
-            container.appendChild(card);
-        });
-    }
-    
-    function createParticipantCard(participant) {
-        const card = document.createElement('div');
-        card.className = 'participant-card';
-        card.style.borderLeft = `5px solid ${participant.color}`;
-        
-        const displayName = participant.nickname ? 
-            `${participant.name} (${participant.nickname})` : 
-            participant.name;
-        
-        const participantMessages = messages.filter(m => m.recipientId === participant.id);
-        const messageCount = participantMessages.length;
-        const passwordStatusIcon = participant.hasPassword ? '🔒' : '🔓';
-        const passwordStatusText = participant.hasPassword ? 'Parolă setată' : 'Fără parolă';
-        
-        card.innerHTML = `
-            <div class="participant-name">${displayName}</div>
-            <div style="text-align: center; margin-bottom: 10px; color: #666; font-size: 12px;">
-                ${passwordStatusIcon} ${passwordStatusText}
+            <div class="camera-container">
+                <video id="video" autoplay muted playsinline style="display: none;"></video>
+                <canvas id="canvas" style="display: none;"></canvas>
             </div>
-            <div class="qr-code">
-                <canvas id="qr-${participant.id}" width="120" height="120"></canvas>
+            
+            <div class="action-buttons">
+                <button class="btn" id="startScanBtn">📷 Camera</button>
+                <button class="btn btn-danger" id="stopScanBtn">🛑 Stop</button>
+                <button class="btn" id="simulateQRBtn">🎯 Test</button>
             </div>
-            <div style="text-align: center; margin: 10px 0;">
-                <button class="btn btn-danger" onclick="deleteParticipant(${participant.id})">🗑️ Șterge</button>
-            </div>
-            <div class="messages-container">
-                <strong>Mesaje primite (${messageCount}):</strong>
-                <div id="messages-${participant.id}">
-                    ${participantMessages.length > 0 ? 
-                        participantMessages.slice(0, 3).map(msg => `
-                            <div class="message">
-                                <div class="message-header">
-                                    <span class="message-sender">${getMessageTypeIcon(msg.type)} ${msg.sender}</span>
-                                    <span class="message-time">${new Date(msg.timestamp).toLocaleString('ro-RO')}</span>
-                                </div>
-                                <div class="message-type">${getMessageTypeName(msg.type)}</div>
-                                <div class="message-content">${msg.content}</div>
-                            </div>
-                        `).join('') + (participantMessages.length > 3 ? '<p style="color: #666; font-style: italic; text-align: center;">... și alte mesaje</p>' : '') : 
-                        '<p style="color: #666; font-style: italic;">Nu există mesaje</p>'
-                    }
+
+            <!-- Quick Participants List -->
+            <div id="quickParticipants" class="quick-participants">
+                <h3>🎯 Acces Rapid la Participanți</h3>
+                <div id="quickParticipantList" class="quick-participant-list">
+                    <!-- Lista va fi populată dinamic -->
                 </div>
             </div>
-        `;
-        
-        card.addEventListener('click', () => {
-            currentRecipient = participant;
-            const targetName = document.getElementById('targetName');
-            const participantMessagesName = document.getElementById('participantMessagesName');
+
+            <div id="qrResult"></div>
+
+            <div id="messageForm" class="message-form hidden">
+                <h3>Mesaj către <span id="targetName"></span></h3>
+                
+                <div class="form-group">
+                    <label for="senderName">Numele tău:</label>
+                    <input type="text" id="senderName" placeholder="Cum te numești?">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="anonymous">
+                        <label for="anonymous">Trimite anonim</label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="messageType">Tipul mesajului:</label>
+                    <select id="messageType">
+                        <option value="mesaj">📝 Mesaj simplu</option>
+                        <option value="compliment">💝 Compliment</option>
+                        <option value="amintire">🌟 Amintire frumoasă</option>
+                        <option value="gluma">😂 Glumă</option>
+                        <option value="incurajare">💪 Încurajare</option>
+                        <option value="multumire">🙏 Mulțumire</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="messageContent">Mesajul tău:</label>
+                    <textarea id="messageContent" rows="4" placeholder="Scrie aici mesajul tău..."></textarea>
+                </div>
+
+                <!-- Photo Upload Section -->
+                <div class="photo-upload-section">
+                    <label for="photoUpload" style="color: #4c63d2; margin-bottom: 10px; display: block;">
+                        📸 Adaugă o fotografie (opțional):
+                    </label>
+                    <input type="file" id="photoUpload" accept="image/*" capture="environment">
+                    <p style="font-size: 12px; color: #666; margin-top: 8px;">
+                        Poți adăuga o fotografie pentru a face mesajul mai special!
+                    </p>
+                    
+                    <div id="photoPreview" class="photo-preview">
+                        <img id="previewImage" src="" alt="Preview">
+                        <br>
+                        <button type="button" id="removePhoto" class="remove-photo">🗑️ Elimină poza</button>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn" id="sendMessageBtn">📨 Trimite</button>
+                    <button class="btn btn-success" id="showParticipantMessagesBtn">📥 Vezi Mesaje</button>
+                    <button class="btn btn-danger" id="cancelMessageBtn">❌ Anulează</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mesaje Primite Tab (Admin) -->
+        <div id="messages" class="tab-content">
+            <h2>Mesaje - Administrare</h2>
             
-            if (targetName) targetName.textContent = participant.name;
-            if (participantMessagesName) participantMessagesName.textContent = participant.name;
+            <div id="passwordSection" class="password-section">
+                <h3>Acces Administrator</h3>
+                <div class="form-group">
+                    <label for="adminPassword">Parola admin (6 cifre):</label>
+                    <input type="password" id="adminPassword" maxlength="6" pattern="\\d{6}" placeholder="******">
+                </div>
+                <button class="btn" id="checkPasswordBtn">🔓 Verifică</button>
+                <div id="passwordError" class="error-message hidden"></div>
+            </div>
+
+            <div id="messagesList" class="hidden">
+                <!-- Mesajele vor fi afișate aici -->
+            </div>
+        </div>
+
+        <!-- Mesaje Participant Individual -->
+        <div id="participantMessages" class="tab-content">
+            <h2>Mesaje pentru <span id="participantMessagesName"></span></h2>
+
+            <div id="participantPasswordSection" class="individual-password-section">
+                <h3>🔐 Acces la mesajele tale</h3>
+                
+                <div id="passwordStatus" class="password-status hidden">
+                    Acest participant are deja o parolă setată
+                </div>
+                
+                <div id="setPasswordForm" class="hidden">
+                    <p style="margin-bottom: 15px; color: #4c63d2; font-weight: 600;">
+                        Prima dată când accesezi contul, setează o parolă de 4 cifre:
+                    </p>
+                    
+                    <div class="keypad-container">
+                        <div class="password-display">
+                            <span id="newPasswordDisplay" class="password-dots"></span>
+                        </div>
+                        
+                        <div class="numeric-keypad">
+                            <button class="numeric-key" data-key="1" data-keypad="new">1</button>
+                            <button class="numeric-key" data-key="2" data-keypad="new">2</button>
+                            <button class="numeric-key" data-key="3" data-keypad="new">3</button>
+                            <button class="numeric-key" data-key="4" data-keypad="new">4</button>
+                            <button class="numeric-key" data-key="5" data-keypad="new">5</button>
+                            <button class="numeric-key" data-key="6" data-keypad="new">6</button>
+                            <button class="numeric-key" data-key="7" data-keypad="new">7</button>
+                            <button class="numeric-key" data-key="8" data-keypad="new">8</button>
+                            <button class="numeric-key" data-key="9" data-keypad="new">9</button>
+                            <button class="numeric-key delete" data-key="delete" data-keypad="new">🔙 Șterge</button>
+                            <button class="numeric-key" data-key="0" data-keypad="new">0</button>
+                        </div>
+                        
+                        <p style="color: #4c63d2; font-weight: 600; margin: 10px 0;">Confirmă parola:</p>
+                        
+                        <div class="password-display">
+                            <span id="confirmPasswordDisplay" class="password-dots"></span>
+                        </div>
+                        
+                        <div class="numeric-keypad">
+                            <button class="numeric-key" data-key="1" data-keypad="confirm">1</button>
+                            <button class="numeric-key" data-key="2" data-keypad="confirm">2</button>
+                            <button class="numeric-key" data-key="3" data-keypad="confirm">3</button>
+                            <button class="numeric-key" data-key="4" data-keypad="confirm">4</button>
+                            <button class="numeric-key" data-key="5" data-keypad="confirm">5</button>
+                            <button class="numeric-key" data-key="6" data-keypad="confirm">6</button>
+                            <button class="numeric-key" data-key="7" data-keypad="confirm">7</button>
+                            <button class="numeric-key" data-key="8" data-keypad="confirm">8</button>
+                            <button class="numeric-key" data-key="9" data-keypad="confirm">9</button>
+                            <button class="numeric-key delete" data-key="delete" data-keypad="confirm">🔙 Șterge</button>
+                            <button class="numeric-key" data-key="0" data-keypad="confirm">0</button>
+                        </div>
+                        
+                        <div class="action-buttons">
+                            <button class="btn btn-success" id="setParticipantPasswordBtn">🔒 Setează Parola</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="enterPasswordForm" class="hidden">
+                    <div class="keypad-container">
+                        <div class="password-display">
+                            <span id="enterPasswordDisplay" class="password-dots"></span>
+                        </div>
+                        
+                        <div class="numeric-keypad">
+                            <button class="numeric-key" data-key="1" data-keypad="enter">1</button>
+                            <button class="numeric-key" data-key="2" data-keypad="enter">2</button>
+                            <button class="numeric-key" data-key="3" data-keypad="enter">3</button>
+                            <button class="numeric-key" data-key="4" data-keypad="enter">4</button>
+                            <button class="numeric-key" data-key="5" data-keypad="enter">5</button>
+                            <button class="numeric-key" data-key="6" data-keypad="enter">6</button>
+                            <button class="numeric-key" data-key="7" data-keypad="enter">7</button>
+                            <button class="numeric-key" data-key="8" data-keypad="enter">8</button>
+                            <button class="numeric-key" data-key="9" data-keypad="enter">9</button>
+                            <button class="numeric-key delete" data-key="delete" data-keypad="enter">🔙 Șterge</button>
+                            <button class="numeric-key" data-key="0" data-keypad="enter">0</button>
+                        </div>
+                        
+                        <div class="action-buttons">
+                            <button class="btn" id="checkParticipantPasswordBtn">🔓 Verifică</button>
+                            <button class="btn btn-danger" id="resetParticipantPasswordBtn">🔄 Reset</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="participantPasswordError" class="error-message hidden"></div>
+            </div>
+
+            <div id="participantMessagesList" class="hidden">
+                <!-- Mesajele participantului vor fi afișate aici -->
+            </div>
             
-            showTab('scan');
+            <div class="action-buttons">
+                <button class="btn" id="backToScanBtn">❌ Înapoi</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Photo Modal -->
+    <div id="photoModal" class="photo-modal">
+        <span class="photo-modal-close">&times;</span>
+        <div class="photo-modal-content">
+            <img id="modalImage" src="" alt="Photo">
+        </div>
+    </div>
+
+    <script>
+        // ==================== GLOBAL VARIABLES ====================
+        let participants = [];
+        let messages = [];
+        let password = localStorage.getItem('password');
+        let isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+        let currentRecipient = null;
+        let videoStream = null;
+        let scanning = false;
+        let currentPhotoData = null;
+        
+        // Password input states for numeric keypad
+        let adminPasswordInput = '';
+        let newPasswordInput = '';
+        let confirmPasswordInput = '';
+        let enterPasswordInput = '';
+        
+        // ==================== UTILITY FUNCTIONS ====================
+        function showMessage(message, type = 'info') {
+            const existingNotifications = document.querySelectorAll('.message-notification');
+            existingNotifications.forEach(notif => notif.remove());
             
-            const messageForm = document.getElementById('messageForm');
-            if (messageForm) messageForm.classList.remove('hidden');
-        });
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message-notification';
+            messageDiv.textContent = message;
+            
+            const colors = {
+                'success': 'linear-gradient(135deg, #4caf50 0%, #45a049 100%)',
+                'error': 'linear-gradient(135deg, #f44336 0%, #d32f2f 100%)',
+                'info': 'linear-gradient(135deg, #2196f3 0%, #1976d2 100%)'
+            };
+            
+            messageDiv.style.background = colors[type] || colors.info;
+            messageDiv.style.position = 'fixed';
+            messageDiv.style.top = '20px';
+            messageDiv.style.right = '20px';
+            messageDiv.style.padding = '12px 16px';
+            messageDiv.style.borderRadius = '10px';
+            messageDiv.style.color = 'white';
+            messageDiv.style.fontWeight = '600';
+            messageDiv.style.zIndex = '1000';
+            messageDiv.style.maxWidth = '280px';
+            messageDiv.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.2)';
+            messageDiv.style.fontSize = '14px';
+            
+            document.body.appendChild(messageDiv);
+            
+            setTimeout(() => {
+                if (messageDiv.parentNode) {
+                    messageDiv.remove();
+                }
+            }, 3000);
+        }
         
-        setTimeout(() => {
-            generateQRCode(participant.id, displayName);
-        }, 100);
+        function sanitizeInput(input) {
+            const div = document.createElement('div');
+            div.textContent = input;
+            return div.innerHTML;
+        }
         
-        return card;
-    }
-    
-    function generateQRCode(participantId, name) {
+        function hashCode(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                const char = str.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash;
+            }
+            return Math.abs(hash);
+        }
+        
+        function getMessageTypeIcon(type) {
+            const icons = {
+                'mesaj': '📝',
+                'compliment': '💝',
+                'amintire': '🌟',
+                'gluma': '😂',
+                'incurajare': '💪',
+                'multumire': '🙏'
+            };
+            return icons[type] || '📝';
+        }
+        
+        function getMessageTypeName(type) {
+            const names = {
+                'mesaj': 'Mesaj simplu',
+                'compliment': 'Compliment',
+                'amintire': 'Amintire frumoasă',
+                'gluma': 'Glumă',
+                'incurajare': 'Încurajare',
+                'multumire': 'Mulțumire'
+            };
+            return names[type] || 'Mesaj';
+        }
+
+        // ==================== PHOTO FUNCTIONS ====================
+        function setupPhotoUpload() {
+            const photoUpload = document.getElementById('photoUpload');
+            const photoPreview = document.getElementById('photoPreview');
+            const previewImage = document.getElementById('previewImage');
+            const removePhoto = document.getElementById('removePhoto');
+
+            if (photoUpload) {
+                photoUpload.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        // Check file size (max 5MB)
+                        if (file.size > 5 * 1024 * 1024) {
+                            showMessage('Poza este prea mare! Maxim 5MB.', 'error');
+                            return;
+                        }
+
+                        // Check file type
+                        if (!file.type.startsWith('image/')) {
+                            showMessage('Te rog selectează doar imagini!', 'error');
+                            return;
+                        }
+
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            currentPhotoData = e.target.result;
+                            previewImage.src = currentPhotoData;
+                            photoPreview.style.display = 'block';
+                            showMessage('Poza a fost adăugată cu succes!', 'success');
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
+
+            if (removePhoto) {
+                removePhoto.addEventListener('click', function() {
+                    currentPhotoData = null;
+                    photoPreview.style.display = 'none';
+                    previewImage.src = '';
+                    photoUpload.value = '';
+                    showMessage('Poza a fost eliminată!', 'info');
+                });
+            }
+        }
+
+        function setupPhotoModal() {
+            const modal = document.getElementById('photoModal');
+            const modalImage = document.getElementById('modalImage');
+            const closeBtn = document.querySelector('.photo-modal-close');
+
+            // Close modal when clicking the X
+            if (closeBtn) {
+                closeBtn.addEventListener('click', function() {
+                    modal.style.display = 'none';
+                });
+            }
+
+            // Close modal when clicking outside the image
+            if (modal) {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        modal.style.display = 'none';
+                    }
+                });
+            }
+
+            // Close modal with Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && modal.style.display === 'block') {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+
+        function openPhotoModal(imageSrc) {
+            const modal = document.getElementById('photoModal');
+            const modalImage = document.getElementById('modalImage');
+            
+            if (modal && modalImage) {
+                modalImage.src = imageSrc;
+                modal.style.display = 'block';
+            }
+        }
+
+        function clearPhotoData() {
+            currentPhotoData = null;
+            const photoPreview = document.getElementById('photoPreview');
+            const previewImage = document.getElementById('previewImage');
+            const photoUpload = document.getElementById('photoUpload');
+            
+            if (photoPreview) photoPreview.style.display = 'none';
+            if (previewImage) previewImage.src = '';
+            if (photoUpload) photoUpload.value = '';
+        }
+        
+        // ==================== TAB MANAGEMENT ====================
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-tab').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            const targetTab = document.getElementById(tabName);
+            const targetButton = document.querySelector(`[data-tab="${tabName}"]`);
+            
+            if (targetTab) targetTab.classList.add('active');
+            if (targetButton) targetButton.classList.add('active');
+            
+            switch (tabName) {
+                case 'admin':
+                    loadParticipants();
+                    break;
+                case 'scan':
+                    loadQuickParticipants();
+                    break;
+                case 'messages':
+                    checkMessagesAccess();
+                    break;
+                case 'participantMessages':
+                    checkParticipantAccess();
+                    break;
+            }
+        }
+        
+        // ==================== NUMERIC KEYPAD FUNCTIONS ====================
+        function updatePasswordDisplay(keypadType, password) {
+            const displays = {
+                'admin': 'adminPasswordDisplay',
+                'new': 'newPasswordDisplay', 
+                'confirm': 'confirmPasswordDisplay',
+                'enter': 'enterPasswordDisplay'
+            };
+            
+            const displayId = displays[keypadType];
+            const display = document.getElementById(displayId);
+            
+            if (display) {
+                display.textContent = '●'.repeat(password.length);
+            }
+        }
+        
+        function handleKeypadInput(keypadType, key) {
+            const maxLengths = {
+                'admin': 6,
+                'new': 4,
+                'confirm': 4, 
+                'enter': 4
+            };
+            
+            const maxLength = maxLengths[keypadType];
+            
+            if (key === 'delete') {
+                switch(keypadType) {
+                    case 'admin':
+                        adminPasswordInput = adminPasswordInput.slice(0, -1);
+                        break;
+                    case 'new':
+                        newPasswordInput = newPasswordInput.slice(0, -1);
+                        break;
+                    case 'confirm':
+                        confirmPasswordInput = confirmPasswordInput.slice(0, -1);
+                        break;
+                    case 'enter':
+                        enterPasswordInput = enterPasswordInput.slice(0, -1);
+                        break;
+                }
+            } else if (key >= '0' && key <= '9') {
+                switch(keypadType) {
+                    case 'admin':
+                        if (adminPasswordInput.length < maxLength) {
+                            adminPasswordInput += key;
+                        }
+                        break;
+                    case 'new':
+                        if (newPasswordInput.length < maxLength) {
+                            newPasswordInput += key;
+                        }
+                        break;
+                    case 'confirm':
+                        if (confirmPasswordInput.length < maxLength) {
+                            confirmPasswordInput += key;
+                        }
+                        break;
+                    case 'enter':
+                        if (enterPasswordInput.length < maxLength) {
+                            enterPasswordInput += key;
+                        }
+                        break;
+                }
+            }
+            
+            // Update display
+            const passwords = {
+                'admin': adminPasswordInput,
+                'new': newPasswordInput,
+                'confirm': confirmPasswordInput,
+                'enter': enterPasswordInput
+            };
+            
+            updatePasswordDisplay(keypadType, passwords[keypadType]);
+            
+            // Haptic feedback
+            if (navigator.vibrate) {
+                navigator.vibrate(50);
+            }
+        }
+        
+        function setupNumericKeypad() {
+            document.querySelectorAll('.numeric-key').forEach(key => {
+                key.addEventListener('click', function() {
+                    const keyValue = this.getAttribute('data-key');
+                    const keypadType = this.getAttribute('data-keypad') || 'admin';
+                    
+                    handleKeypadInput(keypadType, keyValue);
+                });
+                
+                // Add touch effects
+                key.addEventListener('touchstart', function(e) {
+                    e.preventDefault();
+                    this.style.transform = 'translateY(-2px) scale(1.05)';
+                });
+                
+                key.addEventListener('touchend', function(e) {
+                    e.preventDefault();
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 150);
+                });
+            });
+        }
+        
+        // ==================== PARTICIPANT MANAGEMENT ====================
+        function addParticipant() {
+            const nameInput = document.getElementById('participantName');
+            const nicknameInput = document.getElementById('participantNickname');
+            const colorInput = document.getElementById('participantColor');
+            
+            if (!nameInput || !colorInput) {
+                showMessage('Elementele formularului nu sunt disponibile!', 'error');
+                return;
+            }
+            
+            const name = nameInput.value.trim();
+            const nickname = nicknameInput ? nicknameInput.value.trim() : '';
+            const color = colorInput.value;
+            
+            if (!name) {
+                showMessage('Numele este obligatoriu!', 'error');
+                return;
+            }
+            
+            const participant = {
+                id: Date.now(),
+                name: sanitizeInput(name),
+                nickname: sanitizeInput(nickname),
+                color: color,
+                password: null,
+                hasPassword: false,
+                messages: []
+            };
+            
+            participants.push(participant);
+            localStorage.setItem('participants', JSON.stringify(participants));
+            
+            nameInput.value = '';
+            if (nicknameInput) nicknameInput.value = '';
+            colorInput.value = '#4c63d2';
+            
+            loadParticipants();
+            loadQuickParticipants();
+            showMessage('Participantul a fost adăugat cu succes!', 'success');
+        }
+        
+        function deleteParticipant(participantId) {
+            if (!confirm('Sigur doriți să ștergeți acest participant și toate mesajele lui?')) {
+                return;
+            }
+            
+            participants = participants.filter(p => p.id !== participantId);
+            messages = messages.filter(m => m.recipientId !== participantId);
+            
+            localStorage.setItem('participants', JSON.stringify(participants));
+            localStorage.setItem('messages', JSON.stringify(messages));
+            
+            loadParticipants();
+            loadQuickParticipants();
+            showMessage('Participantul a fost șters cu succes!', 'success');
+        }
+        
+        function clearAllData() {
+            if (!confirm('ATENȚIE: Această acțiune va șterge toți participanții și toate mesajele! Sigur doriți să continuați?')) {
+                return;
+            }
+            
+            participants = [];
+            messages = [];
+            password = null;
+            isLoggedIn = false;
+            currentRecipient = null;
+            
+            // Clear password inputs
+            adminPasswordInput = '';
+            newPasswordInput = '';
+            confirmPasswordInput = '';
+            enterPasswordInput = '';
+            
+            localStorage.clear();
+            
+            loadParticipants();
+            loadQuickParticipants();
+            showMessage('Toate datele au fost șterse cu succes!', 'success');
+            
+            const passwordSection = document.getElementById('passwordSection');
+            const messagesList = document.getElementById('messagesList');
+            
+            if (passwordSection) passwordSection.classList.remove('hidden');
+            if (messagesList) messagesList.classList.add('hidden');
+        }
+        
+        function loadParticipants() {
+            const container = document.getElementById('participantsContainer');
+            if (!container) return;
+            
+            container.innerHTML = '';
+            
+            if (participants.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Nu există participanți adăugați.</p>';
+                return;
+            }
+            
+            participants.forEach(participant => {
+                const card = createParticipantCard(participant);
+                container.appendChild(card);
+            });
+        }
+        
+        function createParticipantCard(participant) {
+            const card = document.createElement('div');
+            card.className = 'participant-card';
+            card.style.borderLeft = `5px solid ${participant.color}`;
+            
+            const displayName = participant.nickname ? 
+                `${participant.name} (${participant.nickname})` : 
+                participant.name;
+            
+            const participantMessages = messages.filter(m => m.recipientId === participant.id);
+            const messageCount = participantMessages.length;
+            const passwordStatusIcon = participant.hasPassword ? '🔒' : '🔓';
+            const passwordStatusText = participant.hasPassword ? 'Parolă setată' : 'Fără parolă';
+            
+            card.innerHTML = `
+                <div class="participant-name">${displayName}</div>
+                <div style="text-align: center; margin-bottom: 10px; color: #666; font-size: 12px;">
+                    ${passwordStatusIcon} ${passwordStatusText}
+                </div>
+                <div class="qr-code">
+                    <canvas id="qr-${participant.id}" width="120" height="120"></canvas>
+                </div>
+                <div style="text-align: center; margin: 10px 0;">
+                    <button class="btn btn-danger" onclick="deleteParticipant(${participant.id})">🗑️ Șterge</button>
+                </div>
+                <div class="messages-container">
+                    <strong>Mesaje primite (${messageCount}):</strong>
+                    <div id="messages-${participant.id}">
+                        ${participantMessages.length > 0 ? 
+                            participantMessages.slice(0, 3).map(msg => `
+                                <div class="message">
+                                    <div class="message-header">
+                                        <span class="message-sender">${getMessageTypeIcon(msg.type)} ${msg.sender}</span>
+                                        <span class="message-time">${new Date(msg.timestamp).toLocaleString('ro-RO')}</span>
+                                    </div>
+                                    <div class="message-type">${getMessageTypeName(msg.type)}</div>
+                                    <div class="message-content">${msg.content}</div>
+                                    ${msg.photo ? `
+                                        <div class="message-photo">
+                                            <img src="${msg.photo}" alt="Photo" onclick="openPhotoModal('${msg.photo}')" style="max-width: 100px; max-height: 80px;">
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            `).join('') + (participantMessages.length > 3 ? '<p style="color: #666; font-style: italic; text-align: center;">... și alte mesaje</p>' : '') : 
+                            '<p style="color: #666; font-style: italic;">Nu există mesaje</p>'
+                        }
+                    </div>
+                </div>
+            `;
+            
+            card.addEventListener('click', () => {
+                currentRecipient = participant;
+                const targetName = document.getElementById('targetName');
+                const participantMessagesName = document.getElementById('participantMessagesName');
+                
+                if (targetName) targetName.textContent = participant.name;
+                if (participantMessagesName) participantMessagesName.textContent = participant.name;
+                
+                showTab('scan');
+                
+                const messageForm = document.getElementById('messageForm');
+                if (messageForm) messageForm.classList.remove('hidden');
+            });
+            
+            setTimeout(() => {
+                generateQRCode(participant.id, displayName);
+            }, 100);
+            
+            return card;
+        }
+        
+        function generateQRCode(participantId, name) {
         const canvas = document.getElementById(`qr-${participantId}`);
         if (!canvas) return;
         
