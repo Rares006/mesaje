@@ -5,7 +5,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tabăra 2025 - Mesaje QR</title>
+<title>Tabăra 2025</title>
 <style>
 * {
 margin: 0;
@@ -563,22 +563,23 @@ filter: brightness(1.1);
 }
 
 .numeric-key.delete {
-background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
-grid-column: span 2;
-font-size: 16px;
-font-weight: 600;
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+    
+    font-size: 14px; /* font mai mic pentru text mai lung */
+    font-weight: 600;
 }
 
 .numeric-key.zero {
-grid-column: span 2;
+    font-size: 22px; /* font mai mic pentru text mai lung */
+    font-weight: 600;
 }
 
 .numeric-key.submit {
-background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
-grid-column: span 3;
-font-size: 16px;
-font-weight: 600;
+    background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+    font-size: 14px; /* font mai mic pentru text mai lung */
+    font-weight: 600;
 }
+
 
 .password-display {
 text-align: center;
@@ -1020,9 +1021,6 @@ margin-top: 15px;
                 <button class="numeric-key submit" data-key="submit" data-keypad="enter" id="checkParticipantPasswordBtn">🔓 Verifică</button>
             </div>
             
-            <div class="action-buttons">
-                <button class="btn btn-danger" id="resetParticipantPasswordBtn">🔄 Reset</button>
-            </div>
         </div>
     </div>
     
@@ -1345,6 +1343,11 @@ margin-top: 15px;
     window.saveParticipantToFirebase = saveParticipantToFirebase;
     window.saveMessageToFirebase = saveMessageToFirebase;
     window.autoSyncWithPasswords = autoSyncWithPasswords;
+    window.showPasswordSetupStep1 = showPasswordSetupStep1;
+    window.showPasswordSetupStep2 = showPasswordSetupStep2;
+    window.hideAllPasswordForms = hideAllPasswordForms;
+    window.handleKeypadInputModified = handleKeypadInput;
+    window.setupNumericKeypadModified = setupNumericKeypad;
     window.firebaseInitialized = true;
     </script>
     
@@ -1588,16 +1591,17 @@ margin-top: 15px;
     }
     }
     
-    function handleKeypadInput(keypadType, key) {
+    // Modifică funcția handleKeypadInput pentru a gestiona tranziția între pași
+function handleKeypadInput(keypadType, key) {
     const maxLengths = {
         'admin': 6,
         'new': 4,
         'confirm': 4, 
         'enter': 4
     };
-    
+
     const maxLength = maxLengths[keypadType];
-    
+
     if (key === 'delete') {
         switch(keypadType) {
             case 'admin':
@@ -1616,7 +1620,11 @@ margin-top: 15px;
     } else if (key === 'submit') {
         if (keypadType === 'admin') {
             checkAdminPasswordFromKeypad();
+        } else if (keypadType === 'new') {
+            // Pentru step 1 - treci la confirmarea parolei
+            showPasswordSetupStep2();
         } else if (keypadType === 'confirm') {
+            // Pentru step 2 - setează parola final
             setParticipantPassword();
         } else if (keypadType === 'enter') {
             checkParticipantPassword();
@@ -1646,22 +1654,24 @@ margin-top: 15px;
                 break;
         }
     }
-    
+
     const passwords = {
         'admin': adminPasswordInput,
         'new': newPasswordInput,
         'confirm': confirmPasswordInput,
         'enter': enterPasswordInput
     };
-    
+
     updatePasswordDisplay(keypadType, passwords[keypadType]);
-    
+
     if (navigator.vibrate) {
         navigator.vibrate(50);
     }
-    }
-    
-    function setupNumericKeypad() {
+}
+
+
+  // Actualizează funcția setupNumericKeypad pentru a folosi noua funcție
+function setupNumericKeypad() {
     document.querySelectorAll('.numeric-key').forEach(key => {
         function handleKeyAction(e) {
             e.preventDefault();
@@ -1670,7 +1680,7 @@ margin-top: 15px;
             const keyValue = key.getAttribute('data-key');
             const keypadType = key.getAttribute('data-keypad') || 'admin';
             
-            handleKeypadInput(keypadType, keyValue);
+            handleKeypadInputModified(keypadType, keyValue);
         }
         
         key.addEventListener('touchstart', function(e) {
@@ -1721,8 +1731,7 @@ margin-top: 15px;
             e.preventDefault();
         });
     });
-    }
-    
+}
     // ==================== PARTICIPANT MANAGEMENT ====================
     async function addParticipant() {
     const nameInput = document.getElementById('participantName');
@@ -2214,41 +2223,153 @@ margin-top: 15px;
     }
     
     function checkParticipantAccess() {
-        if (!currentRecipient) return;
+    if (!currentRecipient) return;
+
+    const passwordSection = document.getElementById('participantPasswordSection');
+    const messagesList = document.getElementById('participantMessagesList');
+    const setPasswordForm = document.getElementById('setPasswordForm');
+    const enterPasswordForm = document.getElementById('enterPasswordForm');
+    const passwordStatus = document.getElementById('passwordStatus');
+
+    if (!passwordSection || !messagesList || !setPasswordForm || !enterPasswordForm) return;
+
+    passwordSection.classList.remove('hidden');
+    messagesList.classList.add('hidden');
+    setPasswordForm.classList.add('hidden');
+    enterPasswordForm.classList.add('hidden');
+    if (passwordStatus) passwordStatus.classList.add('hidden');
+
+    // Reset password inputs
+    adminPasswordInput = '';
+    newPasswordInput = '';
+    confirmPasswordInput = '';
+    enterPasswordInput = '';
+
+    updatePasswordDisplay('admin', '');
+    updatePasswordDisplay('new', '');
+    updatePasswordDisplay('confirm', '');
+    updatePasswordDisplay('enter', '');
+
+    // Verifică dacă participantul are parolă setată (folosind passwordHash)
+    if (!currentRecipient.hasPassword || !currentRecipient.passwordHash) {
+        showPasswordSetupStep1(); // Arată primul pas - setarea parolei
+    } else {
+        if (passwordStatus) passwordStatus.classList.remove('hidden');
+        enterPasswordForm.classList.remove('hidden');
+    }
+}
+
+// Funcții noi pentru gestionarea pașilor de setare parolă
+function showPasswordSetupStep1() {
+    // Ascunde toate formularele
+    hideAllPasswordForms();
     
-        const passwordSection = document.getElementById('participantPasswordSection');
-        const messagesList = document.getElementById('participantMessagesList');
-        const setPasswordForm = document.getElementById('setPasswordForm');
-        const enterPasswordForm = document.getElementById('enterPasswordForm');
-        const passwordStatus = document.getElementById('passwordStatus');
-    
-        if (!passwordSection || !messagesList || !setPasswordForm || !enterPasswordForm) return;
-    
-        passwordSection.classList.remove('hidden');
-        messagesList.classList.add('hidden');
-        setPasswordForm.classList.add('hidden');
-        enterPasswordForm.classList.add('hidden');
-        if (passwordStatus) passwordStatus.classList.add('hidden');
-    
-        adminPasswordInput = '';
-        newPasswordInput = '';
-        confirmPasswordInput = '';
-        enterPasswordInput = '';
-    
-        updatePasswordDisplay('admin', '');
-        updatePasswordDisplay('new', '');
-        updatePasswordDisplay('confirm', '');
-        updatePasswordDisplay('enter', '');
-    
-        // Verifică dacă participantul are parolă setată (folosind passwordHash)
-        if (!currentRecipient.hasPassword || !currentRecipient.passwordHash) {
-            setPasswordForm.classList.remove('hidden');
-        } else {
-            if (passwordStatus) passwordStatus.classList.remove('hidden');
-            enterPasswordForm.classList.remove('hidden');
-        }
+    // Arată doar formularul pentru setarea parolei noi
+    const setPasswordForm = document.getElementById('setPasswordForm');
+    if (setPasswordForm) {
+        // Modifică conținutul pentru a arăta doar primul keypad
+        setPasswordForm.innerHTML = `
+            <p style="margin-bottom: 15px; color: #4c63d2; font-weight: 600;">
+                Setează o parolă de 4 cifre:
+            </p>
+            
+            <div class="keypad-container">
+                <div class="password-display">
+                    <span id="newPasswordDisplay" class="password-dots"></span>
+                </div>
+                
+                <div class="numeric-keypad">
+                    <button class="numeric-key" data-key="1" data-keypad="new">1</button>
+                    <button class="numeric-key" data-key="2" data-keypad="new">2</button>
+                    <button class="numeric-key" data-key="3" data-keypad="new">3</button>
+                    <button class="numeric-key" data-key="4" data-keypad="new">4</button>
+                    <button class="numeric-key" data-key="5" data-keypad="new">5</button>
+                    <button class="numeric-key" data-key="6" data-keypad="new">6</button>
+                    <button class="numeric-key" data-key="7" data-keypad="new">7</button>
+                    <button class="numeric-key" data-key="8" data-keypad="new">8</button>
+                    <button class="numeric-key" data-key="9" data-keypad="new">9</button>
+                    <button class="numeric-key delete" data-key="delete" data-keypad="new">🔙 Șterge</button>
+                    <button class="numeric-key zero" data-key="0" data-keypad="new">0</button>
+                    <button class="numeric-key submit" data-key="submit" data-keypad="new" id="continueToConfirmBtn">➡️ Continuă</button>
+                </div>
+            </div>
+        `;
+        setPasswordForm.classList.remove('hidden');
+        
+        // Re-setup keypad events pentru noile butoane
+        setupNumericKeypad();
+    }
+}
+
+function showPasswordSetupStep2() {
+    // Verifică dacă parola are 4 cifre
+    if (newPasswordInput.length !== 4) {
+        showMessage('Parola trebuie să fie de exact 4 cifre!', 'error');
+        return;
     }
     
+    // Ascunde toate formularele
+    hideAllPasswordForms();
+    
+    // Arată formularul pentru confirmarea parolei
+    const setPasswordForm = document.getElementById('setPasswordForm');
+    if (setPasswordForm) {
+        setPasswordForm.innerHTML = `
+            <p style="margin-bottom: 15px; color: #4c63d2; font-weight: 600;">
+                Confirmă parola de 4 cifre:
+            </p>
+            
+            <div class="keypad-container">
+                <div class="password-display">
+                    <span id="confirmPasswordDisplay" class="password-dots"></span>
+                </div>
+                
+                <div class="numeric-keypad">
+                    <button class="numeric-key" data-key="1" data-keypad="confirm">1</button>
+                    <button class="numeric-key" data-key="2" data-keypad="confirm">2</button>
+                    <button class="numeric-key" data-key="3" data-keypad="confirm">3</button>
+                    <button class="numeric-key" data-key="4" data-keypad="confirm">4</button>
+                    <button class="numeric-key" data-key="5" data-keypad="confirm">5</button>
+                    <button class="numeric-key" data-key="6" data-keypad="confirm">6</button>
+                    <button class="numeric-key" data-key="7" data-keypad="confirm">7</button>
+                    <button class="numeric-key" data-key="8" data-keypad="confirm">8</button>
+                    <button class="numeric-key" data-key="9" data-keypad="confirm">9</button>
+                    <button class="numeric-key delete" data-key="delete" data-keypad="confirm">🔙 Șterge</button>
+                    <button class="numeric-key zero" data-key="0" data-keypad="confirm">0</button>
+                    <button class="numeric-key submit" data-key="submit" data-keypad="confirm" id="setParticipantPasswordBtn">🔒 Setează</button>
+                </div>
+                
+                <div class="action-buttons" style="margin-top: 15px;">
+                    <button class="btn btn-secondary" id="backToStep1Btn">⬅️ Înapoi</button>
+                </div>
+            </div>
+        `;
+        setPasswordForm.classList.remove('hidden');
+        
+        // Re-setup keypad events și button events
+        setupNumericKeypad();
+        
+        // Adaugă event listener pentru butonul de înapoi
+        const backToStep1Btn = document.getElementById('backToStep1Btn');
+        if (backToStep1Btn) {
+            backToStep1Btn.addEventListener('click', function() {
+                confirmPasswordInput = ''; // Reset confirmare
+                updatePasswordDisplay('confirm', '');
+                showPasswordSetupStep1();
+            });
+        }
+    }
+}
+
+function hideAllPasswordForms() {
+    const setPasswordForm = document.getElementById('setPasswordForm');
+    const enterPasswordForm = document.getElementById('enterPasswordForm');
+    const passwordStatus = document.getElementById('passwordStatus');
+    
+    if (setPasswordForm) setPasswordForm.classList.add('hidden');
+    if (enterPasswordForm) enterPasswordForm.classList.add('hidden');
+    if (passwordStatus) passwordStatus.classList.add('hidden');
+}
     // ==================== MESSAGE MANAGEMENT ====================
     async function sendMessage() {
     const senderNameInput = document.getElementById('senderName');
