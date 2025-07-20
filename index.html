@@ -1049,827 +1049,846 @@ margin-top: 15px;
 
 <!-- Firebase SDK -->
 <script type="module">
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
-import { getFirestore, collection, addDoc, serverTimestamp, getDocs, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
-
-
-// Configurația Firebase
-const firebaseConfig = {
-apiKey: "AIzaSyAA1ytLJrwh7JHSOwGQrf2t_5imgtiWLk4",
-authDomain: "tabara-2025-95ff5.firebaseapp.com",
-projectId: "tabara-2025-95ff5",
-storageBucket: "tabara-2025-95ff5.firebasestorage.app",
-messagingSenderId: "552618851743",
-appId: "1:552618851743:web:tabara2025app"
-};
-
-// Inițializează Firebase
-const app = initializeApp(firebaseConfig);
-const storage = getStorage(app);
-const db = getFirestore(app);
-
-// Funcție pentru încărcarea pozei în Firebase Storage
-async function uploadImageToFirebase(file, objectName) {
-try {
-    const timestamp = Date.now();
-    const fileName = `mesaje-tabara/${objectName}_${timestamp}.jpg`;
-    const storageRef = ref(storage, fileName);
-    const snapshot = await uploadBytes(storageRef, file);
-    const downloadURL = await getDownloadURL(snapshot.ref);
-    return downloadURL;
-} catch (error) {
-    console.error("Eroare la încărcarea pozei:", error);
-    throw error;
-}
-}
-
-// Funcție pentru încărcarea participanților din Firebase
-async function loadParticipantsFromFirebase() {
-    try {
-        const q = query(collection(db, "participants"), orderBy("createdAt", "asc"));
-        const querySnapshot = await getDocs(q);
-        const firebaseParticipants = [];
-        
-        querySnapshot.forEach((doc) => {
-            const data = doc.data();
-            firebaseParticipants.push({
-                id: data.localId || data.createdAt?.toMillis() || Date.now(),
-                name: data.name,
-                nickname: data.nickname || '',
-                color: data.color,
-                hasPassword: data.hasPassword || false,
-                password: null // Parolele nu se salvează în cloud pentru securitate
-            });
-        });
-        
-        return firebaseParticipants;
-    } catch (error) {
-        console.error("Eroare la încărcarea participanților:", error);
-        return [];
-    }
-}
-
-// Funcție pentru încărcarea mesajelor din Firebase
-async function loadMessagesFromFirebase() {
-    try {
-        const q = query(collection(db, "messages"), orderBy("createdAt", "asc"));
-        const querySnapshot = await getDocs(q);
-        const firebaseMessages = [];
-        
-        querySnapshot.forEach((doc) => {
-            const data = doc.data();
-            firebaseMessages.push({
-                id: data.localMessageId || data.createdAt || Date.now(),
-                recipientId: data.recipientId,
-                sender: data.sender,
-                type: data.type,
-                content: data.content,
-                photo: data.photo,
-                timestamp: data.createdAt || new Date().toISOString()
-            });
-        });
-        
-        return firebaseMessages;
-    } catch (error) {
-        console.error("Eroare la încărcarea mesajelor:", error);
-        return [];
-    }
-}
-
-// Funcție pentru sincronizare automată
-async function autoSync() {
-    if (!window.firebaseInitialized) return;
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+    import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
+    import { getFirestore, collection, addDoc, serverTimestamp, getDocs, query, orderBy, doc, updateDoc, where } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
     
+    // Configurația Firebase
+    const firebaseConfig = {
+    apiKey: "AIzaSyAA1ytLJrwh7JHSOwGQrf2t_5imgtiWLk4",
+    authDomain: "tabara-2025-95ff5.firebaseapp.com",
+    projectId: "tabara-2025-95ff5",
+    storageBucket: "tabara-2025-95ff5.firebasestorage.app",
+    messagingSenderId: "552618851743",
+    appId: "1:552618851743:web:tabara2025app"
+    };
+    
+    // Inițializează Firebase
+    const app = initializeApp(firebaseConfig);
+    const storage = getStorage(app);
+    const db = getFirestore(app);
+    
+    // Funcție pentru încărcarea pozei în Firebase Storage
+    async function uploadImageToFirebase(file, objectName) {
     try {
-        const firebaseParticipants = await window.loadParticipantsFromFirebase();
-        const firebaseMessages = await window.loadMessagesFromFirebase();
-        
-        let updated = false;
-        
-        if (firebaseParticipants.length > participants.length) {
-            participants = firebaseParticipants;
-            localStorage.setItem('participants', JSON.stringify(participants));
-            loadParticipants();
-            loadQuickParticipants();
-            updated = true;
-        }
-        
-        if (firebaseMessages.length > messages.length) {
-            messages = firebaseMessages;
-            localStorage.setItem('messages', JSON.stringify(messages));
-            updateParticipantMessages();
-            if (isLoggedIn) displayAllMessages();
-            updated = true;
-        }
-        
-        if (updated) {
-            console.log('Date sincronizate automat din cloud');
-        }
+        const timestamp = Date.now();
+        const fileName = `mesaje-tabara/${objectName}_${timestamp}.jpg`;
+        const storageRef = ref(storage, fileName);
+        const snapshot = await uploadBytes(storageRef, file);
+        const downloadURL = await getDownloadURL(snapshot.ref);
+        return downloadURL;
     } catch (error) {
-        console.error('Eroare la sincronizarea automată:', error);
+        console.error("Eroare la încărcarea pozei:", error);
+        throw error;
     }
-}
-
-// Fă funcția disponibilă global
-window.autoSync = autoSync;
-
-// Fă funcțiile disponibile global
-window.loadParticipantsFromFirebase = loadParticipantsFromFirebase;
-window.loadMessagesFromFirebase = loadMessagesFromFirebase;
-
-// Funcție pentru salvarea participanților în Firebase
-async function saveParticipantToFirebase(participant) {
-try {
-    const docRef = await addDoc(collection(db, "participants"), {
-        name: participant.name,
-        nickname: participant.nickname || '',
-        color: participant.color,
-        hasPassword: participant.hasPassword,
-        createdAt: serverTimestamp(),
-        localId: participant.id
-    });
-    return docRef.id;
-} catch (error) {
-    console.error("Eroare la salvarea participantului:", error);
-    throw error;
-}
-}
-
-// Funcție pentru salvarea mesajelor în Firebase
-async function saveMessageToFirebase(message, recipientName) {
-try {
-    const docRef = await addDoc(collection(db, "messages"), {
-        recipientId: message.recipientId,
-        recipientName: recipientName,
-        sender: message.sender,
-        type: message.type,
-        content: message.content,
-        photo: message.photo || null,
-        timestamp: serverTimestamp(),
-        createdAt: new Date().toISOString(),
-        localMessageId: message.id
-    });
-    return docRef.id;
-} catch (error) {
-    console.error("Eroare la salvarea mesajului:", error);
-    throw error;
-}
-}
-
-// Fă funcțiile disponibile global
-window.uploadImageToFirebase = uploadImageToFirebase;
-window.saveParticipantToFirebase = saveParticipantToFirebase;
-window.saveMessageToFirebase = saveMessageToFirebase;
-window.firebaseInitialized = true;
-</script>
-
-<script>
-// ==================== GLOBAL VARIABLES ====================
-let participants = [];
-let messages = [];
-let password = localStorage.getItem('password');
-let isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-let currentRecipient = null;
-let videoStream = null;
-let scanning = false;
-let currentPhotoData = null;
-
-// Password input states for numeric keypad
-let adminPasswordInput = '';
-let newPasswordInput = '';
-let confirmPasswordInput = '';
-let enterPasswordInput = '';
-
-// ==================== UTILITY FUNCTIONS ====================
-function showMessage(message, type = 'info') {
-const existingNotifications = document.querySelectorAll('.message-notification');
-existingNotifications.forEach(notif => notif.remove());
-
-const messageDiv = document.createElement('div');
-messageDiv.className = 'message-notification';
-messageDiv.textContent = message;
-
-const colors = {
-    'success': 'linear-gradient(135deg, #4caf50 0%, #45a049 100%)',
-    'error': 'linear-gradient(135deg, #f44336 0%, #d32f2f 100%)',
-    'info': 'linear-gradient(135deg, #2196f3 0%, #1976d2 100%)'
-};
-
-messageDiv.style.background = colors[type] || colors.info;
-messageDiv.style.position = 'fixed';
-messageDiv.style.top = '20px';
-messageDiv.style.right = '20px';
-messageDiv.style.padding = '12px 16px';
-messageDiv.style.borderRadius = '10px';
-messageDiv.style.color = 'white';
-messageDiv.style.fontWeight = '600';
-messageDiv.style.zIndex = '1000';
-messageDiv.style.maxWidth = '280px';
-messageDiv.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.2)';
-messageDiv.style.fontSize = '14px';
-
-document.body.appendChild(messageDiv);
-
-setTimeout(() => {
-    if (messageDiv.parentNode) {
-        messageDiv.remove();
     }
-}, 3000);
-}
-
-function sanitizeInput(input) {
-const div = document.createElement('div');
-div.textContent = input;
-return div.innerHTML;
-}
-
-function hashCode(str) {
-let hash = 0;
-for (let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash = hash & hash;
-}
-return Math.abs(hash);
-}
-
-function getMessageTypeIcon(type) {
-const icons = {
-    'mesaj': '📝',
-    'compliment': '💝',
-    'amintire': '🌟',
-    'gluma': '😂',
-    'incurajare': '💪',
-    'multumire': '🙏',
-    'foto': '📸'
-};
-return icons[type] || '📝';
-}
-
-function getMessageTypeName(type) {
-const names = {
-    'mesaj': 'Mesaj simplu',
-    'compliment': 'Compliment',
-    'amintire': 'Amintire frumoasă',
-    'gluma': 'Glumă',
-    'incurajare': 'Încurajare',
-    'multumire': 'Mulțumire',
-    'foto': 'Doar fotografie'
-};
-return names[type] || 'Mesaj';
-}
-
-// ==================== PHOTO FUNCTIONS ====================
-function setupPhotoUpload() {
-const photoUpload = document.getElementById('photoUpload');
-const photoPreview = document.getElementById('photoPreview');
-const previewImage = document.getElementById('previewImage');
-const removePhoto = document.getElementById('removePhoto');
-
-if (photoUpload) {
-    photoUpload.addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            if (file.size > 5 * 1024 * 1024) {
-                showMessage('Poza este prea mare! Maxim 5MB.', 'error');
-                return;
-            }
-
-            if (!file.type.startsWith('image/')) {
-                showMessage('Te rog selectează doar imagini!', 'error');
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                currentPhotoData = e.target.result;
-                previewImage.src = currentPhotoData;
-                photoPreview.style.display = 'block';
-                showMessage('Poza a fost adăugată cu succes!', 'success');
-            };
-            reader.readAsDataURL(file);
+    
+    // Funcție pentru hash-ul parolei
+    function hashPassword(password) {
+        let hash = 0;
+        const salt = "tabara2025_salt_";
+        const input = salt + password;
+        
+        for (let i = 0; i < input.length; i++) {
+            const char = input.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash;
         }
-    });
-}
-
-if (removePhoto) {
-    removePhoto.addEventListener('click', function() {
-        currentPhotoData = null;
-        photoPreview.style.display = 'none';
-        previewImage.src = '';
-        photoUpload.value = '';
-        showMessage('Poza a fost eliminată!', 'info');
-    });
-}
-}
-
-function setupPhotoModal() {
-const modal = document.getElementById('photoModal');
-const closeBtn = document.querySelector('.photo-modal-close');
-
-if (closeBtn) {
-    closeBtn.addEventListener('click', function() {
-        modal.style.display = 'none';
-    });
-}
-
-if (modal) {
-    modal.addEventListener('click', function(e) {
-        if (e.target === modal) {
+        return Math.abs(hash).toString(36);
+    }
+    
+    // Funcție pentru verificarea parolei
+    function verifyPassword(inputPassword, storedHash) {
+        return hashPassword(inputPassword) === storedHash;
+    }
+    
+    // Funcție pentru salvarea parolei în Firebase
+    async function saveParticipantPasswordToFirebase(participantId, hashedPassword) {
+        try {
+            const q = query(collection(db, "participants"), where("localId", "==", participantId));
+            const querySnapshot = await getDocs(q);
+            
+            if (!querySnapshot.empty) {
+                const docRef = querySnapshot.docs[0].ref;
+                await updateDoc(docRef, {
+                    hasPassword: true,
+                    passwordHash: hashedPassword,
+                    passwordUpdatedAt: serverTimestamp()
+                });
+                return true;
+            }
+            return false;
+        } catch (error) {
+            console.error("Eroare la salvarea parolei în Firebase:", error);
+            throw error;
+        }
+    }
+    
+    // Funcție pentru resetarea parolei în Firebase
+    async function resetParticipantPasswordInFirebase(participantId) {
+        try {
+            const q = query(collection(db, "participants"), where("localId", "==", participantId));
+            const querySnapshot = await getDocs(q);
+            
+            if (!querySnapshot.empty) {
+                const docRef = querySnapshot.docs[0].ref;
+                await updateDoc(docRef, {
+                    hasPassword: false,
+                    passwordHash: null,
+                    passwordUpdatedAt: serverTimestamp()
+                });
+                return true;
+            }
+            return false;
+        } catch (error) {
+            console.error("Eroare la resetarea parolei în Firebase:", error);
+            throw error;
+        }
+    }
+    
+    // Funcție pentru încărcarea parolelor din Firebase
+    async function loadParticipantPasswordsFromFirebase() {
+        try {
+            const q = query(collection(db, "participants"), orderBy("createdAt", "asc"));
+            const querySnapshot = await getDocs(q);
+            const passwordData = {};
+            
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                if (data.localId && data.hasPassword) {
+                    passwordData[data.localId] = {
+                        hasPassword: data.hasPassword,
+                        passwordHash: data.passwordHash || null
+                    };
+                }
+            });
+            
+            return passwordData;
+        } catch (error) {
+            console.error("Eroare la încărcarea parolelor din Firebase:", error);
+            return {};
+        }
+    }
+    
+    // Funcție pentru încărcarea participanților din Firebase
+    async function loadParticipantsFromFirebase() {
+        try {
+            const q = query(collection(db, "participants"), orderBy("createdAt", "asc"));
+            const querySnapshot = await getDocs(q);
+            const firebaseParticipants = [];
+            
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                firebaseParticipants.push({
+                    id: data.localId || data.createdAt?.toMillis() || Date.now(),
+                    name: data.name,
+                    nickname: data.nickname || '',
+                    color: data.color,
+                    hasPassword: data.hasPassword || false,
+                    password: null
+                });
+            });
+            
+            return firebaseParticipants;
+        } catch (error) {
+            console.error("Eroare la încărcarea participanților:", error);
+            return [];
+        }
+    }
+    
+    // Funcție modificată pentru încărcarea participanților cu parole din Firebase
+    async function loadParticipantsFromFirebaseWithPasswords() {
+        try {
+            const [participantsData, passwordData] = await Promise.all([
+                loadParticipantsFromFirebase(),
+                loadParticipantPasswordsFromFirebase()
+            ]);
+            
+            // Combină datele participanților cu parolele
+            const participantsWithPasswords = participantsData.map(participant => {
+                const passwordInfo = passwordData[participant.id];
+                return {
+                    ...participant,
+                    hasPassword: passwordInfo ? passwordInfo.hasPassword : false,
+                    passwordHash: passwordInfo ? passwordInfo.passwordHash : null,
+                    password: null // Nu salvăm parola în text clar
+                };
+            });
+            
+            return participantsWithPasswords;
+        } catch (error) {
+            console.error("Eroare la încărcarea participanților cu parole:", error);
+            return await loadParticipantsFromFirebase(); // Fallback la versiunea fără parole
+        }
+    }
+    
+    // Funcție pentru încărcarea mesajelor din Firebase
+    async function loadMessagesFromFirebase() {
+        try {
+            const q = query(collection(db, "messages"), orderBy("createdAt", "asc"));
+            const querySnapshot = await getDocs(q);
+            const firebaseMessages = [];
+            
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                firebaseMessages.push({
+                    id: data.localMessageId || data.createdAt || Date.now(),
+                    recipientId: data.recipientId,
+                    sender: data.sender,
+                    type: data.type,
+                    content: data.content,
+                    photo: data.photo,
+                    timestamp: data.createdAt || new Date().toISOString()
+                });
+            });
+            
+            return firebaseMessages;
+        } catch (error) {
+            console.error("Eroare la încărcarea mesajelor:", error);
+            return [];
+        }
+    }
+    
+    // Funcție modificată pentru sincronizarea automată cu parole
+    async function autoSyncWithPasswords() {
+        if (!window.firebaseInitialized) return;
+        
+        try {
+            const firebaseParticipants = await loadParticipantsFromFirebaseWithPasswords();
+            const firebaseMessages = await loadMessagesFromFirebase();
+            
+            let updated = false;
+            
+            // Verifică dacă participanții sau parolele au fost actualizate
+            if (firebaseParticipants.length >= participants.length) {
+                const hasPasswordUpdates = firebaseParticipants.some(fbParticipant => {
+                    const localParticipant = participants.find(p => p.id === fbParticipant.id);
+                    return !localParticipant || 
+                           localParticipant.hasPassword !== fbParticipant.hasPassword ||
+                           localParticipant.passwordHash !== fbParticipant.passwordHash;
+                });
+                
+                if (firebaseParticipants.length > participants.length || hasPasswordUpdates) {
+                    participants = firebaseParticipants;
+                    localStorage.setItem('participants', JSON.stringify(participants));
+                    loadParticipants();
+                    loadQuickParticipants();
+                    updated = true;
+                }
+            }
+            
+            if (firebaseMessages.length > messages.length) {
+                messages = firebaseMessages;
+                localStorage.setItem('messages', JSON.stringify(messages));
+                updateParticipantMessages();
+                if (isLoggedIn) displayAllMessages();
+                updated = true;
+            }
+            
+            if (updated) {
+                console.log('Date sincronizate automat din cloud (inclusiv parole)');
+            }
+        } catch (error) {
+            console.error('Eroare la sincronizarea automată:', error);
+        }
+    }
+    
+    // Funcție pentru salvarea participanților în Firebase
+    async function saveParticipantToFirebase(participant) {
+    try {
+        const docRef = await addDoc(collection(db, "participants"), {
+            name: participant.name,
+            nickname: participant.nickname || '',
+            color: participant.color,
+            hasPassword: participant.hasPassword,
+            createdAt: serverTimestamp(),
+            localId: participant.id
+        });
+        return docRef.id;
+    } catch (error) {
+        console.error("Eroare la salvarea participantului:", error);
+        throw error;
+    }
+    }
+    
+    // Funcție pentru salvarea mesajelor în Firebase
+    async function saveMessageToFirebase(message, recipientName) {
+    try {
+        const docRef = await addDoc(collection(db, "messages"), {
+            recipientId: message.recipientId,
+            recipientName: recipientName,
+            sender: message.sender,
+            type: message.type,
+            content: message.content,
+            photo: message.photo || null,
+            timestamp: serverTimestamp(),
+            createdAt: new Date().toISOString(),
+            localMessageId: message.id
+        });
+        return docRef.id;
+    } catch (error) {
+        console.error("Eroare la salvarea mesajului:", error);
+        throw error;
+    }
+    }
+    
+    // Fă funcțiile disponibile global
+    window.uploadImageToFirebase = uploadImageToFirebase;
+    window.hashPassword = hashPassword;
+    window.verifyPassword = verifyPassword;
+    window.saveParticipantPasswordToFirebase = saveParticipantPasswordToFirebase;
+    window.resetParticipantPasswordInFirebase = resetParticipantPasswordInFirebase;
+    window.loadParticipantPasswordsFromFirebase = loadParticipantPasswordsFromFirebase;
+    window.loadParticipantsFromFirebase = loadParticipantsFromFirebase;
+    window.loadParticipantsFromFirebaseWithPasswords = loadParticipantsFromFirebaseWithPasswords;
+    window.loadMessagesFromFirebase = loadMessagesFromFirebase;
+    window.saveParticipantToFirebase = saveParticipantToFirebase;
+    window.saveMessageToFirebase = saveMessageToFirebase;
+    window.autoSyncWithPasswords = autoSyncWithPasswords;
+    window.firebaseInitialized = true;
+    </script>
+    
+    <script>
+    // ==================== GLOBAL VARIABLES ====================
+    let participants = [];
+    let messages = [];
+    let password = localStorage.getItem('password');
+    let isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    let currentRecipient = null;
+    let videoStream = null;
+    let scanning = false;
+    let currentPhotoData = null;
+    
+    // Password input states for numeric keypad
+    let adminPasswordInput = '';
+    let newPasswordInput = '';
+    let confirmPasswordInput = '';
+    let enterPasswordInput = '';
+    
+    // ==================== UTILITY FUNCTIONS ====================
+    function showMessage(message, type = 'info') {
+    const existingNotifications = document.querySelectorAll('.message-notification');
+    existingNotifications.forEach(notif => notif.remove());
+    
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'message-notification';
+    messageDiv.textContent = message;
+    
+    const colors = {
+        'success': 'linear-gradient(135deg, #4caf50 0%, #45a049 100%)',
+        'error': 'linear-gradient(135deg, #f44336 0%, #d32f2f 100%)',
+        'info': 'linear-gradient(135deg, #2196f3 0%, #1976d2 100%)'
+    };
+    
+    messageDiv.style.background = colors[type] || colors.info;
+    messageDiv.style.position = 'fixed';
+    messageDiv.style.top = '20px';
+    messageDiv.style.right = '20px';
+    messageDiv.style.padding = '12px 16px';
+    messageDiv.style.borderRadius = '10px';
+    messageDiv.style.color = 'white';
+    messageDiv.style.fontWeight = '600';
+    messageDiv.style.zIndex = '1000';
+    messageDiv.style.maxWidth = '280px';
+    messageDiv.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.2)';
+    messageDiv.style.fontSize = '14px';
+    
+    document.body.appendChild(messageDiv);
+    
+    setTimeout(() => {
+        if (messageDiv.parentNode) {
+            messageDiv.remove();
+        }
+    }, 3000);
+    }
+    
+    function sanitizeInput(input) {
+    const div = document.createElement('div');
+    div.textContent = input;
+    return div.innerHTML;
+    }
+    
+    function hashCode(str) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+        const char = str.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash;
+    }
+    return Math.abs(hash);
+    }
+    
+    function getMessageTypeIcon(type) {
+    const icons = {
+        'mesaj': '📝',
+        'compliment': '💝',
+        'amintire': '🌟',
+        'gluma': '😂',
+        'incurajare': '💪',
+        'multumire': '🙏',
+        'foto': '📸'
+    };
+    return icons[type] || '📝';
+    }
+    
+    function getMessageTypeName(type) {
+    const names = {
+        'mesaj': 'Mesaj simplu',
+        'compliment': 'Compliment',
+        'amintire': 'Amintire frumoasă',
+        'gluma': 'Glumă',
+        'incurajare': 'Încurajare',
+        'multumire': 'Mulțumire',
+        'foto': 'Doar fotografie'
+    };
+    return names[type] || 'Mesaj';
+    }
+    
+    // ==================== PHOTO FUNCTIONS ====================
+    function setupPhotoUpload() {
+    const photoUpload = document.getElementById('photoUpload');
+    const photoPreview = document.getElementById('photoPreview');
+    const previewImage = document.getElementById('previewImage');
+    const removePhoto = document.getElementById('removePhoto');
+    
+    if (photoUpload) {
+        photoUpload.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                if (file.size > 5 * 1024 * 1024) {
+                    showMessage('Poza este prea mare! Maxim 5MB.', 'error');
+                    return;
+                }
+    
+                if (!file.type.startsWith('image/')) {
+                    showMessage('Te rog selectează doar imagini!', 'error');
+                    return;
+                }
+    
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    currentPhotoData = e.target.result;
+                    previewImage.src = currentPhotoData;
+                    photoPreview.style.display = 'block';
+                    showMessage('Poza a fost adăugată cu succes!', 'success');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+    
+    if (removePhoto) {
+        removePhoto.addEventListener('click', function() {
+            currentPhotoData = null;
+            photoPreview.style.display = 'none';
+            previewImage.src = '';
+            photoUpload.value = '';
+            showMessage('Poza a fost eliminată!', 'info');
+        });
+    }
+    }
+    
+    function setupPhotoModal() {
+    const modal = document.getElementById('photoModal');
+    const closeBtn = document.querySelector('.photo-modal-close');
+    
+    if (closeBtn) {
+        closeBtn.addEventListener('click', function() {
+            modal.style.display = 'none';
+        });
+    }
+    
+    if (modal) {
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+    }
+    
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modal.style.display === 'block') {
             modal.style.display = 'none';
         }
     });
-}
-
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape' && modal.style.display === 'block') {
-        modal.style.display = 'none';
-    }
-});
-}
-
-function openPhotoModal(imageSrc) {
-const modal = document.getElementById('photoModal');
-const modalImage = document.getElementById('modalImage');
-
-if (modal && modalImage) {
-    modalImage.src = imageSrc;
-    modal.style.display = 'block';
-}
-}
-
-function clearPhotoData() {
-currentPhotoData = null;
-const photoPreview = document.getElementById('photoPreview');
-const previewImage = document.getElementById('previewImage');
-const photoUpload = document.getElementById('photoUpload');
-
-if (photoPreview) photoPreview.style.display = 'none';
-if (previewImage) previewImage.src = '';
-if (photoUpload) photoUpload.value = '';
-}
-
-async function base64ToFile(base64, filename = 'photo.jpg') {
-const response = await fetch(base64);
-const blob = await response.blob();
-return new File([blob], filename, { type: blob.type });
-}
-
-// ==================== TAB MANAGEMENT ====================
-function showTab(tabName) {
-document.querySelectorAll('.tab-content').forEach(tab => {
-    tab.classList.remove('active');
-});
-document.querySelectorAll('.nav-tab').forEach(btn => {
-    btn.classList.remove('active');
-});
-
-const targetTab = document.getElementById(tabName);
-const targetButton = document.querySelector(`[data-tab="${tabName}"]`);
-
-if (targetTab) targetTab.classList.add('active');
-if (targetButton) targetButton.classList.add('active');
-
-switch (tabName) {
-    case 'admin':
-        loadParticipants();
-        break;
-    case 'scan':
-        loadQuickParticipants();
-        break;
-    case 'messages':
-        checkMessagesAccess();
-        break;
-    case 'participantMessages':
-        checkParticipantAccess();
-        break;
-}
-}
-
-// ==================== NUMERIC KEYPAD FUNCTIONS ====================
-function updatePasswordDisplay(keypadType, password) {
-const displays = {
-    'admin': 'adminPasswordDisplay',
-    'new': 'newPasswordDisplay', 
-    'confirm': 'confirmPasswordDisplay',
-    'enter': 'enterPasswordDisplay'
-};
-
-const displayId = displays[keypadType];
-const display = document.getElementById(displayId);
-
-if (display) {
-    display.textContent = '●'.repeat(password.length);
-}
-}
-
-function handleKeypadInput(keypadType, key) {
-const maxLengths = {
-    'admin': 6,
-    'new': 4,
-    'confirm': 4, 
-    'enter': 4
-};
-
-const maxLength = maxLengths[keypadType];
-
-if (key === 'delete') {
-    switch(keypadType) {
-        case 'admin':
-            adminPasswordInput = adminPasswordInput.slice(0, -1);
-            break;
-        case 'new':
-            newPasswordInput = newPasswordInput.slice(0, -1);
-            break;
-        case 'confirm':
-            confirmPasswordInput = confirmPasswordInput.slice(0, -1);
-            break;
-        case 'enter':
-            enterPasswordInput = enterPasswordInput.slice(0, -1);
-            break;
-    }
-} else if (key === 'submit') {
-    if (keypadType === 'admin') {
-        checkAdminPasswordFromKeypad();
-    } else if (keypadType === 'confirm') {
-        setParticipantPassword();
-    } else if (keypadType === 'enter') {
-        checkParticipantPassword();
-    }
-    return;
-} else if (key >= '0' && key <= '9') {
-    switch(keypadType) {
-        case 'admin':
-            if (adminPasswordInput.length < maxLength) {
-                adminPasswordInput += key;
-            }
-            break;
-        case 'new':
-            if (newPasswordInput.length < maxLength) {
-                newPasswordInput += key;
-            }
-            break;
-        case 'confirm':
-            if (confirmPasswordInput.length < maxLength) {
-                confirmPasswordInput += key;
-            }
-            break;
-        case 'enter':
-            if (enterPasswordInput.length < maxLength) {
-                enterPasswordInput += key;
-            }
-            break;
-    }
-}
-
-const passwords = {
-    'admin': adminPasswordInput,
-    'new': newPasswordInput,
-    'confirm': confirmPasswordInput,
-    'enter': enterPasswordInput
-};
-
-updatePasswordDisplay(keypadType, passwords[keypadType]);
-
-if (navigator.vibrate) {
-    navigator.vibrate(50);
-}
-}
-
-function setupNumericKeypad() {
-document.querySelectorAll('.numeric-key').forEach(key => {
-    // Funcția pentru handling acțiunii
-    function handleKeyAction(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        
-        const keyValue = key.getAttribute('data-key');
-        const keypadType = key.getAttribute('data-keypad') || 'admin';
-        
-        handleKeypadInput(keypadType, keyValue);
     }
     
-    // Event listeners pentru mobile (touchstart este prioritar)
-    key.addEventListener('touchstart', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        
-        // Efecte vizuale pentru feedback
-        this.style.transform = 'translateY(-4px) scale(1.05)';
-        this.style.filter = 'brightness(1.2)';
-        
-        // Execută acțiunea imediat
-        handleKeyAction(e);
-        
-        // Vibrație tactilă dacă e disponibilă
-        if (navigator.vibrate) {
-            navigator.vibrate(50);
+    function openPhotoModal(imageSrc) {
+    const modal = document.getElementById('photoModal');
+    const modalImage = document.getElementById('modalImage');
+    
+    if (modal && modalImage) {
+        modalImage.src = imageSrc;
+        modal.style.display = 'block';
+    }
+    }
+    
+    function clearPhotoData() {
+    currentPhotoData = null;
+    const photoPreview = document.getElementById('photoPreview');
+    const previewImage = document.getElementById('previewImage');
+    const photoUpload = document.getElementById('photoUpload');
+    
+    if (photoPreview) photoPreview.style.display = 'none';
+    if (previewImage) previewImage.src = '';
+    if (photoUpload) photoUpload.value = '';
+    }
+    
+    async function base64ToFile(base64, filename = 'photo.jpg') {
+    const response = await fetch(base64);
+    const blob = await response.blob();
+    return new File([blob], filename, { type: blob.type });
+    }
+    
+    // ==================== TAB MANAGEMENT ====================
+    function showTab(tabName) {
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    document.querySelectorAll('.nav-tab').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    const targetTab = document.getElementById(tabName);
+    const targetButton = document.querySelector(`[data-tab="${tabName}"]`);
+    
+    if (targetTab) targetTab.classList.add('active');
+    if (targetButton) targetButton.classList.add('active');
+    
+    switch (tabName) {
+        case 'admin':
+            loadParticipants();
+            break;
+        case 'scan':
+            loadQuickParticipants();
+            break;
+        case 'messages':
+            checkMessagesAccess();
+            break;
+        case 'participantMessages':
+            checkParticipantAccess();
+            break;
+    }
+    }
+    
+    // ==================== NUMERIC KEYPAD FUNCTIONS ====================
+    function updatePasswordDisplay(keypadType, password) {
+    const displays = {
+        'admin': 'adminPasswordDisplay',
+        'new': 'newPasswordDisplay', 
+        'confirm': 'confirmPasswordDisplay',
+        'enter': 'enterPasswordDisplay'
+    };
+    
+    const displayId = displays[keypadType];
+    const display = document.getElementById(displayId);
+    
+    if (display) {
+        display.textContent = '●'.repeat(password.length);
+    }
+    }
+    
+    function handleKeypadInput(keypadType, key) {
+    const maxLengths = {
+        'admin': 6,
+        'new': 4,
+        'confirm': 4, 
+        'enter': 4
+    };
+    
+    const maxLength = maxLengths[keypadType];
+    
+    if (key === 'delete') {
+        switch(keypadType) {
+            case 'admin':
+                adminPasswordInput = adminPasswordInput.slice(0, -1);
+                break;
+            case 'new':
+                newPasswordInput = newPasswordInput.slice(0, -1);
+                break;
+            case 'confirm':
+                confirmPasswordInput = confirmPasswordInput.slice(0, -1);
+                break;
+            case 'enter':
+                enterPasswordInput = enterPasswordInput.slice(0, -1);
+                break;
         }
-    });
+    } else if (key === 'submit') {
+        if (keypadType === 'admin') {
+            checkAdminPasswordFromKeypad();
+        } else if (keypadType === 'confirm') {
+            setParticipantPassword();
+        } else if (keypadType === 'enter') {
+            checkParticipantPassword();
+        }
+        return;
+    } else if (key >= '0' && key <= '9') {
+        switch(keypadType) {
+            case 'admin':
+                if (adminPasswordInput.length < maxLength) {
+                    adminPasswordInput += key;
+                }
+                break;
+            case 'new':
+                if (newPasswordInput.length < maxLength) {
+                    newPasswordInput += key;
+                }
+                break;
+            case 'confirm':
+                if (confirmPasswordInput.length < maxLength) {
+                    confirmPasswordInput += key;
+                }
+                break;
+            case 'enter':
+                if (enterPasswordInput.length < maxLength) {
+                    enterPasswordInput += key;
+                }
+                break;
+        }
+    }
     
-    key.addEventListener('touchend', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
+    const passwords = {
+        'admin': adminPasswordInput,
+        'new': newPasswordInput,
+        'confirm': confirmPasswordInput,
+        'enter': enterPasswordInput
+    };
+    
+    updatePasswordDisplay(keypadType, passwords[keypadType]);
+    
+    if (navigator.vibrate) {
+        navigator.vibrate(50);
+    }
+    }
+    
+    function setupNumericKeypad() {
+    document.querySelectorAll('.numeric-key').forEach(key => {
+        function handleKeyAction(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const keyValue = key.getAttribute('data-key');
+            const keypadType = key.getAttribute('data-keypad') || 'admin';
+            
+            handleKeypadInput(keypadType, keyValue);
+        }
         
-        // Resetează efectele vizuale
-        setTimeout(() => {
-            this.style.transform = '';
-            this.style.filter = '';
-        }, 150);
-    });
-    
-    // Event listeners pentru desktop (fallback)
-    key.addEventListener('click', function(e) {
-        // Doar dacă nu a fost deja procesat de touchstart
-        if (e.detail !== 0) { // e.detail === 0 înseamnă că e venit de la touchstart
+        key.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            this.style.transform = 'translateY(-4px) scale(1.05)';
+            this.style.filter = 'brightness(1.2)';
+            
             handleKeyAction(e);
-        }
-    });
-    
-    key.addEventListener('mousedown', function(e) {
-        e.preventDefault();
-        this.style.transform = 'translateY(-4px) scale(1.05)';
-        this.style.filter = 'brightness(1.2)';
-    });
-    
-    key.addEventListener('mouseup', function(e) {
-        e.preventDefault();
-        setTimeout(() => {
-            this.style.transform = '';
-            this.style.filter = '';
-        }, 150);
-    });
-    
-    // Previne comportamentul default pentru contextmenu
-    key.addEventListener('contextmenu', function(e) {
-        e.preventDefault();
-    });
-});
-}
-// ==================== PARTICIPANT MANAGEMENT ====================
-async function addParticipant() {
-const nameInput = document.getElementById('participantName');
-const nicknameInput = document.getElementById('participantNickname');
-const colorInput = document.getElementById('participantColor');
-
-if (!nameInput || !colorInput) {
-    showMessage('Elementele formularului nu sunt disponibile!', 'error');
-    return;
-}
-
-const name = nameInput.value.trim();
-const nickname = nicknameInput ? nicknameInput.value.trim() : '';
-const color = colorInput.value;
-
-if (!name) {
-    showMessage('Numele este obligatoriu!', 'error');
-    return;
-}
-
-const participant = {
-    id: Date.now(),
-    name: sanitizeInput(name),
-    nickname: sanitizeInput(nickname),
-    color: color,
-    password: null,
-    hasPassword: false,
-    messages: []
-};
-
-participants.push(participant);
-localStorage.setItem('participants', JSON.stringify(participants));
-
-if (window.firebaseInitialized && window.saveParticipantToFirebase) {
-    try {
-        await window.saveParticipantToFirebase(participant);
-        showMessage('Participantul a fost adăugat local și în cloud!', 'success');
-    } catch (error) {
-        console.error('Eroare la salvarea în Firebase:', error);
-        showMessage('Participantul a fost adăugat local. Eroare cloud: ' + error.message, 'success');
-    }
-} else {
-    showMessage('Participantul a fost adăugat local!', 'success');
-}
-
-nameInput.value = '';
-if (nicknameInput) nicknameInput.value = '';
-colorInput.value = '#4c63d2';
-
-loadParticipants();
-loadQuickParticipants();
-}
-
-function deleteParticipant(participantId) {
-if (!confirm('Sigur doriți să ștergeți acest participant și toate mesajele lui?')) {
-    return;
-}
-
-participants = participants.filter(p => p.id !== participantId);
-messages = messages.filter(m => m.recipientId !== participantId);
-
-localStorage.setItem('participants', JSON.stringify(participants));
-localStorage.setItem('messages', JSON.stringify(messages));
-
-loadParticipants();
-loadQuickParticipants();
-showMessage('Participantul a fost șters cu succes!', 'success');
-}
-
-function clearAllData() {
-if (!confirm('ATENȚIE: Această acțiune va șterge toți participanții și toate mesajele! Sigur doriți să continuați?')) {
-    return;
-}
-
-participants = [];
-messages = [];
-password = null;
-isLoggedIn = false;
-currentRecipient = null;
-
-adminPasswordInput = '';
-newPasswordInput = '';
-confirmPasswordInput = '';
-enterPasswordInput = '';
-
-localStorage.clear();
-
-loadParticipants();
-loadQuickParticipants();
-showMessage('Toate datele au fost șterse cu succes!', 'success');
-
-const passwordSection = document.getElementById('passwordSection');
-const messagesList = document.getElementById('messagesList');
-
-if (passwordSection) passwordSection.classList.remove('hidden');
-if (messagesList) messagesList.classList.add('hidden');
-}
-
-function loadParticipants() {
-const container = document.getElementById('participantsContainer');
-if (!container) return;
-
-container.innerHTML = '';
-if (participants.length === 0) {
-    container.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Nu există participanți adăugați.</p>';
-    return;
-}
-
-participants.forEach(participant => {
-    const card = createParticipantCard(participant);
-    container.appendChild(card);
-});
-}
-
-function createParticipantCard(participant) {
-const card = document.createElement('div');
-card.className = 'participant-card';
-card.style.borderLeft = `5px solid ${participant.color}`;
-
-const displayName = participant.nickname ? 
-    `${participant.name} (${participant.nickname})` : 
-    participant.name;
-
-const participantMessages = messages.filter(m => m.recipientId === participant.id);
-const messageCount = participantMessages.length;
-const passwordStatusIcon = participant.hasPassword ? '🔒' : '🔓';
-const passwordStatusText = participant.hasPassword ? 'Parolă setată' : 'Fără parolă';
-
-card.innerHTML = `
-    <div class="participant-name">${displayName}</div>
-    <div style="text-align: center; margin-bottom: 10px; color: #666; font-size: 12px;">
-        ${passwordStatusIcon} ${passwordStatusText}
-    </div>
-    <div class="qr-code">
-        <canvas id="qr-${participant.id}" width="120" height="120"></canvas>
-    </div>
-    <div style="text-align: center; margin: 10px 0;">
-        <button class="btn btn-danger" onclick="deleteParticipant(${participant.id})">🗑️ Șterge</button>
-    </div>
-    <div class="messages-container">
-        <strong>Mesaje primite (${messageCount}):</strong>
-        <div id="messages-${participant.id}">
-            ${participantMessages.length > 0 ? 
-                participantMessages.slice(0, 3).map(msg => `
-                    <div class="message">
-                        <div class="message-header">
-                            <span class="message-sender">${getMessageTypeIcon(msg.type)} ${msg.sender}</span>
-                            <span class="message-time">${new Date(msg.timestamp).toLocaleString('ro-RO')}</span>
-                        </div>
-                        <div class="message-type">${getMessageTypeName(msg.type)}</div>
-                        <div class="message-content">${msg.content || 'Fără text'}</div>
-                        ${msg.photo ? `
-                            <div class="message-photo">
-                                <img src="${msg.photo}" alt="Photo" onclick="openPhotoModal('${msg.photo}')" style="max-width: 100px; max-height: 80px;">
-                            </div>
-                        ` : ''}
-                    </div>
-                `).join('') + (participantMessages.length > 3 ? '<p style="color: #666; font-style: italic; text-align: center;">... și alte mesaje</p>' : '') : 
-                '<p style="color: #666; font-style: italic;">Nu există mesaje</p>'
+            
+            if (navigator.vibrate) {
+                navigator.vibrate(50);
             }
-        </div>
-    </div>
-`;
-
-card.addEventListener('click', () => {
-    currentRecipient = participant;
-    const targetName = document.getElementById('targetName');
-    const participantMessagesName = document.getElementById('participantMessagesName');
-    
-    if (targetName) targetName.textContent = participant.name;
-    if (participantMessagesName) participantMessagesName.textContent = participant.name;
-    
-    showTab('scan');
-    
-    const messageForm = document.getElementById('messageForm');
-    if (messageForm) messageForm.classList.remove('hidden');
-});
-
-setTimeout(() => {
-    generateQRCode(participant.id, displayName);
-}, 100);
-
-return card;
-}
-
-function generateQRCode(participantId, name) {
-const canvas = document.getElementById(`qr-${participantId}`);
-if (!canvas) return;
-
-const ctx = canvas.getContext('2d');
-const size = 120;
-
-ctx.clearRect(0, 0, size, size);
-ctx.fillStyle = '#ffffff';
-ctx.fillRect(0, 0, size, size);
-ctx.fillStyle = '#000000';
-const cellSize = size / 21;
-
-for (let i = 0; i < 21; i++) {
-    for (let j = 0; j < 21; j++) {
-        const hash = hashCode(participantId.toString() + i + j);
-        if (hash % 2 === 0) {
-            ctx.fillRect(i * cellSize, j * cellSize, cellSize, cellSize);
-        }
-    }
-}
-
-const cornerSize = 7;
-
-ctx.fillStyle = '#000000';
-ctx.fillRect(0, 0, cornerSize * cellSize, cornerSize * cellSize);
-ctx.fillStyle = '#ffffff';
-ctx.fillRect(cellSize, cellSize, (cornerSize - 2) * cellSize, (cornerSize - 2) * cellSize);
-ctx.fillStyle = '#000000';
-ctx.fillRect(2 * cellSize, 2 * cellSize, (cornerSize - 4) * cellSize, (cornerSize - 4) * cellSize);
-
-ctx.fillStyle = '#000000';
-ctx.fillRect((21 - cornerSize) * cellSize, 0, cornerSize * cellSize, cornerSize * cellSize);
-ctx.fillStyle = '#ffffff';
-ctx.fillRect((21 - cornerSize + 1) * cellSize, cellSize, (cornerSize - 2) * cellSize, (cornerSize - 2) * cellSize);
-ctx.fillStyle = '#000000';
-ctx.fillRect((21 - cornerSize + 2) * cellSize, 2 * cellSize, (cornerSize - 4) * cellSize, (cornerSize - 4) * cellSize);
-
-ctx.fillStyle = '#000000';
-ctx.fillRect(0, (21 - cornerSize) * cellSize, cornerSize * cellSize, cornerSize * cellSize);
-ctx.fillStyle = '#ffffff';
-ctx.fillRect(cellSize, (21 - cornerSize + 1) * cellSize, (cornerSize - 2) * cellSize, (cornerSize - 2) * cellSize);
-ctx.fillStyle = '#000000';
-ctx.fillRect(2 * cellSize, (21 - cornerSize + 2) * cellSize, (cornerSize - 4) * cellSize, (cornerSize - 4) * cellSize);
-}
-
-function loadQuickParticipants() {
-const container = document.getElementById('quickParticipantList');
-if (!container) return;
-
-container.innerHTML = '';
-
-if (participants.length === 0) {
-    container.innerHTML = '<p style="text-align: center; color: #666; grid-column: 1/-1;">Nu există participanți adăugați.</p>';
-    return;
-}
-
-participants.forEach(participant => {
-    const item = document.createElement('div');
-    item.className = 'quick-participant-item';
-    
-    const displayName = participant.nickname ? participant.name : participant.name;
-    const messageCount = messages.filter(m => m.recipientId === participant.id).length;
-    
-    item.innerHTML = `
-        ${displayName}
-        ${messageCount > 0 ? `<div class="quick-participant-badge">${messageCount}</div>` : ''}
-    `;
-    
-    item.style.borderLeftColor = participant.color;
-    
-    item.addEventListener('click', () => {
-        document.querySelectorAll('.quick-participant-item').forEach(i => {
-            i.classList.remove('active');
         });
         
-        item.classList.add('active');
+        key.addEventListener('touchend', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            setTimeout(() => {
+                this.style.transform = '';
+                this.style.filter = '';
+            }, 150);
+        });
         
+        key.addEventListener('click', function(e) {
+            if (e.detail !== 0) {
+                handleKeyAction(e);
+            }
+        });
+        
+        key.addEventListener('mousedown', function(e) {
+            e.preventDefault();
+            this.style.transform = 'translateY(-4px) scale(1.05)';
+            this.style.filter = 'brightness(1.2)';
+        });
+        
+        key.addEventListener('mouseup', function(e) {
+            e.preventDefault();
+            setTimeout(() => {
+                this.style.transform = '';
+                this.style.filter = '';
+            }, 150);
+        });
+        
+        key.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
+    });
+    }
+    
+    // ==================== PARTICIPANT MANAGEMENT ====================
+    async function addParticipant() {
+    const nameInput = document.getElementById('participantName');
+    const nicknameInput = document.getElementById('participantNickname');
+    const colorInput = document.getElementById('participantColor');
+    
+    if (!nameInput || !colorInput) {
+        showMessage('Elementele formularului nu sunt disponibile!', 'error');
+        return;
+    }
+    
+    const name = nameInput.value.trim();
+    const nickname = nicknameInput ? nicknameInput.value.trim() : '';
+    const color = colorInput.value;
+    
+    if (!name) {
+        showMessage('Numele este obligatoriu!', 'error');
+        return;
+    }
+    
+    const participant = {
+        id: Date.now(),
+        name: sanitizeInput(name),
+        nickname: sanitizeInput(nickname),
+        color: color,
+        password: null,
+        hasPassword: false,
+        passwordHash: null,
+        messages: []
+    };
+    
+    participants.push(participant);
+    localStorage.setItem('participants', JSON.stringify(participants));
+    
+    if (window.firebaseInitialized && window.saveParticipantToFirebase) {
+        try {
+            await window.saveParticipantToFirebase(participant);
+            showMessage('Participantul a fost adăugat local și în cloud!', 'success');
+        } catch (error) {
+            console.error('Eroare la salvarea în Firebase:', error);
+            showMessage('Participantul a fost adăugat local. Eroare cloud: ' + error.message, 'success');
+        }
+    } else {
+        showMessage('Participantul a fost adăugat local!', 'success');
+    }
+    
+    nameInput.value = '';
+    if (nicknameInput) nicknameInput.value = '';
+    colorInput.value = '#4c63d2';
+    
+    loadParticipants();
+    loadQuickParticipants();
+    }
+    
+    function deleteParticipant(participantId) {
+    if (!confirm('Sigur doriți să ștergeți acest participant și toate mesajele lui?')) {
+        return;
+    }
+    
+    participants = participants.filter(p => p.id !== participantId);
+    messages = messages.filter(m => m.recipientId !== participantId);
+    
+    localStorage.setItem('participants', JSON.stringify(participants));
+    localStorage.setItem('messages', JSON.stringify(messages));
+    
+    loadParticipants();
+    loadQuickParticipants();
+    showMessage('Participantul a fost șters cu succes!', 'success');
+    }
+    
+    function clearAllData() {
+    if (!confirm('ATENȚIE: Această acțiune va șterge toți participanții și toate mesajele! Sigur doriți să continuați?')) {
+        return;
+    }
+    
+    participants = [];
+    messages = [];
+    password = null;
+    isLoggedIn = false;
+    currentRecipient = null;
+    
+    adminPasswordInput = '';
+    newPasswordInput = '';
+    confirmPasswordInput = '';
+    enterPasswordInput = '';
+    
+    localStorage.clear();
+    
+    loadParticipants();
+    loadQuickParticipants();
+    showMessage('Toate datele au fost șterse cu succes!', 'success');
+    
+    const passwordSection = document.getElementById('passwordSection');
+    const messagesList = document.getElementById('messagesList');
+    
+    if (passwordSection) passwordSection.classList.remove('hidden');
+    if (messagesList) messagesList.classList.add('hidden');
+    }
+    
+    function loadParticipants() {
+    const container = document.getElementById('participantsContainer');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    if (participants.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Nu există participanți adăugați.</p>';
+        return;
+    }
+    
+    participants.forEach(participant => {
+        const card = createParticipantCard(participant);
+        container.appendChild(card);
+    });
+    }
+    
+    function createParticipantCard(participant) {
+    const card = document.createElement('div');
+    card.className = 'participant-card';
+    card.style.borderLeft = `5px solid ${participant.color}`;
+    
+    const displayName = participant.nickname ? 
+        `${participant.name} (${participant.nickname})` : 
+        participant.name;
+    
+    const participantMessages = messages.filter(m => m.recipientId === participant.id);
+    const messageCount = participantMessages.length;
+    const passwordStatusIcon = participant.hasPassword ? '🔒' : '🔓';
+    const passwordStatusText = participant.hasPassword ? 'Parolă setată' : 'Fără parolă';
+    
+    card.innerHTML = `
+        <div class="participant-name">${displayName}</div>
+        <div style="text-align: center; margin-bottom: 10px; color: #666; font-size: 12px;">
+            ${passwordStatusIcon} ${passwordStatusText}
+        </div>
+        <div class="qr-code">
+            <canvas id="qr-${participant.id}" width="120" height="120"></canvas>
+        </div>
+        <div style="text-align: center; margin: 10px 0;">
+            <button class="btn btn-danger" onclick="deleteParticipant(${participant.id})">🗑️ Șterge</button>
+        </div>
+        <div class="messages-container">
+            <strong>Mesaje primite (${messageCount}):</strong>
+            <div id="messages-${participant.id}">
+                ${participantMessages.length > 0 ? 
+                    participantMessages.slice(0, 3).map(msg => `
+                        <div class="message">
+                            <div class="message-header">
+                                <span class="message-sender">${getMessageTypeIcon(msg.type)} ${msg.sender}</span>
+                                <span class="message-time">${new Date(msg.timestamp).toLocaleString('ro-RO')}</span>
+                            </div>
+                            <div class="message-type">${getMessageTypeName(msg.type)}</div>
+                            <div class="message-content">${msg.content || 'Fără text'}</div>
+                            ${msg.photo ? `
+                                <div class="message-photo">
+                                    <img src="${msg.photo}" alt="Photo" onclick="openPhotoModal('${msg.photo}')" style="max-width: 100px; max-height: 80px;">
+                                </div>
+                            ` : ''}
+                        </div>
+                    `).join('') + (participantMessages.length > 3 ? '<p style="color: #666; font-style: italic; text-align: center;">... și alte mesaje</p>' : '') : 
+                    '<p style="color: #666; font-style: italic;">Nu există mesaje</p>'
+                }
+            </div>
+        </div>
+    `;
+    
+    card.addEventListener('click', () => {
         currentRecipient = participant;
         const targetName = document.getElementById('targetName');
         const participantMessagesName = document.getElementById('participantMessagesName');
@@ -1877,253 +1896,462 @@ participants.forEach(participant => {
         if (targetName) targetName.textContent = participant.name;
         if (participantMessagesName) participantMessagesName.textContent = participant.name;
         
+        showTab('scan');
+        
         const messageForm = document.getElementById('messageForm');
         if (messageForm) messageForm.classList.remove('hidden');
-        
-        showMessage(`Participant selectat: ${participant.name}`, 'success');
-        
-        if (navigator.vibrate) {
-            navigator.vibrate([50, 50, 50]);
-        }
     });
     
-    container.appendChild(item);
-});
-}
-
-// ==================== PASSWORD MANAGEMENT ====================
-function checkAdminPasswordFromKeypad() {
-const errorDiv = document.getElementById('passwordError');
-
-if (!password) {
-    if (adminPasswordInput.length !== 6 || !/^\d{6}$/.test(adminPasswordInput)) {
+    setTimeout(() => {
+        generateQRCode(participant.id, displayName);
+    }, 100);
+    
+    return card;
+    }
+    
+    function generateQRCode(participantId, name) {
+    const canvas = document.getElementById(`qr-${participantId}`);
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    const size = 120;
+    
+    ctx.clearRect(0, 0, size, size);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, size, size);
+    ctx.fillStyle = '#000000';
+    const cellSize = size / 21;
+    
+    for (let i = 0; i < 21; i++) {
+        for (let j = 0; j < 21; j++) {
+            const hash = hashCode(participantId.toString() + i + j);
+            if (hash % 2 === 0) {
+                ctx.fillRect(i * cellSize, j * cellSize, cellSize, cellSize);
+            }
+        }
+    }
+    
+    const cornerSize = 7;
+    
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(0, 0, cornerSize * cellSize, cornerSize * cellSize);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(cellSize, cellSize, (cornerSize - 2) * cellSize, (cornerSize - 2) * cellSize);
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(2 * cellSize, 2 * cellSize, (cornerSize - 4) * cellSize, (cornerSize - 4) * cellSize);
+    
+    ctx.fillStyle = '#000000';
+    ctx.fillRect((21 - cornerSize) * cellSize, 0, cornerSize * cellSize, cornerSize * cellSize);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect((21 - cornerSize + 1) * cellSize, cellSize, (cornerSize - 2) * cellSize, (cornerSize - 2) * cellSize);
+    ctx.fillStyle = '#000000';
+    ctx.fillRect((21 - cornerSize + 2) * cellSize, 2 * cellSize, (cornerSize - 4) * cellSize, (cornerSize - 4) * cellSize);
+    
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(0, (21 - cornerSize) * cellSize, cornerSize * cellSize, cornerSize * cellSize);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(cellSize, (21 - cornerSize + 1) * cellSize, (cornerSize - 2) * cellSize, (cornerSize - 2) * cellSize);
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(2 * cellSize, (21 - cornerSize + 2) * cellSize, (cornerSize - 4) * cellSize, (cornerSize - 4) * cellSize);
+    }
+    
+    function loadQuickParticipants() {
+    const container = document.getElementById('quickParticipantList');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    
+    if (participants.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: #666; grid-column: 1/-1;">Nu există participanți adăugați.</p>';
+        return;
+    }
+    
+    participants.forEach(participant => {
+        const item = document.createElement('div');
+        item.className = 'quick-participant-item';
+        
+        const displayName = participant.nickname ? participant.name : participant.name;
+        const messageCount = messages.filter(m => m.recipientId === participant.id).length;
+        
+        item.innerHTML = `
+            ${displayName}
+            ${messageCount > 0 ? `<div class="quick-participant-badge">${messageCount}</div>` : ''}
+        `;
+        
+        item.style.borderLeftColor = participant.color;
+        
+        item.addEventListener('click', () => {
+            document.querySelectorAll('.quick-participant-item').forEach(i => {
+                i.classList.remove('active');
+            });
+            
+            item.classList.add('active');
+            
+            currentRecipient = participant;
+            const targetName = document.getElementById('targetName');
+            const participantMessagesName = document.getElementById('participantMessagesName');
+            
+            if (targetName) targetName.textContent = participant.name;
+            if (participantMessagesName) participantMessagesName.textContent = participant.name;
+            
+            const messageForm = document.getElementById('messageForm');
+            if (messageForm) messageForm.classList.remove('hidden');
+            
+            showMessage(`Participant selectat: ${participant.name}`, 'success');
+            
+            if (navigator.vibrate) {
+                navigator.vibrate([50, 50, 50]);
+            }
+        });
+        
+        container.appendChild(item);
+    });
+    }
+    
+    // ==================== PASSWORD MANAGEMENT ====================
+    function checkAdminPasswordFromKeypad() {
+    const errorDiv = document.getElementById('passwordError');
+    
+    if (!password) {
+        if (adminPasswordInput.length !== 6 || !/^\d{6}$/.test(adminPasswordInput)) {
+            if (errorDiv) {
+                errorDiv.textContent = 'Parola trebuie să fie de 6 cifre!';
+                errorDiv.classList.remove('hidden');
+            }
+            return;
+        }
+        password = adminPasswordInput;
+        localStorage.setItem('password', password);
+        localStorage.setItem('isLoggedIn', 'true');
+        isLoggedIn = true;
+    } else if (adminPasswordInput !== password) {
         if (errorDiv) {
-            errorDiv.textContent = 'Parola trebuie să fie de 6 cifre!';
+            errorDiv.textContent = 'Parola admin incorectă!';
             errorDiv.classList.remove('hidden');
         }
         return;
     }
-    password = adminPasswordInput;
-    localStorage.setItem('password', password);
-    localStorage.setItem('isLoggedIn', 'true');
-    isLoggedIn = true;
-} else if (adminPasswordInput !== password) {
-    if (errorDiv) {
-        errorDiv.textContent = 'Parola admin incorectă!';
-        errorDiv.classList.remove('hidden');
-    }
-    return;
-}
-
-const passwordSection = document.getElementById('passwordSection');
-const messagesList = document.getElementById('messagesList');
-
-if (passwordSection) passwordSection.classList.add('hidden');
-if (messagesList) messagesList.classList.remove('hidden');
-
-if (errorDiv) errorDiv.classList.add('hidden');
-
-isLoggedIn = true;
-localStorage.setItem('isLoggedIn', 'true');
-
-displayAllMessages();
-showMessage('Acces admin acordat!', 'success');
-
-adminPasswordInput = '';
-updatePasswordDisplay('admin', '');
-}
-
-function setParticipantPassword() {
-const errorDiv = document.getElementById('participantPasswordError');
-
-if (!currentRecipient) {
-    showMessage('Eroare la setarea parolei!', 'error');
-    return;
-}
-
-if (newPasswordInput.length !== 4 || !/^\d{4}$/.test(newPasswordInput)) {
-    if (errorDiv) {
-        errorDiv.textContent = 'Parola trebuie să fie de exact 4 cifre!';
-        errorDiv.classList.remove('hidden');
-    }
-    return;
-}
-
-if (newPasswordInput !== confirmPasswordInput) {
-    if (errorDiv) {
-        errorDiv.textContent = 'Parolele nu se potrivesc!';
-        errorDiv.classList.remove('hidden');
-    }
-    return;
-}
-
-const participantIndex = participants.findIndex(p => p.id === currentRecipient.id);
-if (participantIndex !== -1) {
-    participants[participantIndex].password = newPasswordInput;
-    participants[participantIndex].hasPassword = true;
-    currentRecipient = participants[participantIndex];
     
-    localStorage.setItem('participants', JSON.stringify(participants));
+    const passwordSection = document.getElementById('passwordSection');
+    const messagesList = document.getElementById('messagesList');
     
-    hidePasswordForms();
-    showParticipantMessagesList();
+    if (passwordSection) passwordSection.classList.add('hidden');
+    if (messagesList) messagesList.classList.remove('hidden');
     
     if (errorDiv) errorDiv.classList.add('hidden');
-    showMessage('Parola a fost setată cu succes!', 'success');
     
-    newPasswordInput = '';
-    confirmPasswordInput = '';
-    updatePasswordDisplay('new', '');
-    updatePasswordDisplay('confirm', '');
+    isLoggedIn = true;
+    localStorage.setItem('isLoggedIn', 'true');
     
-    loadParticipants();
-}
-}
-
-function checkParticipantPassword() {
-const errorDiv = document.getElementById('participantPasswordError');
-
-if (!currentRecipient) {
-    showMessage('Eroare la verificarea parolei!', 'error');
-    return;
-}
-
-if (enterPasswordInput.length !== 4 || !/^\d{4}$/.test(enterPasswordInput)) {
-    if (errorDiv) {
-        errorDiv.textContent = 'Parola trebuie să fie de exact 4 cifre!';
-        errorDiv.classList.remove('hidden');
-    }
-    return;
-}
-
-if (enterPasswordInput !== currentRecipient.password) {
-    if (errorDiv) {
-        errorDiv.textContent = 'Parolă incorectă!';
-        errorDiv.classList.remove('hidden');
-    }
-    return;
-}
-
-hidePasswordForms();
-showParticipantMessagesList();
-
-if (errorDiv) errorDiv.classList.add('hidden');
-showMessage('Acces permis!', 'success');
-
-enterPasswordInput = '';
-updatePasswordDisplay('enter', '');
-}
-
-function resetParticipantPassword() {
-if (!currentRecipient) return;
-
-if (!confirm('Sigur doriți să resetați parola? Va trebui să setați o parolă nouă.')) {
-    return;
-}
-
-const participantIndex = participants.findIndex(p => p.id === currentRecipient.id);
-if (participantIndex !== -1) {
-    participants[participantIndex].password = null;
-    participants[participantIndex].hasPassword = false;
-    currentRecipient = participants[participantIndex];
-    
-    localStorage.setItem('participants', JSON.stringify(participants));
+    displayAllMessages();
+    showMessage('Acces admin acordat!', 'success');
     
     adminPasswordInput = '';
-    newPasswordInput = '';
-    confirmPasswordInput = '';
-    enterPasswordInput = '';
-    
     updatePasswordDisplay('admin', '');
-    updatePasswordDisplay('new', '');
-    updatePasswordDisplay('confirm', '');
-    updatePasswordDisplay('enter', '');
+    }
     
-    checkParticipantAccess();
+    async function setParticipantPassword() {
+        const errorDiv = document.getElementById('participantPasswordError');
     
-    showMessage('Parola a fost resetată!', 'info');
-    loadParticipants();
-}
-}
-
-function hidePasswordForms() {
-const passwordSection = document.getElementById('participantPasswordSection');
-if (passwordSection) passwordSection.classList.add('hidden');
-}
-
-function showParticipantMessagesList() {
-const messagesList = document.getElementById('participantMessagesList');
-if (messagesList) {
-    messagesList.classList.remove('hidden');
-    displayParticipantMessages();
-}
-}
-
-function checkParticipantAccess() {
-if (!currentRecipient) return;
-
-const passwordSection = document.getElementById('participantPasswordSection');
-const messagesList = document.getElementById('participantMessagesList');
-const setPasswordForm = document.getElementById('setPasswordForm');
-const enterPasswordForm = document.getElementById('enterPasswordForm');
-const passwordStatus = document.getElementById('passwordStatus');
-
-if (!passwordSection || !messagesList || !setPasswordForm || !enterPasswordForm) return;
-
-passwordSection.classList.remove('hidden');
-messagesList.classList.add('hidden');
-setPasswordForm.classList.add('hidden');
-enterPasswordForm.classList.add('hidden');
-if (passwordStatus) passwordStatus.classList.add('hidden');
-
-adminPasswordInput = '';
-newPasswordInput = '';
-confirmPasswordInput = '';
-enterPasswordInput = '';
-
-updatePasswordDisplay('admin', '');
-updatePasswordDisplay('new', '');
-updatePasswordDisplay('confirm', '');
-updatePasswordDisplay('enter', '');
-
-if (!currentRecipient.hasPassword || !currentRecipient.password) {
-    setPasswordForm.classList.remove('hidden');
-} else {
-    if (passwordStatus) passwordStatus.classList.remove('hidden');
-    enterPasswordForm.classList.remove('hidden');
-}
-}
-
-// ==================== MESSAGE MANAGEMENT ====================
-async function sendMessage() {
-const senderNameInput = document.getElementById('senderName');
-const anonymousInput = document.getElementById('anonymous');
-const messageTypeInput = document.getElementById('messageType');
-const messageContentInput = document.getElementById('messageContent');
-
-if (!senderNameInput || !messageTypeInput || !messageContentInput) {
-    showMessage('Formularul nu este complet!', 'error');
-    return;
-}
-
-const senderName = senderNameInput.value.trim();
-const anonymous = anonymousInput ? anonymousInput.checked : false;
-const messageType = messageTypeInput.value;
-const content = messageContentInput.value.trim();
-
-if (!content && !currentPhotoData) {
-    showMessage('Trebuie să scrii un mesaj sau să adaugi o poză!', 'error');
-    return;
-}
-
-if (!currentRecipient) {
-    showMessage('Destinatarul este obligatoriu!', 'error');
-    return;
-}
-
-let photoUrl = null;
-
-if (currentPhotoData) {
+        if (!currentRecipient) {
+            showMessage('Eroare la setarea parolei!', 'error');
+            return;
+        }
+    
+        if (newPasswordInput.length !== 4 || !/^\d{4}$/.test(newPasswordInput)) {
+            if (errorDiv) {
+                errorDiv.textContent = 'Parola trebuie să fie de exact 4 cifre!';
+                errorDiv.classList.remove('hidden');
+            }
+            return;
+        }
+    
+        if (newPasswordInput !== confirmPasswordInput) {
+            if (errorDiv) {
+                errorDiv.textContent = 'Parolele nu se potrivesc!';
+                errorDiv.classList.remove('hidden');
+            }
+            return;
+        }
+    
+        try {
+            // Hash-uiește parola
+            const hashedPassword = window.hashPassword(newPasswordInput);
+            
+            // Actualizează local
+            const participantIndex = participants.findIndex(p => p.id === currentRecipient.id);
+            if (participantIndex !== -1) {
+                participants[participantIndex].hasPassword = true;
+                participants[participantIndex].passwordHash = hashedPassword;
+                participants[participantIndex].password = null; // Nu mai salvăm parola în text clar
+                currentRecipient = participants[participantIndex];
+                
+                localStorage.setItem('participants', JSON.stringify(participants));
+            }
+    
+            // Salvează în Firebase
+            if (window.firebaseInitialized && window.saveParticipantPasswordToFirebase) {
+                showMessage('Salvăm parola în cloud...', 'info');
+                await window.saveParticipantPasswordToFirebase(currentRecipient.id, hashedPassword);
+                showMessage('Parola a fost setată și salvată în cloud!', 'success');
+            } else {
+                showMessage('Parola a fost setată local!', 'success');
+            }
+    
+            hidePasswordForms();
+            showParticipantMessagesList();
+            
+            if (errorDiv) errorDiv.classList.add('hidden');
+            
+            newPasswordInput = '';
+            confirmPasswordInput = '';
+            updatePasswordDisplay('new', '');
+            updatePasswordDisplay('confirm', '');
+            
+            loadParticipants();
+            
+        } catch (error) {
+            console.error('Eroare la setarea parolei:', error);
+            showMessage('Eroare la salvarea parolei: ' + error.message, 'error');
+        }
+    }
+    
+    function checkParticipantPassword() {
+        const errorDiv = document.getElementById('participantPasswordError');
+    
+        if (!currentRecipient) {
+            showMessage('Eroare la verificarea parolei!', 'error');
+            return;
+        }
+    
+        if (enterPasswordInput.length !== 4 || !/^\d{4}$/.test(enterPasswordInput)) {
+            if (errorDiv) {
+                errorDiv.textContent = 'Parola trebuie să fie de exact 4 cifre!';
+                errorDiv.classList.remove('hidden');
+            }
+            return;
+        }
+    
+        // Verifică parola folosind hash-ul
+        const isValid = currentRecipient.passwordHash && 
+                       window.verifyPassword(enterPasswordInput, currentRecipient.passwordHash);
+    
+        if (!isValid) {
+            if (errorDiv) {
+                errorDiv.textContent = 'Parolă incorectă!';
+                errorDiv.classList.remove('hidden');
+            }
+            return;
+        }
+    
+        hidePasswordForms();
+        showParticipantMessagesList();
+    
+        if (errorDiv) errorDiv.classList.add('hidden');
+        showMessage('Acces permis!', 'success');
+    
+        enterPasswordInput = '';
+        updatePasswordDisplay('enter', '');
+    }
+    
+    async function resetParticipantPassword() {
+        if (!currentRecipient) return;
+    
+        if (!confirm('Sigur doriți să resetați parola? Va trebui să setați o parolă nouă.')) {
+            return;
+        }
+    
+        try {
+            // Resetează local
+            const participantIndex = participants.findIndex(p => p.id === currentRecipient.id);
+            if (participantIndex !== -1) {
+                participants[participantIndex].password = null;
+                participants[participantIndex].passwordHash = null;
+                participants[participantIndex].hasPassword = false;
+                currentRecipient = participants[participantIndex];
+                
+                localStorage.setItem('participants', JSON.stringify(participants));
+            }
+    
+            // Resetează în Firebase
+            if (window.firebaseInitialized && window.resetParticipantPasswordInFirebase) {
+                await window.resetParticipantPasswordInFirebase(currentRecipient.id);
+                showMessage('Parola a fost resetată în cloud!', 'info');
+            } else {
+                showMessage('Parola a fost resetată local!', 'info');
+            }
+    
+            adminPasswordInput = '';
+            newPasswordInput = '';
+            confirmPasswordInput = '';
+            enterPasswordInput = '';
+            
+            updatePasswordDisplay('admin', '');
+            updatePasswordDisplay('new', '');
+            updatePasswordDisplay('confirm', '');
+            updatePasswordDisplay('enter', '');
+            
+            checkParticipantAccess();
+            loadParticipants();
+            
+        } catch (error) {
+            console.error('Eroare la resetarea parolei:', error);
+            showMessage('Eroare la resetarea parolei: ' + error.message, 'error');
+        }
+    }
+    
+    function hidePasswordForms() {
+    const passwordSection = document.getElementById('participantPasswordSection');
+    if (passwordSection) passwordSection.classList.add('hidden');
+    }
+    
+    function showParticipantMessagesList() {
+    const messagesList = document.getElementById('participantMessagesList');
+    if (messagesList) {
+        messagesList.classList.remove('hidden');
+        displayParticipantMessages();
+    }
+    }
+    
+    function checkParticipantAccess() {
+        if (!currentRecipient) return;
+    
+        const passwordSection = document.getElementById('participantPasswordSection');
+        const messagesList = document.getElementById('participantMessagesList');
+        const setPasswordForm = document.getElementById('setPasswordForm');
+        const enterPasswordForm = document.getElementById('enterPasswordForm');
+        const passwordStatus = document.getElementById('passwordStatus');
+    
+        if (!passwordSection || !messagesList || !setPasswordForm || !enterPasswordForm) return;
+    
+        passwordSection.classList.remove('hidden');
+        messagesList.classList.add('hidden');
+        setPasswordForm.classList.add('hidden');
+        enterPasswordForm.classList.add('hidden');
+        if (passwordStatus) passwordStatus.classList.add('hidden');
+    
+        adminPasswordInput = '';
+        newPasswordInput = '';
+        confirmPasswordInput = '';
+        enterPasswordInput = '';
+    
+        updatePasswordDisplay('admin', '');
+        updatePasswordDisplay('new', '');
+        updatePasswordDisplay('confirm', '');
+        updatePasswordDisplay('enter', '');
+    
+        // Verifică dacă participantul are parolă setată (folosind passwordHash)
+        if (!currentRecipient.hasPassword || !currentRecipient.passwordHash) {
+            setPasswordForm.classList.remove('hidden');
+        } else {
+            if (passwordStatus) passwordStatus.classList.remove('hidden');
+            enterPasswordForm.classList.remove('hidden');
+        }
+    }
+    
+    // ==================== MESSAGE MANAGEMENT ====================
+    async function sendMessage() {
+    const senderNameInput = document.getElementById('senderName');
+    const anonymousInput = document.getElementById('anonymous');
+    const messageTypeInput = document.getElementById('messageType');
+    const messageContentInput = document.getElementById('messageContent');
+    
+    if (!senderNameInput || !messageTypeInput || !messageContentInput) {
+        showMessage('Formularul nu este complet!', 'error');
+        return;
+    }
+    
+    const senderName = senderNameInput.value.trim();
+    const anonymous = anonymousInput ? anonymousInput.checked : false;
+    const messageType = messageTypeInput.value;
+    const content = messageContentInput.value.trim();
+    
+    if (!content && !currentPhotoData) {
+        showMessage('Trebuie să scrii un mesaj sau să adaugi o poză!', 'error');
+        return;
+    }
+    
+    if (!currentRecipient) {
+        showMessage('Destinatarul este obligatoriu!', 'error');
+        return;
+    }
+    
+    let photoUrl = null;
+    
+    if (currentPhotoData) {
+        try {
+            if (window.firebaseInitialized && window.uploadImageToFirebase) {
+                showMessage('Încărcăm poza...', 'info');
+                const file = await base64ToFile(currentPhotoData);
+                photoUrl = await window.uploadImageToFirebase(file, currentRecipient.name);
+            } else {
+                photoUrl = currentPhotoData;
+            }
+        } catch (error) {
+            console.error('Eroare la încărcarea pozei:', error);
+            showMessage('Eroare la încărcarea pozei, dar mesajul va fi trimis!', 'error');
+        }
+    }
+    
+    const message = {
+        id: Date.now(),
+        recipientId: currentRecipient.id,
+        sender: anonymous ? 'Anonim' : (senderName || 'Anonim'),
+        type: messageType,
+        content: content ? sanitizeInput(content) : '',
+        photo: photoUrl,
+        timestamp: new Date().toISOString()
+    };
+    
+    messages.push(message);
+    localStorage.setItem('messages', JSON.stringify(messages));
+    
+    if (window.firebaseInitialized && window.saveMessageToFirebase) {
+        try {
+            await window.saveMessageToFirebase(message, currentRecipient.name);
+        } catch (error) {
+            console.error('Eroare la salvarea mesajului în Firebase:', error);
+        }
+    }
+    
+    updateParticipantMessages();
+    
+    senderNameInput.value = '';
+    messageContentInput.value = '';
+    if (anonymousInput) anonymousInput.checked = false;
+    clearPhotoData();
+    
+    const messageForm = document.getElementById('messageForm');
+    if (messageForm) messageForm.classList.add('hidden');
+    
+    document.querySelectorAll('.quick-participant-item').forEach(i => {
+        i.classList.remove('active');
+    });
+    
+    showMessage('Mesaj trimis cu succes!', 'success');
+    loadQuickParticipants();
+    currentRecipient = null;
+    }
+    
+    async function sendPhotoOnly() {
+    if (!currentPhotoData) {
+        showMessage('Nu ai selectat nicio fotografie!', 'error');
+        return;
+    }
+    
+    if (!currentRecipient) {
+        showMessage('Destinatarul este obligatoriu!', 'error');
+        return;
+    }
+    
+    const senderNameInput = document.getElementById('senderName');
+    const anonymousInput = document.getElementById('anonymous');
+    
+    const senderName = senderNameInput ? senderNameInput.value.trim() : '';
+    const anonymous = anonymousInput ? anonymousInput.checked : false;
+    
+    let photoUrl = null;
+    
     try {
         if (window.firebaseInitialized && window.uploadImageToFirebase) {
             showMessage('Încărcăm poza...', 'info');
@@ -2134,402 +2362,348 @@ if (currentPhotoData) {
         }
     } catch (error) {
         console.error('Eroare la încărcarea pozei:', error);
-        showMessage('Eroare la încărcarea pozei, dar mesajul va fi trimis!', 'error');
+        showMessage('Eroare la încărcarea pozei!', 'error');
+        return;
     }
-}
-
-const message = {
-    id: Date.now(),
-    recipientId: currentRecipient.id,
-    sender: anonymous ? 'Anonim' : (senderName || 'Anonim'),
-    type: messageType,
-    content: content ? sanitizeInput(content) : '',
-    photo: photoUrl,
-    timestamp: new Date().toISOString()
-};
-
-messages.push(message);
-localStorage.setItem('messages', JSON.stringify(messages));
-
-if (window.firebaseInitialized && window.saveMessageToFirebase) {
-    try {
-        await window.saveMessageToFirebase(message, currentRecipient.name);
-    } catch (error) {
-        console.error('Eroare la salvarea mesajului în Firebase:', error);
-    }
-}
-
-updateParticipantMessages();
-
-senderNameInput.value = '';
-messageContentInput.value = '';
-if (anonymousInput) anonymousInput.checked = false;
-clearPhotoData();
-
-const messageForm = document.getElementById('messageForm');
-if (messageForm) messageForm.classList.add('hidden');
-
-document.querySelectorAll('.quick-participant-item').forEach(i => {
-    i.classList.remove('active');
-});
-
-showMessage('Mesaj trimis cu succes!', 'success');
-loadQuickParticipants();
-currentRecipient = null;
-}
-
-async function sendPhotoOnly() {
-if (!currentPhotoData) {
-    showMessage('Nu ai selectat nicio fotografie!', 'error');
-    return;
-}
-
-if (!currentRecipient) {
-    showMessage('Destinatarul este obligatoriu!', 'error');
-    return;
-}
-
-const senderNameInput = document.getElementById('senderName');
-const anonymousInput = document.getElementById('anonymous');
-
-const senderName = senderNameInput ? senderNameInput.value.trim() : '';
-const anonymous = anonymousInput ? anonymousInput.checked : false;
-
-let photoUrl = null;
-
-try {
-    if (window.firebaseInitialized && window.uploadImageToFirebase) {
-        showMessage('Încărcăm poza...', 'info');
-        const file = await base64ToFile(currentPhotoData);
-        photoUrl = await window.uploadImageToFirebase(file, currentRecipient.name);
-    } else {
-        photoUrl = currentPhotoData;
-    }
-} catch (error) {
-    console.error('Eroare la încărcarea pozei:', error);
-    showMessage('Eroare la încărcarea pozei!', 'error');
-    return;
-}
-
-const message = {
-    id: Date.now(),
-    recipientId: currentRecipient.id,
-    sender: anonymous ? 'Anonim' : (senderName || 'Anonim'),
-    type: 'foto',
-    content: '',
-    photo: photoUrl,
-    timestamp: new Date().toISOString()
-};
-
-messages.push(message);
-localStorage.setItem('messages', JSON.stringify(messages));
-
-if (window.firebaseInitialized && window.saveMessageToFirebase) {
-    try {
-        await window.saveMessageToFirebase(message, currentRecipient.name);
-    } catch (error) {
-        console.error('Eroare la salvarea mesajului în Firebase:', error);
-    }
-}
-
-updateParticipantMessages();
-
-if (senderNameInput) senderNameInput.value = '';
-if (anonymousInput) anonymousInput.checked = false;
-clearPhotoData();
-
-const messageForm = document.getElementById('messageForm');
-if (messageForm) messageForm.classList.add('hidden');
-
-document.querySelectorAll('.quick-participant-item').forEach(i => {
-    i.classList.remove('active');
-});
-
-showMessage('Fotografia a fost trimisă cu succes!', 'success');
-loadQuickParticipants();
-currentRecipient = null;
-}
-
-function updateParticipantMessages() {
-participants.forEach(participant => {
-    participant.messages = messages.filter(msg => msg.recipientId === participant.id);
-});
-localStorage.setItem('participants', JSON.stringify(participants));
-}
-
-function cancelMessage() {
-const messageForm = document.getElementById('messageForm');
-if (messageForm) messageForm.classList.add('hidden');
-
-const senderNameInput = document.getElementById('senderName');
-const messageContentInput = document.getElementById('messageContent');
-const anonymousInput = document.getElementById('anonymous');
-
-if (senderNameInput) senderNameInput.value = '';
-if (messageContentInput) messageContentInput.value = '';
-if (anonymousInput) anonymousInput.checked = false;
-
-clearPhotoData();
-
-document.querySelectorAll('.quick-participant-item').forEach(i => {
-    i.classList.remove('active');
-});
-
-currentRecipient = null;
-showMessage('Mesaj anulat!', 'info');
-}
-
-// ==================== AUTHENTICATION ====================
-function checkMessagesAccess() {
-if (isLoggedIn) {
-    const passwordSection = document.getElementById('passwordSection');
-    const messagesList = document.getElementById('messagesList');
     
-    if (passwordSection) passwordSection.classList.add('hidden');
-    if (messagesList) messagesList.classList.remove('hidden');
+    const message = {
+        id: Date.now(),
+        recipientId: currentRecipient.id,
+        sender: anonymous ? 'Anonim' : (senderName || 'Anonim'),
+        type: 'foto',
+        content: '',
+        photo: photoUrl,
+        timestamp: new Date().toISOString()
+    };
     
-    displayAllMessages();
-} else {
-    const passwordSection = document.getElementById('passwordSection');
-    const messagesList = document.getElementById('messagesList');
+    messages.push(message);
+    localStorage.setItem('messages', JSON.stringify(messages));
     
-    if (passwordSection) passwordSection.classList.remove('hidden');
-    if (messagesList) messagesList.classList.add('hidden');
-}
-}
-
-// ==================== MESSAGE DISPLAY ====================
-function displayAllMessages() {
-const list = document.getElementById('messagesList');
-if (!list || !isLoggedIn) return;
-
-if (messages.length === 0) {
-    list.innerHTML = '<p style="text-align: center; color: #666;">Nu există mesaje primite.</p>';
-    return;
-}
-
-list.innerHTML = '<h3>Toate mesajele primite:</h3>';
-
-const messagesByParticipant = {};
-messages.forEach(msg => {
-    const participant = participants.find(p => p.id === msg.recipientId);
-    if (participant) {
-        if (!messagesByParticipant[participant.id]) {
-            messagesByParticipant[participant.id] = {
-                participant: participant,
-                messages: []
-            };
+    if (window.firebaseInitialized && window.saveMessageToFirebase) {
+        try {
+            await window.saveMessageToFirebase(message, currentRecipient.name);
+        } catch (error) {
+            console.error('Eroare la salvarea mesajului în Firebase:', error);
         }
-        messagesByParticipant[participant.id].messages.push(msg);
-    }
-});
-
-Object.values(messagesByParticipant).forEach(group => {
-    const participantDiv = document.createElement('div');
-    participantDiv.style.marginBottom = '25px';
-    participantDiv.style.padding = '15px';
-    participantDiv.style.border = `3px solid ${group.participant.color}`;
-    participantDiv.style.borderRadius = '15px';
-    participantDiv.style.background = 'rgba(255, 255, 255, 0.8)';
-    
-    const participantName = group.participant.nickname ? 
-        `${group.participant.name} (${group.participant.nickname})` : 
-        group.participant.name;
-    
-    participantDiv.innerHTML = `
-        <h4 style="color: ${group.participant.color}; margin-bottom: 12px; font-size: 16px;">
-            📬 Mesaje pentru ${participantName} (${group.messages.length})
-        </h4>
-        <div class="messages-container">
-            ${group.messages.map(msg => `
-                <div class="message" style="border-left: 4px solid ${group.participant.color};">
-                    <div class="message-header">
-                        <span class="message-sender">${getMessageTypeIcon(msg.type)} ${msg.sender}</span>
-                        <span class="message-time">${new Date(msg.timestamp).toLocaleString('ro-RO')}</span>
-                    </div>
-                    <div class="message-type">${getMessageTypeName(msg.type)}</div>
-                    <div class="message-content">${msg.content || 'Fără text'}</div>
-                    ${msg.photo ? `
-                        <div class="message-photo">
-                            <img src="${msg.photo}" alt="Photo" onclick="openPhotoModal('${msg.photo}')" style="max-width: 150px; max-height: 120px; cursor: pointer;">
-                        </div>
-                    ` : ''}
-                </div>
-            `).join('')}
-        </div>
-    `;
-    
-    list.appendChild(participantDiv);
-});
-}
-
-function displayParticipantMessages() {
-const list = document.getElementById('participantMessagesList');
-if (!list || !currentRecipient) return;
-
-const filteredMessages = messages.filter(m => m.recipientId === currentRecipient.id);
-
-if (filteredMessages.length === 0) {
-    list.innerHTML = '<p style="text-align: center; color: #666;">Nu există mesaje primite pentru acest participant.</p>';
-    return;
-}
-
-list.innerHTML = `<h3>Mesaje pentru ${currentRecipient.name} (${filteredMessages.length}):</h3>`;
-
-filteredMessages.forEach(msg => {
-    const messageDiv = document.createElement('div');
-    messageDiv.className = 'message';
-    messageDiv.style.borderLeft = `4px solid ${currentRecipient.color}`;
-    
-    messageDiv.innerHTML = `
-        <div class="message-header">
-            <span class="message-sender">${getMessageTypeIcon(msg.type)} ${msg.sender}</span>
-            <span class="message-time">${new Date(msg.timestamp).toLocaleString('ro-RO')}</span>
-        </div>
-        <div class="message-type">${getMessageTypeName(msg.type)}</div>
-        <div class="message-content">${msg.content || 'Fără text'}</div>
-        ${msg.photo ? `
-            <div class="message-photo">
-                <img src="${msg.photo}" alt="Photo" onclick="openPhotoModal('${msg.photo}')" style="max-width: 200px; max-height: 150px; cursor: pointer;">
-            </div>
-        ` : ''}
-    `;
-    
-    list.appendChild(messageDiv);
-});
-}
-
-// ==================== QR SCANNING ====================
-function startScanning() {
-navigator.mediaDevices.getUserMedia({ 
-    video: { 
-        facingMode: 'environment',
-        width: { ideal: 1280 },
-        height: { ideal: 720 }
-    } 
-}).then(stream => {
-    videoStream = stream;
-    const video = document.getElementById('video');
-    
-    if (video) {
-        video.srcObject = stream;
-        video.style.display = 'block';
     }
     
-    scanning = true;
-    showMessage('Camera pornită! Scanează un cod QR...', 'info');
-}).catch(err => {
-    console.error('Eroare la pornirea camerei:', err);
-    showMessage('Nu pot accesa camera! Folosește butonul de simulare pentru test.', 'error');
-});
-}
-
-function stopScanning() {
-if (videoStream) {
-    videoStream.getTracks().forEach(track => track.stop());
-    videoStream = null;
-}
-
-scanning = false;
-
-const video = document.getElementById('video');
-if (video) video.style.display = 'none';
-
-showMessage('Camera oprită!', 'info');
-}
-
-function simulateQRScan() {
-if (participants.length === 0) {
-    showMessage('Nu există participanți! Adaugă primul participant în secțiunea Administrare.', 'error');
-    return;
-}
-
-const randomParticipant = participants[Math.floor(Math.random() * participants.length)];
-
-currentRecipient = randomParticipant;
-const targetName = document.getElementById('targetName');
-
-if (targetName) targetName.textContent = randomParticipant.name;
-
-document.querySelectorAll('.quick-participant-item').forEach(i => {
-    i.classList.remove('active');
-});
-
-const quickItems = document.querySelectorAll('.quick-participant-item');
-quickItems.forEach(item => {
-    if (item.textContent.trim().includes(randomParticipant.name)) {
-        item.classList.add('active');
-    }
-});
-
-const messageForm = document.getElementById('messageForm');
-if (messageForm) messageForm.classList.remove('hidden');
-
-showMessage(`QR scanat! Participant selectat: ${randomParticipant.name}`, 'success');
-}
-
-function showParticipantMessages() {
-if (!currentRecipient) {
-    showMessage('Nu există participant selectat!', 'error');
-    return;
-}
-
-showTab('participantMessages');
-}
-
-// ==================== EVENT LISTENERS ====================
-function setupEventListeners() {
-    // Funcție helper pentru butoane mobile-friendly
-    function addMobileFriendlyListener(element, handler) {
-        if (!element) return;
-        
-        // Touch events pentru mobile
-        element.addEventListener('touchstart', function(e) {
-            e.preventDefault();
-            this.style.transform = 'translateY(-2px) scale(1.02)';
-        });
-        
-        element.addEventListener('touchend', function(e) {
-            e.preventDefault();
-            setTimeout(() => {
-                this.style.transform = '';
-                handler(e);
-            }, 100);
-        });
-        
-        // Click pentru desktop
-        element.addEventListener('click', function(e) {
-            if (e.detail !== 0) { // Evită dublarea cu touchend
-                handler(e);
-            }
-        });
-    }
-
-    // Tab navigation
-    document.querySelectorAll('.nav-tab').forEach(tab => {
-        addMobileFriendlyListener(tab, () => {
-            const tabName = tab.getAttribute('data-tab');
-            showTab(tabName);
-        });
+    updateParticipantMessages();
+    
+    if (senderNameInput) senderNameInput.value = '';
+    if (anonymousInput) anonymousInput.checked = false;
+    clearPhotoData();
+    
+    const messageForm = document.getElementById('messageForm');
+    if (messageForm) messageForm.classList.add('hidden');
+    
+    document.querySelectorAll('.quick-participant-item').forEach(i => {
+        i.classList.remove('active');
     });
-
-    // Main action buttons
-    addMobileFriendlyListener(document.getElementById('addParticipantBtn'), addParticipant);
-    addMobileFriendlyListener(document.getElementById('clearAllDataBtn'), clearAllData);
-    addMobileFriendlyListener(document.getElementById('setParticipantPasswordBtn'), setParticipantPassword);
-    addMobileFriendlyListener(document.getElementById('checkParticipantPasswordBtn'), checkParticipantPassword);
-    addMobileFriendlyListener(document.getElementById('resetParticipantPasswordBtn'), resetParticipantPassword);
-    addMobileFriendlyListener(document.getElementById('checkAdminPasswordBtn'), checkAdminPasswordFromKeypad);
-    addMobileFriendlyListener(document.getElementById('sendMessageBtn'), sendMessage);
-    addMobileFriendlyListener(document.getElementById('sendPhotoOnlyBtn'), sendPhotoOnly);
-    addMobileFriendlyListener(document.getElementById('cancelMessageBtn'), cancelMessage);
-    addMobileFriendlyListener(document.getElementById('showParticipantMessagesBtn'), showParticipantMessages);
-    addMobileFriendlyListener(document.getElementById('startScanBtn'), startScanning);
-    addMobileFriendlyListener(document.getElementById('stopScanBtn'), stopScanning);
-    addMobileFriendlyListener(document.getElementById('simulateQRBtn'), simulateQRScan);
-    addMobileFriendlyListener(document.getElementById('backToScanBtn'), () => showTab('scan'));
-
-    // Input events pentru Enter key
+    
+    showMessage('Fotografia a fost trimisă cu succes!', 'success');
+    loadQuickParticipants();
+    currentRecipient = null;
+    }
+    
+    function updateParticipantMessages() {
+    participants.forEach(participant => {
+        participant.messages = messages.filter(msg => msg.recipientId === participant.id);
+    });
+    localStorage.setItem('participants', JSON.stringify(participants));
+    }
+    
+    function cancelMessage() {
+    const messageForm = document.getElementById('messageForm');
+    if (messageForm) messageForm.classList.add('hidden');
+    
+    const senderNameInput = document.getElementById('senderName');
+    const messageContentInput = document.getElementById('messageContent');
+    const anonymousInput = document.getElementById('anonymous');
+    
+    if (senderNameInput) senderNameInput.value = '';
+    if (messageContentInput) messageContentInput.value = '';
+    if (anonymousInput) anonymousInput.checked = false;
+    
+    clearPhotoData();
+    
+    document.querySelectorAll('.quick-participant-item').forEach(i => {
+        i.classList.remove('active');
+    });
+    
+    currentRecipient = null;
+    showMessage('Mesaj anulat!', 'info');
+    }
+    
+    // ==================== AUTHENTICATION ====================
+    function checkMessagesAccess() {
+    if (isLoggedIn) {
+        const passwordSection = document.getElementById('passwordSection');
+        const messagesList = document.getElementById('messagesList');
+        
+        if (passwordSection) passwordSection.classList.add('hidden');
+        if (messagesList) messagesList.classList.remove('hidden');
+        
+        displayAllMessages();
+    } else {
+        const passwordSection = document.getElementById('passwordSection');
+        const messagesList = document.getElementById('messagesList');
+        
+        if (passwordSection) passwordSection.classList.remove('hidden');
+        if (messagesList) messagesList.classList.add('hidden');
+    }
+    }
+    
+    // ==================== MESSAGE DISPLAY ====================
+    function displayAllMessages() {
+    const list = document.getElementById('messagesList');
+    if (!list || !isLoggedIn) return;
+    
+    if (messages.length === 0) {
+        list.innerHTML = '<p style="text-align: center; color: #666;">Nu există mesaje primite.</p>';
+        return;
+    }
+    
+    list.innerHTML = '<h3>Toate mesajele primite:</h3>';
+    
+    const messagesByParticipant = {};
+    messages.forEach(msg => {
+        const participant = participants.find(p => p.id === msg.recipientId);
+        if (participant) {
+            if (!messagesByParticipant[participant.id]) {
+                messagesByParticipant[participant.id] = {
+                    participant: participant,
+                    messages: []
+                };
+            }
+            messagesByParticipant[participant.id].messages.push(msg);
+        }
+    });
+    
+    Object.values(messagesByParticipant).forEach(group => {
+        const participantDiv = document.createElement('div');
+        participantDiv.style.marginBottom = '25px';
+        participantDiv.style.padding = '15px';
+        participantDiv.style.border = `3px solid ${group.participant.color}`;
+        participantDiv.style.borderRadius = '15px';
+        participantDiv.style.background = 'rgba(255, 255, 255, 0.8)';
+        
+        const participantName = group.participant.nickname ? 
+            `${group.participant.name} (${group.participant.nickname})` : 
+            group.participant.name;
+        
+        participantDiv.innerHTML = `
+            <h4 style="color: ${group.participant.color}; margin-bottom: 12px; font-size: 16px;">
+                📬 Mesaje pentru ${participantName} (${group.messages.length})
+            </h4>
+            <div class="messages-container">
+                ${group.messages.map(msg => `
+                    <div class="message" style="border-left: 4px solid ${group.participant.color};">
+                        <div class="message-header">
+                            <span class="message-sender">${getMessageTypeIcon(msg.type)} ${msg.sender}</span>
+                            <span class="message-time">${new Date(msg.timestamp).toLocaleString('ro-RO')}</span>
+                        </div>
+                        <div class="message-type">${getMessageTypeName(msg.type)}</div>
+                        <div class="message-content">${msg.content || 'Fără text'}</div>
+                        ${msg.photo ? `
+                            <div class="message-photo">
+                                <img src="${msg.photo}" alt="Photo" onclick="openPhotoModal('${msg.photo}')" style="max-width: 150px; max-height: 120px; cursor: pointer;">
+                            </div>
+                        ` : ''}
+                    </div>
+                `).join('')}
+            </div>
+        `;
+        
+        list.appendChild(participantDiv);
+    });
+    }
+    
+    function displayParticipantMessages() {
+    const list = document.getElementById('participantMessagesList');
+    if (!list || !currentRecipient) return;
+    
+    const filteredMessages = messages.filter(m => m.recipientId === currentRecipient.id);
+    
+    if (filteredMessages.length === 0) {
+        list.innerHTML = '<p style="text-align: center; color: #666;">Nu există mesaje primite pentru acest participant.</p>';
+        return;
+    }
+    
+    list.innerHTML = `<h3>Mesaje pentru ${currentRecipient.name} (${filteredMessages.length}):</h3>`;
+    
+    filteredMessages.forEach(msg => {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'message';
+        messageDiv.style.borderLeft = `4px solid ${currentRecipient.color}`;
+        
+        messageDiv.innerHTML = `
+            <div class="message-header">
+                <span class="message-sender">${getMessageTypeIcon(msg.type)} ${msg.sender}</span>
+                <span class="message-time">${new Date(msg.timestamp).toLocaleString('ro-RO')}</span>
+            </div>
+            <div class="message-type">${getMessageTypeName(msg.type)}</div>
+            <div class="message-content">${msg.content || 'Fără text'}</div>
+            ${msg.photo ? `
+                <div class="message-photo">
+                    <img src="${msg.photo}" alt="Photo" onclick="openPhotoModal('${msg.photo}')" style="max-width: 200px; max-height: 150px; cursor: pointer;">
+                </div>
+            ` : ''}
+        `;
+        
+        list.appendChild(messageDiv);
+    });
+    }
+    
+    // ==================== QR SCANNING ====================
+    function startScanning() {
+    navigator.mediaDevices.getUserMedia({ 
+        video: { 
+            facingMode: 'environment',
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
+        } 
+    }).then(stream => {
+        videoStream = stream;
+        const video = document.getElementById('video');
+        
+        if (video) {
+            video.srcObject = stream;
+            video.style.display = 'block';
+        }
+        
+        scanning = true;
+        showMessage('Camera pornită! Scanează un cod QR...', 'info');
+    }).catch(err => {
+        console.error('Eroare la pornirea camerei:', err);
+        showMessage('Nu pot accesa camera! Folosește butonul de simulare pentru test.', 'error');
+    });
+    }
+    
+    function stopScanning() {
+    if (videoStream) {
+        videoStream.getTracks().forEach(track => track.stop());
+        videoStream = null;
+    }
+    
+    scanning = false;
+    
+    const video = document.getElementById('video');
+    if (video) video.style.display = 'none';
+    
+    showMessage('Camera oprită!', 'info');
+    }
+    
+    function simulateQRScan() {
+    if (participants.length === 0) {
+        showMessage('Nu există participanți! Adaugă primul participant în secțiunea Administrare.', 'error');
+        return;
+    }
+    
+    const randomParticipant = participants[Math.floor(Math.random() * participants.length)];
+    
+    currentRecipient = randomParticipant;
+    const targetName = document.getElementById('targetName');
+    
+    if (targetName) targetName.textContent = randomParticipant.name;
+    
+    document.querySelectorAll('.quick-participant-item').forEach(i => {
+        i.classList.remove('active');
+    });
+    
+    const quickItems = document.querySelectorAll('.quick-participant-item');
+    quickItems.forEach(item => {
+        if (item.textContent.trim().includes(randomParticipant.name)) {
+            item.classList.add('active');
+        }
+    });
+    
+    const messageForm = document.getElementById('messageForm');
+    if (messageForm) messageForm.classList.remove('hidden');
+    
+    showMessage(`QR scanat! Participant selectat: ${randomParticipant.name}`, 'success');
+    }
+    
+    function showParticipantMessages() {
+    if (!currentRecipient) {
+        showMessage('Nu există participant selectat!', 'error');
+        return;
+    }
+    
+    showTab('participantMessages');
+    }
+    
+    // ==================== EVENT LISTENERS ====================
+    function setupEventListeners() {
+    const addParticipantBtn = document.getElementById('addParticipantBtn');
+    if (addParticipantBtn) {
+        addParticipantBtn.addEventListener('click', addParticipant);
+    }
+    
+    const clearAllDataBtn = document.getElementById('clearAllDataBtn');
+    if (clearAllDataBtn) {
+        clearAllDataBtn.addEventListener('click', clearAllData);
+    }
+    
+    const setParticipantPasswordBtn = document.getElementById('setParticipantPasswordBtn');
+    if (setParticipantPasswordBtn) {
+        setParticipantPasswordBtn.addEventListener('click', setParticipantPassword);
+    }
+    
+    const checkParticipantPasswordBtn = document.getElementById('checkParticipantPasswordBtn');
+    if (checkParticipantPasswordBtn) {
+        checkParticipantPasswordBtn.addEventListener('click', checkParticipantPassword);
+    }
+    
+    const resetParticipantPasswordBtn = document.getElementById('resetParticipantPasswordBtn');
+    if (resetParticipantPasswordBtn) {
+        resetParticipantPasswordBtn.addEventListener('click', resetParticipantPassword);
+    }
+    
+    const checkAdminPasswordBtn = document.getElementById('checkAdminPasswordBtn');
+    if (checkAdminPasswordBtn) {
+        checkAdminPasswordBtn.addEventListener('click', checkAdminPasswordFromKeypad);
+    }
+    
+    const sendMessageBtn = document.getElementById('sendMessageBtn');
+    if (sendMessageBtn) {
+        sendMessageBtn.addEventListener('click', sendMessage);
+    }
+    
+    const sendPhotoOnlyBtn = document.getElementById('sendPhotoOnlyBtn');
+    if (sendPhotoOnlyBtn) {
+        sendPhotoOnlyBtn.addEventListener('click', sendPhotoOnly);
+    }
+    
+    const cancelMessageBtn = document.getElementById('cancelMessageBtn');
+    if (cancelMessageBtn) {
+        cancelMessageBtn.addEventListener('click', cancelMessage);
+    }
+    
+    const showParticipantMessagesBtn = document.getElementById('showParticipantMessagesBtn');
+    if (showParticipantMessagesBtn) {
+        showParticipantMessagesBtn.addEventListener('click', showParticipantMessages);
+    }
+    
+    const startScanBtn = document.getElementById('startScanBtn');
+    if (startScanBtn) {
+        startScanBtn.addEventListener('click', startScanning);
+    }
+    
+    const stopScanBtn = document.getElementById('stopScanBtn');
+    if (stopScanBtn) {
+        stopScanBtn.addEventListener('click', stopScanning);
+    }
+    
+    const simulateQRBtn = document.getElementById('simulateQRBtn');
+    if (simulateQRBtn) {
+        simulateQRBtn.addEventListener('click', simulateQRScan);
+    }
+    
+    const backToScanBtn = document.getElementById('backToScanBtn');
+    if (backToScanBtn) {
+        backToScanBtn.addEventListener('click', () => showTab('scan'));
+    }
+    
     const participantNameInput = document.getElementById('participantName');
     if (participantNameInput) {
         participantNameInput.addEventListener('keypress', (e) => {
@@ -2538,7 +2712,7 @@ function setupEventListeners() {
             }
         });
     }
-
+    
     const messageContentInput = document.getElementById('messageContent');
     if (messageContentInput) {
         messageContentInput.addEventListener('keypress', (e) => {
@@ -2548,206 +2722,121 @@ function setupEventListeners() {
             }
         });
     }
-}
-const addParticipantBtn = document.getElementById('addParticipantBtn');
-if (addParticipantBtn) {
-    addParticipantBtn.addEventListener('click', addParticipant);
-}
-
-const clearAllDataBtn = document.getElementById('clearAllDataBtn');
-if (clearAllDataBtn) {
-    clearAllDataBtn.addEventListener('click', clearAllData);
-}
-
-const setParticipantPasswordBtn = document.getElementById('setParticipantPasswordBtn');
-if (setParticipantPasswordBtn) {
-    setParticipantPasswordBtn.addEventListener('click', setParticipantPassword);
-}
-
-const checkParticipantPasswordBtn = document.getElementById('checkParticipantPasswordBtn');
-if (checkParticipantPasswordBtn) {
-    checkParticipantPasswordBtn.addEventListener('click', checkParticipantPassword);
-}
-
-const resetParticipantPasswordBtn = document.getElementById('resetParticipantPasswordBtn');
-if (resetParticipantPasswordBtn) {
-    resetParticipantPasswordBtn.addEventListener('click', resetParticipantPassword);
-}
-
-const checkAdminPasswordBtn = document.getElementById('checkAdminPasswordBtn');
-if (checkAdminPasswordBtn) {
-    checkAdminPasswordBtn.addEventListener('click', checkAdminPasswordFromKeypad);
-}
-
-const sendMessageBtn = document.getElementById('sendMessageBtn');
-if (sendMessageBtn) {
-    sendMessageBtn.addEventListener('click', sendMessage);
-}
-
-const sendPhotoOnlyBtn = document.getElementById('sendPhotoOnlyBtn');
-if (sendPhotoOnlyBtn) {
-    sendPhotoOnlyBtn.addEventListener('click', sendPhotoOnly);
-}
-
-const cancelMessageBtn = document.getElementById('cancelMessageBtn');
-if (cancelMessageBtn) {
-    cancelMessageBtn.addEventListener('click', cancelMessage);
-}
-
-const showParticipantMessagesBtn = document.getElementById('showParticipantMessagesBtn');
-if (showParticipantMessagesBtn) {
-    showParticipantMessagesBtn.addEventListener('click', showParticipantMessages);
-}
-
-const startScanBtn = document.getElementById('startScanBtn');
-if (startScanBtn) {
-    startScanBtn.addEventListener('click', startScanning);
-}
-
-const stopScanBtn = document.getElementById('stopScanBtn');
-if (stopScanBtn) {
-    stopScanBtn.addEventListener('click', stopScanning);
-}
-
-const simulateQRBtn = document.getElementById('simulateQRBtn');
-if (simulateQRBtn) {
-    simulateQRBtn.addEventListener('click', simulateQRScan);
-}
-
-const backToScanBtn = document.getElementById('backToScanBtn');
-if (backToScanBtn) {
-    backToScanBtn.addEventListener('click', () => showTab('scan'));
-}
-
-const participantNameInput = document.getElementById('participantName');
-if (participantNameInput) {
-    participantNameInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            addParticipant();
-        }
-    });
-}
-
-const messageContentInput = document.getElementById('messageContent');
-if (messageContentInput) {
-    messageContentInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            sendMessage();
-        }
-    });
-}
-
-// ==================== CLEANUP ====================
-function cleanup() {
-if (videoStream) {
-    videoStream.getTracks().forEach(track => track.stop());
-    videoStream = null;
-}
-scanning = false;
-}
-
-// ==================== INITIALIZATION ====================
-document.addEventListener('DOMContentLoaded', async function() {
-    // Încarcă mai întâi din localStorage
-    participants = JSON.parse(localStorage.getItem('participants')) || [];
-    messages = JSON.parse(localStorage.getItem('messages')) || [];
-
-    // Apoi încearcă să încarce din Firebase
-    if (window.firebaseInitialized) {
-        try {
-            showMessage('Încărcăm datele din cloud...', 'info');
-            
-            const firebaseParticipants = await window.loadParticipantsFromFirebase();
-            const firebaseMessages = await window.loadMessagesFromFirebase();
-            
-            if (firebaseParticipants.length > 0) {
-                participants = firebaseParticipants;
-                localStorage.setItem('participants', JSON.stringify(participants));
+    }
+    
+    // ==================== CLEANUP ====================
+    function cleanup() {
+    if (videoStream) {
+        videoStream.getTracks().forEach(track => track.stop());
+        videoStream = null;
+    }
+    scanning = false;
+    }
+    
+    // ==================== INITIALIZATION ====================
+    document.addEventListener('DOMContentLoaded', async function() {
+        // Încarcă mai întâi din localStorage
+        participants = JSON.parse(localStorage.getItem('participants')) || [];
+        messages = JSON.parse(localStorage.getItem('messages')) || [];
+    
+        // Apoi încearcă să încarce din Firebase
+        if (window.firebaseInitialized) {
+            try {
+                showMessage('Încărcăm datele din cloud...', 'info');
+                
+                const firebaseParticipants = await window.loadParticipantsFromFirebaseWithPasswords();
+                const firebaseMessages = await window.loadMessagesFromFirebase();
+                
+                if (firebaseParticipants.length > 0) {
+                    participants = firebaseParticipants;
+                    localStorage.setItem('participants', JSON.stringify(participants));
+                }
+                
+                if (firebaseMessages.length > 0) {
+                    messages = firebaseMessages;
+                    localStorage.setItem('messages', JSON.stringify(messages));
+                }
+                
+                showMessage('Datele au fost sincronizate!', 'success');
+                
+                // Pornește sincronizarea automată la fiecare 30 secunde
+                setInterval(window.autoSyncWithPasswords, 30000);
+                
+            } catch (error) {
+                console.error('Eroare la sincronizarea cu cloud:', error);
+                showMessage('Folosim datele locale. Eroare cloud: ' + error.message, 'info');
             }
-            
-            if (firebaseMessages.length > 0) {
-                messages = firebaseMessages;
-                localStorage.setItem('messages', JSON.stringify(messages));
+        }
+    
+        // Asigură-te că toți participanții au proprietățile necesare pentru parole
+        participants.forEach(participant => {
+            if (participant.password === undefined) {
+                participant.password = null;
             }
+            if (participant.hasPassword === undefined) {
+                participant.hasPassword = false;
+            }
+            if (participant.passwordHash === undefined) {
+                participant.passwordHash = null;
+            }
+        });
+    
+        localStorage.setItem('participants', JSON.stringify(participants));
+    
+        updateParticipantMessages();
+        setupEventListeners();
+        setupNumericKeypad();
+        setupPhotoUpload();
+        setupPhotoModal();
+    
+        if (password && isLoggedIn) {
+            const passwordSection = document.getElementById('passwordSection');
+            const messagesList = document.getElementById('messagesList');
             
-            showMessage('Datele au fost sincronizate!', 'success');
-            
-            // Pornește sincronizarea automată la fiecare 30 secunde
-            setInterval(window.autoSync, 30000);
-            
-        } catch (error) {
-            console.error('Eroare la sincronizarea cu cloud:', error);
-            showMessage('Folosim datele locale. Eroare cloud: ' + error.message, 'info');
+            if (passwordSection) passwordSection.classList.add('hidden');
+            if (messagesList) messagesList.classList.remove('hidden');
         }
+    
+        loadParticipants();
+        loadQuickParticipants();
+        showMessage('Aplicația a fost încărcată cu succes!', 'success');
+    });
+    
+    window.addEventListener('beforeunload', cleanup);
+    
+    document.addEventListener('touchstart', function(e) {
+    if (e.touches.length > 1) {
+        e.preventDefault();
     }
-
-    // Restul codului existent rămâne la fel...
-    participants.forEach(participant => {
-        if (participant.password === undefined) {
-            participant.password = null;
-        }
-        if (participant.hasPassword === undefined) {
-            participant.hasPassword = false;
+    });
+    
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', function(e) {
+    const now = (new Date()).getTime();
+    if (now - lastTouchEnd <= 300) {
+        e.preventDefault();
+    }
+    lastTouchEnd = now;
+    }, false);
+    
+    window.participants = participants;
+    window.messages = messages;
+    window.showTab = showTab;
+    window.deleteParticipant = deleteParticipant;
+    window.openPhotoModal = openPhotoModal;
+    
+    // Sincronizare când se schimbă visibility-ul paginii
+    document.addEventListener('visibilitychange', function() {
+        if (!document.hidden && window.autoSyncWithPasswords) {
+            // Când utilizatorul revine pe tab, sincronizează
+            setTimeout(window.autoSyncWithPasswords, 1000);
         }
     });
-
-    localStorage.setItem('participants', JSON.stringify(participants));
-
-    updateParticipantMessages();
-    setupEventListeners();
-    setupNumericKeypad();
-    setupPhotoUpload();
-    setupPhotoModal();
-
-    if (password && isLoggedIn) {
-        const passwordSection = document.getElementById('passwordSection');
-        const messagesList = document.getElementById('messagesList');
-        
-        if (passwordSection) passwordSection.classList.add('hidden');
-        if (messagesList) messagesList.classList.remove('hidden');
-    }
-
-    loadParticipants();
-    loadQuickParticipants();
-    showMessage('Aplicația a fost încărcată cu succes!', 'success');
-});
-
-window.addEventListener('beforeunload', cleanup);
-
-document.addEventListener('touchstart', function(e) {
-if (e.touches.length > 1) {
-    e.preventDefault();
-}
-});
-
-let lastTouchEnd = 0;
-document.addEventListener('touchend', function(e) {
-const now = (new Date()).getTime();
-if (now - lastTouchEnd <= 300) {
-    e.preventDefault();
-}
-lastTouchEnd = now;
-}, false);
-
-window.participants = participants;
-window.messages = messages;
-window.showTab = showTab;
-window.deleteParticipant = deleteParticipant;
-window.openPhotoModal = openPhotoModal;
-
-// Adaugă la sfârșitul fișierului, înainte de închiderea script-ului
-document.addEventListener('visibilitychange', function() {
-    if (!document.hidden && window.autoSync) {
-        // Când utilizatorul revine pe tab, sincronizează
-        setTimeout(window.autoSync, 1000);
-    }
-});
-
-// Sincronizare când se schimbă focus-ul pe fereastră
-window.addEventListener('focus', function() {
-    if (window.autoSync) {
-        setTimeout(window.autoSync, 1000);
-    }
-});
-</script>
+    
+    // Sincronizare când se schimbă focus-ul pe fereastră
+    window.addEventListener('focus', function() {
+        if (window.autoSyncWithPasswords) {
+            setTimeout(window.autoSyncWithPasswords, 1000);
+        }
+    });
+    </script>
