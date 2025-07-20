@@ -1539,30 +1539,54 @@ if (navigator.vibrate) {
 
 function setupNumericKeypad() {
 document.querySelectorAll('.numeric-key').forEach(key => {
-    key.addEventListener('click', function(e) {
+    // Funcția pentru handling acțiunii
+    function handleKeyAction(e) {
         e.preventDefault();
         e.stopPropagation();
         
-        const keyValue = this.getAttribute('data-key');
-        const keypadType = this.getAttribute('data-keypad') || 'admin';
+        const keyValue = key.getAttribute('data-key');
+        const keypadType = key.getAttribute('data-keypad') || 'admin';
         
         handleKeypadInput(keypadType, keyValue);
-    });
+    }
     
+    // Event listeners pentru mobile (touchstart este prioritar)
     key.addEventListener('touchstart', function(e) {
         e.preventDefault();
+        e.stopPropagation();
+        
+        // Efecte vizuale pentru feedback
         this.style.transform = 'translateY(-4px) scale(1.05)';
         this.style.filter = 'brightness(1.2)';
+        
+        // Execută acțiunea imediat
+        handleKeyAction(e);
+        
+        // Vibrație tactilă dacă e disponibilă
+        if (navigator.vibrate) {
+            navigator.vibrate(50);
+        }
     });
     
     key.addEventListener('touchend', function(e) {
         e.preventDefault();
+        e.stopPropagation();
+        
+        // Resetează efectele vizuale
         setTimeout(() => {
             this.style.transform = '';
             this.style.filter = '';
         }, 150);
     });
-
+    
+    // Event listeners pentru desktop (fallback)
+    key.addEventListener('click', function(e) {
+        // Doar dacă nu a fost deja procesat de touchstart
+        if (e.detail !== 0) { // e.detail === 0 înseamnă că e venit de la touchstart
+            handleKeyAction(e);
+        }
+    });
+    
     key.addEventListener('mousedown', function(e) {
         e.preventDefault();
         this.style.transform = 'translateY(-4px) scale(1.05)';
@@ -1576,9 +1600,13 @@ document.querySelectorAll('.numeric-key').forEach(key => {
             this.style.filter = '';
         }, 150);
     });
+    
+    // Previne comportamentul default pentru contextmenu
+    key.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+    });
 });
 }
-
 // ==================== PARTICIPANT MANAGEMENT ====================
 async function addParticipant() {
 const nameInput = document.getElementById('participantName');
@@ -2451,38 +2479,76 @@ showTab('participantMessages');
 
 // ==================== EVENT LISTENERS ====================
 function setupEventListeners() {
-    // Adaugă acestea la începutul funcției setupEventListeners()
-document.querySelectorAll('.nav-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-        const tabName = tab.getAttribute('data-tab');
-        showTab(tabName);
-    });
-});
-document.querySelectorAll('.nav-tab').forEach(tab => {
-    // Click pentru desktop
-    tab.addEventListener('click', (e) => {
-        e.preventDefault();
-        const tabName = tab.getAttribute('data-tab');
-        showTab(tabName);
-    });
-    
-    // Touch pentru mobil
-    tab.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        tab.style.transform = 'translateY(-1px)';
-    });
-    
-    tab.addEventListener('touchend', (e) => {
-        e.preventDefault();
-        setTimeout(() => {
-            tab.style.transform = '';
+    // Funcție helper pentru butoane mobile-friendly
+    function addMobileFriendlyListener(element, handler) {
+        if (!element) return;
+        
+        // Touch events pentru mobile
+        element.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            this.style.transform = 'translateY(-2px) scale(1.02)';
+        });
+        
+        element.addEventListener('touchend', function(e) {
+            e.preventDefault();
+            setTimeout(() => {
+                this.style.transform = '';
+                handler(e);
+            }, 100);
+        });
+        
+        // Click pentru desktop
+        element.addEventListener('click', function(e) {
+            if (e.detail !== 0) { // Evită dublarea cu touchend
+                handler(e);
+            }
+        });
+    }
+
+    // Tab navigation
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+        addMobileFriendlyListener(tab, () => {
             const tabName = tab.getAttribute('data-tab');
             showTab(tabName);
-        }, 100);
+        });
     });
-});
-}
 
+    // Main action buttons
+    addMobileFriendlyListener(document.getElementById('addParticipantBtn'), addParticipant);
+    addMobileFriendlyListener(document.getElementById('clearAllDataBtn'), clearAllData);
+    addMobileFriendlyListener(document.getElementById('setParticipantPasswordBtn'), setParticipantPassword);
+    addMobileFriendlyListener(document.getElementById('checkParticipantPasswordBtn'), checkParticipantPassword);
+    addMobileFriendlyListener(document.getElementById('resetParticipantPasswordBtn'), resetParticipantPassword);
+    addMobileFriendlyListener(document.getElementById('checkAdminPasswordBtn'), checkAdminPasswordFromKeypad);
+    addMobileFriendlyListener(document.getElementById('sendMessageBtn'), sendMessage);
+    addMobileFriendlyListener(document.getElementById('sendPhotoOnlyBtn'), sendPhotoOnly);
+    addMobileFriendlyListener(document.getElementById('cancelMessageBtn'), cancelMessage);
+    addMobileFriendlyListener(document.getElementById('showParticipantMessagesBtn'), showParticipantMessages);
+    addMobileFriendlyListener(document.getElementById('startScanBtn'), startScanning);
+    addMobileFriendlyListener(document.getElementById('stopScanBtn'), stopScanning);
+    addMobileFriendlyListener(document.getElementById('simulateQRBtn'), simulateQRScan);
+    addMobileFriendlyListener(document.getElementById('backToScanBtn'), () => showTab('scan'));
+
+    // Input events pentru Enter key
+    const participantNameInput = document.getElementById('participantName');
+    if (participantNameInput) {
+        participantNameInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                addParticipant();
+            }
+        });
+    }
+
+    const messageContentInput = document.getElementById('messageContent');
+    if (messageContentInput) {
+        messageContentInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+    }
+}
 const addParticipantBtn = document.getElementById('addParticipantBtn');
 if (addParticipantBtn) {
     addParticipantBtn.addEventListener('click', addParticipant);
