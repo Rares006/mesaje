@@ -1,0 +1,2553 @@
+
+</body>
+</html><!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tabăra 2025 - Mesaje QR</title>
+<style>
+* {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+}
+
+body {
+font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+min-height: 100vh;
+color: #333;
+line-height: 1.6;
+-webkit-tap-highlight-color: transparent;
+-webkit-touch-callout: none;
+-webkit-user-select: none;
+user-select: none;
+}
+
+.container {
+max-width: 1200px;
+margin: 0 auto;
+padding: 10px;
+}
+
+.header {
+background: rgba(255, 255, 255, 0.95);
+backdrop-filter: blur(10px);
+border-radius: 20px;
+padding: 20px;
+margin-bottom: 20px;
+text-align: center;
+box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.header h1 {
+color: #4c63d2;
+font-size: 2.2em;
+margin-bottom: 10px;
+text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.header p {
+color: #666;
+font-size: 1em;
+margin-top: 10px;
+}
+
+.nav-tabs {
+display: flex;
+justify-content: center;
+margin-bottom: 20px;
+gap: 10px;
+flex-wrap: wrap;
+padding: 0 10px;
+}
+
+.nav-tab {
+padding: 12px 20px;
+background: rgba(255, 255, 255, 0.2);
+border: none;
+border-radius: 25px;
+cursor: pointer;
+font-size: 14px;
+font-weight: 600;
+color: white;
+transition: all 0.3s ease;
+backdrop-filter: blur(10px);
+border: 2px solid transparent;
+min-width: 140px;
+touch-action: manipulation;
+}
+
+.nav-tab.active {
+background: rgba(255, 255, 255, 0.9);
+color: #4c63d2;
+transform: translateY(-2px);
+box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+border-color: #4c63d2;
+}
+
+.nav-tab:hover, .nav-tab:active {
+transform: translateY(-1px);
+box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+background: rgba(255, 255, 255, 0.3);
+}
+
+.tab-content {
+display: none;
+background: rgba(255, 255, 255, 0.95);
+border-radius: 20px;
+padding: 20px;
+box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+backdrop-filter: blur(10px);
+margin-bottom: 20px;
+}
+
+.tab-content.active {
+display: block;
+animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+from { 
+    opacity: 0; 
+    transform: translateY(20px); 
+}
+to { 
+    opacity: 1; 
+    transform: translateY(0); 
+}
+}
+
+.tab-content h2 {
+color: #4c63d2;
+margin-bottom: 20px;
+font-size: 1.6em;
+text-align: center;
+}
+
+.form-group {
+margin-bottom: 15px;
+}
+
+.form-group label {
+display: block;
+margin-bottom: 8px;
+font-weight: 600;
+color: #4c63d2;
+font-size: 14px;
+}
+
+.form-group input, 
+.form-group select, 
+.form-group textarea {
+width: 100%;
+padding: 12px 16px;
+border: 2px solid #e0e0e0;
+border-radius: 10px;
+font-size: 16px;
+transition: all 0.3s ease;
+background: rgba(255, 255, 255, 0.9);
+font-family: inherit;
+}
+
+.form-group input:focus, 
+.form-group select:focus, 
+.form-group textarea:focus {
+outline: none;
+border-color: #4c63d2;
+box-shadow: 0 0 0 3px rgba(76, 99, 210, 0.1);
+background: rgba(255, 255, 255, 1);
+}
+
+.form-group input[type="color"] {
+height: 50px;
+cursor: pointer;
+padding: 5px;
+}
+
+.form-group input[type="file"] {
+padding: 8px 12px;
+cursor: pointer;
+}
+
+.form-group textarea {
+resize: vertical;
+min-height: 100px;
+}
+
+.btn {
+padding: 12px 20px;
+background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+color: white;
+border: none;
+border-radius: 25px;
+cursor: pointer;
+font-size: 14px;
+font-weight: 600;
+transition: all 0.3s ease;
+margin: 5px;
+display: inline-block;
+text-decoration: none;
+text-align: center;
+min-width: 100px;
+touch-action: manipulation;
+user-select: none;
+}
+
+.btn:hover, .btn:active {
+transform: translateY(-2px);
+box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+filter: brightness(1.1);
+}
+
+.btn-danger {
+background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+}
+
+.btn-success {
+background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+}
+
+.btn-secondary {
+background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+}
+
+.participants-grid {
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+gap: 15px;
+margin-top: 15px;
+}
+
+.participant-card {
+background: linear-gradient(135deg, #f8f9ff 0%, #e8f0ff 100%);
+border-radius: 15px;
+padding: 15px;
+box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+transition: all 0.3s ease;
+cursor: pointer;
+border: 3px solid transparent;
+}
+
+.participant-card:hover, .participant-card:active {
+transform: translateY(-5px);
+box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+border-color: #4c63d2;
+}
+
+.participant-name {
+font-size: 16px;
+font-weight: 600;
+color: #4c63d2;
+margin-bottom: 10px;
+text-align: center;
+}
+
+.quick-participants {
+background: rgba(255, 255, 255, 0.95);
+border-radius: 15px;
+padding: 15px;
+margin-bottom: 15px;
+backdrop-filter: blur(10px);
+box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.quick-participants h3 {
+color: #4c63d2;
+margin-bottom: 12px;
+text-align: center;
+font-size: 16px;
+}
+
+.quick-participant-list {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+gap: 8px;
+}
+
+.quick-participant-item {
+background: linear-gradient(135deg, #f8f9ff 0%, #e8f0ff 100%);
+border: 2px solid transparent;
+border-radius: 10px;
+padding: 10px 6px;
+text-align: center;
+cursor: pointer;
+transition: all 0.3s ease;
+font-size: 12px;
+font-weight: 600;
+color: #4c63d2;
+position: relative;
+overflow: hidden;
+touch-action: manipulation;
+min-height: 45px;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+
+.quick-participant-item:hover, .quick-participant-item:active {
+transform: translateY(-2px);
+box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+border-color: #4c63d2;
+}
+
+.quick-participant-item.active {
+background: linear-gradient(135deg, #4c63d2 0%, #764ba2 100%);
+color: white;
+transform: translateY(-2px);
+box-shadow: 0 5px 15px rgba(76, 99, 210, 0.4);
+}
+
+.quick-participant-badge {
+position: absolute;
+top: -3px;
+right: -3px;
+background: #ff6b6b;
+color: white;
+border-radius: 50%;
+width: 18px;
+height: 18px;
+font-size: 10px;
+display: flex;
+align-items: center;
+justify-content: center;
+font-weight: bold;
+}
+
+.qr-code {
+text-align: center;
+margin: 10px 0;
+}
+
+.qr-code canvas {
+border: 3px solid #4c63d2;
+border-radius: 10px;
+padding: 8px;
+background: white;
+box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+max-width: 100%;
+}
+
+.camera-container {
+position: relative;
+width: 100%;
+max-width: 350px;
+margin: 15px auto;
+text-align: center;
+}
+
+#video {
+width: 100%;
+border-radius: 10px;
+box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+background: #000;
+}
+
+.message-form {
+background: rgba(76, 99, 210, 0.05);
+border-radius: 15px;
+padding: 20px;
+margin-top: 15px;
+border: 2px solid rgba(76, 99, 210, 0.2);
+}
+
+.photo-upload-section {
+background: rgba(255, 255, 255, 0.9);
+border-radius: 10px;
+padding: 15px;
+margin: 15px 0;
+border: 2px dashed #4c63d2;
+text-align: center;
+}
+
+.photo-preview {
+margin-top: 15px;
+display: none;
+}
+
+.photo-preview img {
+max-width: 100%;
+max-height: 200px;
+border-radius: 10px;
+box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.remove-photo {
+margin-top: 10px;
+background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+color: white;
+border: none;
+padding: 8px 16px;
+border-radius: 20px;
+cursor: pointer;
+font-size: 12px;
+font-weight: 600;
+}
+
+.messages-container {
+max-height: 300px;
+overflow-y: auto;
+border: 2px solid #e0e0e0;
+border-radius: 10px;
+padding: 12px;
+margin-top: 10px;
+background: rgba(255, 255, 255, 0.5);
+}
+
+.message {
+background: rgba(76, 99, 210, 0.1);
+border-radius: 10px;
+padding: 12px;
+margin-bottom: 10px;
+border-left: 4px solid #4c63d2;
+transition: all 0.3s ease;
+}
+
+.message:hover {
+background: rgba(76, 99, 210, 0.15);
+transform: translateX(5px);
+}
+
+.message-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 6px;
+flex-wrap: wrap;
+}
+
+.message-sender {
+font-weight: 600;
+color: #4c63d2;
+font-size: 13px;
+}
+
+.message-time {
+font-size: 11px;
+color: #666;
+white-space: nowrap;
+}
+
+.message-type {
+font-size: 12px;
+color: #888;
+margin-bottom: 6px;
+font-style: italic;
+}
+
+.message-content {
+color: #333;
+line-height: 1.4;
+font-size: 13px;
+word-wrap: break-word;
+}
+
+.message-photo {
+margin-top: 10px;
+text-align: center;
+}
+
+.message-photo img {
+max-width: 100%;
+max-height: 150px;
+border-radius: 8px;
+box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+cursor: pointer;
+transition: transform 0.3s ease;
+}
+
+.message-photo img:hover {
+transform: scale(1.05);
+}
+
+.photo-modal {
+display: none;
+position: fixed;
+z-index: 2000;
+left: 0;
+top: 0;
+width: 100%;
+height: 100%;
+background-color: rgba(0, 0, 0, 0.9);
+backdrop-filter: blur(5px);
+}
+
+.photo-modal-content {
+position: absolute;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%);
+max-width: 90%;
+max-height: 90%;
+}
+
+.photo-modal img {
+width: 100%;
+height: auto;
+border-radius: 10px;
+box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.photo-modal-close {
+position: absolute;
+top: 15px;
+right: 25px;
+color: white;
+font-size: 35px;
+font-weight: bold;
+cursor: pointer;
+z-index: 2001;
+}
+
+.photo-modal-close:hover {
+color: #ccc;
+}
+
+.numeric-keypad {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+gap: 12px;
+max-width: 320px;
+margin: 15px auto;
+padding: 15px;
+background: rgba(255, 255, 255, 0.9);
+border-radius: 15px;
+box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.numeric-key {
+aspect-ratio: 1;
+border: none;
+border-radius: 12px;
+background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+color: white;
+font-size: 22px;
+font-weight: 700;
+cursor: pointer;
+transition: all 0.2s ease;
+display: flex;
+align-items: center;
+justify-content: center;
+min-height: 60px;
+box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+user-select: none;
+-webkit-user-select: none;
+-webkit-tap-highlight-color: transparent;
+touch-action: manipulation;
+position: relative;
+}
+
+.numeric-key:before {
+content: '';
+position: absolute;
+top: 50%;
+left: 50%;
+width: 0;
+height: 0;
+background: rgba(255, 255, 255, 0.3);
+border-radius: 50%;
+transform: translate(-50%, -50%);
+transition: all 0.3s ease;
+}
+
+.numeric-key:active:before {
+width: 80%;
+height: 80%;
+}
+
+.numeric-key:hover, .numeric-key:active {
+transform: translateY(-2px) scale(1.05);
+box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+filter: brightness(1.1);
+}
+
+.numeric-key.delete {
+background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+grid-column: span 2;
+font-size: 16px;
+font-weight: 600;
+}
+
+.numeric-key.zero {
+grid-column: span 2;
+}
+
+.numeric-key.submit {
+background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+grid-column: span 3;
+font-size: 16px;
+font-weight: 600;
+}
+
+.password-display {
+text-align: center;
+margin: 15px 0;
+padding: 15px;
+background: rgba(255, 255, 255, 0.9);
+border-radius: 12px;
+border: 3px solid #4c63d2;
+font-size: 24px;
+letter-spacing: 8px;
+font-family: monospace;
+min-height: 60px;
+display: flex;
+align-items: center;
+justify-content: center;
+font-weight: bold;
+color: #4c63d2;
+box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.password-dots {
+font-size: 28px;
+color: #4c63d2;
+letter-spacing: 6px;
+}
+
+.keypad-container {
+background: rgba(76, 99, 210, 0.05);
+border-radius: 20px;
+padding: 20px;
+margin: 15px 0;
+border: 2px solid rgba(76, 99, 210, 0.2);
+}
+
+.password-section {
+background: rgba(255, 255, 255, 0.9);
+border-radius: 15px;
+padding: 20px;
+margin-bottom: 15px;
+text-align: center;
+box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.individual-password-section {
+background: rgba(76, 99, 210, 0.1);
+border-radius: 15px;
+padding: 20px;
+margin-bottom: 15px;
+text-align: center;
+box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+border: 2px solid rgba(76, 99, 210, 0.2);
+}
+
+.success-message {
+background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+color: white;
+padding: 12px;
+border-radius: 10px;
+margin-bottom: 15px;
+text-align: center;
+font-weight: 600;
+box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+}
+
+.error-message {
+background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+color: white;
+padding: 12px;
+border-radius: 10px;
+margin-bottom: 15px;
+text-align: center;
+font-weight: 600;
+box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
+}
+
+.message-notification {
+position: fixed;
+top: 20px;
+right: 20px;
+padding: 12px 16px;
+border-radius: 10px;
+color: white;
+font-weight: 600;
+z-index: 1000;
+max-width: 280px;
+box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+font-size: 14px;
+}
+
+.checkbox-group {
+display: flex;
+align-items: center;
+gap: 8px;
+margin-top: 8px;
+}
+
+.checkbox-group input[type="checkbox"] {
+width: auto;
+margin: 0;
+cursor: pointer;
+}
+
+.checkbox-group label {
+margin: 0;
+cursor: pointer;
+color: #666;
+font-size: 13px;
+}
+
+.hidden {
+display: none !important;
+}
+
+.action-buttons {
+display: flex;
+gap: 8px;
+justify-content: center;
+flex-wrap: wrap;
+margin-top: 15px;
+}
+
+@media (max-width: 768px) {
+.container {
+    padding: 8px;
+}
+
+.header {
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.header h1 {
+    font-size: 1.8em;
+}
+
+.nav-tabs {
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 0 5px;
+}
+
+.nav-tab {
+    width: 100%;
+    max-width: 200px;
+    padding: 12px 18px;
+    font-size: 14px;
+    min-width: unset;
+}
+
+.participants-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+}
+
+.tab-content {
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.tab-content h2 {
+    font-size: 1.4em;
+    margin-bottom: 15px;
+}
+
+.action-buttons {
+    flex-direction: column;
+    align-items: center;
+}
+
+.btn {
+    width: 100%;
+    max-width: 250px;
+    padding: 12px 18px;
+    margin: 4px;
+    font-size: 15px;
+}
+
+.numeric-keypad {
+    max-width: 300px;
+    gap: 10px;
+    padding: 15px;
+}
+
+.numeric-key {
+    min-height: 55px;
+    font-size: 20px;
+    border-radius: 10px;
+}
+
+.numeric-key.delete,
+.numeric-key.submit {
+    font-size: 14px;
+}
+
+.password-display {
+    font-size: 20px;
+    letter-spacing: 6px;
+    min-height: 55px;
+    padding: 12px;
+}
+
+.quick-participant-list {
+    grid-template-columns: repeat(auto-fit, minmax(85px, 1fr));
+    gap: 6px;
+}
+
+.quick-participant-item {
+    font-size: 11px;
+    padding: 8px 4px;
+    min-height: 42px;
+}
+
+.message-notification {
+    top: 10px;
+    right: 10px;
+    left: 10px;
+    max-width: none;
+    font-size: 13px;
+}
+
+.form-group input, 
+.form-group select, 
+.form-group textarea {
+    font-size: 16px;
+    padding: 14px 16px;
+}
+
+.photo-modal-content {
+    max-width: 95%;
+    max-height: 95%;
+}
+
+.photo-modal-close {
+    top: 10px;
+    right: 15px;
+    font-size: 28px;
+}
+
+.keypad-container {
+    padding: 15px;
+    margin: 10px 0;
+}
+}
+
+@media (max-width: 480px) {
+.numeric-keypad {
+    max-width: 280px;
+    gap: 8px;
+    padding: 12px;
+}
+
+.numeric-key {
+    min-height: 50px;
+    font-size: 18px;
+}
+
+.password-display {
+    font-size: 18px;
+    letter-spacing: 4px;
+    min-height: 50px;
+}
+
+.password-dots {
+    font-size: 24px;
+    letter-spacing: 4px;
+}
+
+.nav-tab {
+    touch-action: manipulation;
+    -webkit-user-select: none;
+    user-select: none;
+}
+}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+<h1>🏕️ Tabăra 2025</h1>
+<p>Sistem de mesaje cu coduri QR și poze</p>
+</div>
+
+<!-- Scanare QR Tab -->
+<div id="scan" class="tab-content active">
+<h2>Scanare Cod QR</h2>
+
+<div class="camera-container">
+    <video id="video" autoplay muted playsinline style="display: none;"></video>
+    <canvas id="canvas" style="display: none;"></canvas>
+</div>
+
+<div class="action-buttons">
+    <button class="btn" id="startScanBtn">📷 Camera</button>
+    <button class="btn btn-danger" id="stopScanBtn">🛑 Stop</button>
+</div>
+
+<!-- Quick Participants List -->
+<div id="quickParticipants" class="quick-participants">
+    <h3>🎯 Acces Rapid la Participanți</h3>
+    <div id="quickParticipantList" class="quick-participant-list">
+        <!-- Lista va fi populată dinamic -->
+    </div>
+</div>
+
+<div id="qrResult"></div>
+
+<div id="messageForm" class="message-form hidden">
+    <h3>Mesaj către <span id="targetName"></span></h3>
+    
+    <div class="form-group">
+        <label for="senderName">Numele tău:</label>
+        <input type="text" id="senderName" placeholder="Cum te numești?">
+        <div class="checkbox-group">
+            <input type="checkbox" id="anonymous">
+            <label for="anonymous">Trimite anonim</label>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="messageType">Tipul mesajului:</label>
+        <select id="messageType">
+            <option value="mesaj">📝 Mesaj simplu</option>
+            <option value="compliment">💝 Compliment</option>
+            <option value="amintire">🌟 Amintire frumoasă</option>
+            <option value="gluma">😂 Glumă</option>
+            <option value="incurajare">💪 Încurajare</option>
+            <option value="multumire">🙏 Mulțumire</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="messageContent">Mesajul tău:</label>
+        <textarea id="messageContent" rows="4" placeholder="Scrie aici mesajul tău..."></textarea>
+    </div>
+
+    <!-- Photo Upload Section -->
+    <div class="photo-upload-section">
+        <label for="photoUpload" style="color: #4c63d2; margin-bottom: 10px; display: block;">
+            📸 Adaugă o fotografie (opțional):
+        </label>
+        <input type="file" id="photoUpload" accept="image/*" capture="environment">
+        <p style="font-size: 12px; color: #666; margin-top: 8px;">
+            Poți adăuga o fotografie pentru a face mesajul mai special!
+        </p>
+        
+        <div id="photoPreview" class="photo-preview">
+            <img id="previewImage" src="" alt="Preview">
+            <br>
+            <button type="button" id="removePhoto" class="remove-photo">🗑️ Elimină poza</button>
+        </div>
+    </div>
+
+    <div class="action-buttons">
+        <button class="btn" id="sendMessageBtn">📨 Trimite</button>
+        <button class="btn" id="sendPhotoOnlyBtn">📸 Doar Poza</button>
+        <button class="btn btn-success" id="showParticipantMessagesBtn">📥 Vezi Mesaje</button>
+        <button class="btn btn-danger" id="cancelMessageBtn">❌ Anulează</button>
+    </div>
+</div>
+</div>
+
+<!-- Mesaje Participant Individual -->
+<div id="participantMessages" class="tab-content">
+<h2>Mesaje pentru <span id="participantMessagesName"></span></h2>
+
+<div id="participantPasswordSection" class="individual-password-section">
+    <h3>🔐 Acces la mesajele tale</h3>
+    
+    <div id="passwordStatus" class="password-status hidden">
+        Acest participant are deja o parolă setată
+    </div>
+    
+    <div id="setPasswordForm" class="hidden">
+        <p style="margin-bottom: 15px; color: #4c63d2; font-weight: 600;">
+            Prima dată când accesezi contul, setează o parolă de 4 cifre:
+        </p>
+        
+        <div class="keypad-container">
+            <div class="password-display">
+                <span id="newPasswordDisplay" class="password-dots"></span>
+            </div>
+            
+            <div class="numeric-keypad">
+                <button class="numeric-key" data-key="1" data-keypad="new">1</button>
+                <button class="numeric-key" data-key="2" data-keypad="new">2</button>
+                <button class="numeric-key" data-key="3" data-keypad="new">3</button>
+                <button class="numeric-key" data-key="4" data-keypad="new">4</button>
+                <button class="numeric-key" data-key="5" data-keypad="new">5</button>
+                <button class="numeric-key" data-key="6" data-keypad="new">6</button>
+                <button class="numeric-key" data-key="7" data-keypad="new">7</button>
+                <button class="numeric-key" data-key="8" data-keypad="new">8</button>
+                <button class="numeric-key" data-key="9" data-keypad="new">9</button>
+                <button class="numeric-key delete" data-key="delete" data-keypad="new">🔙 Șterge</button>
+                <button class="numeric-key zero" data-key="0" data-keypad="new">0</button>
+            </div>
+            
+            <p style="color: #4c63d2; font-weight: 600; margin: 10px 0;">Confirmă parola:</p>
+            
+            <div class="password-display">
+                <span id="confirmPasswordDisplay" class="password-dots"></span>
+            </div>
+            
+            <div class="numeric-keypad">
+                <button class="numeric-key" data-key="1" data-keypad="confirm">1</button>
+                <button class="numeric-key" data-key="2" data-keypad="confirm">2</button>
+                <button class="numeric-key" data-key="3" data-keypad="confirm">3</button>
+                <button class="numeric-key" data-key="4" data-keypad="confirm">4</button>
+                <button class="numeric-key" data-key="5" data-keypad="confirm">5</button>
+                <button class="numeric-key" data-key="6" data-keypad="confirm">6</button>
+                <button class="numeric-key" data-key="7" data-keypad="confirm">7</button>
+                <button class="numeric-key" data-key="8" data-keypad="confirm">8</button>
+                <button class="numeric-key" data-key="9" data-keypad="confirm">9</button>
+                <button class="numeric-key delete" data-key="delete" data-keypad="confirm">🔙 Șterge</button>
+                <button class="numeric-key zero" data-key="0" data-keypad="confirm">0</button>
+                <button class="numeric-key submit" data-key="submit" data-keypad="confirm" id="setParticipantPasswordBtn">🔒 Setează</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="enterPasswordForm" class="hidden">
+        <div class="keypad-container">
+            <div class="password-display">
+                <span id="enterPasswordDisplay" class="password-dots"></span>
+            </div>
+            
+            <div class="numeric-keypad">
+                <button class="numeric-key" data-key="1" data-keypad="enter">1</button>
+                <button class="numeric-key" data-key="2" data-keypad="enter">2</button>
+                <button class="numeric-key" data-key="3" data-keypad="enter">3</button>
+                <button class="numeric-key" data-key="4" data-keypad="enter">4</button>
+                <button class="numeric-key" data-key="5" data-keypad="enter">5</button>
+                <button class="numeric-key" data-key="6" data-keypad="enter">6</button>
+                <button class="numeric-key" data-key="7" data-keypad="enter">7</button>
+                <button class="numeric-key" data-key="8" data-keypad="enter">8</button>
+                <button class="numeric-key" data-key="9" data-keypad="enter">9</button>
+                <button class="numeric-key delete" data-key="delete" data-keypad="enter">🔙 Șterge</button>
+                <button class="numeric-key zero" data-key="0" data-keypad="enter">0</button>
+                <button class="numeric-key submit" data-key="submit" data-keypad="enter" id="checkParticipantPasswordBtn">🔓 Verifică</button>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="btn btn-danger" id="resetParticipantPasswordBtn">🔄 Reset</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="participantPasswordError" class="error-message hidden"></div>
+</div>
+
+<div id="participantMessagesList" class="hidden">
+    <!-- Mesajele participantului vor fi afișate aici -->
+</div>
+
+<div class="action-buttons">
+    <button class="btn" id="backToScanBtn">❌ Înapoi</button>
+</div>
+</div>
+</div>
+
+<!-- Photo Modal -->
+<div id="photoModal" class="photo-modal">
+<span class="photo-modal-close">&times;</span>
+<div class="photo-modal-content">
+<img id="modalImage" src="" alt="Photo">
+</div>
+</div>
+
+<!-- Firebase SDK -->
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
+import { getFirestore, collection, addDoc, serverTimestamp, getDocs, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+
+// Configurația Firebase
+const firebaseConfig = {
+apiKey: "AIzaSyAA1ytLJrwh7JHSOwGQrf2t_5imgtiWLk4",
+authDomain: "tabara-2025-95ff5.firebaseapp.com",
+projectId: "tabara-2025-95ff5",
+storageBucket: "tabara-2025-95ff5.firebasestorage.app",
+messagingSenderId: "552618851743",
+appId: "1:552618851743:web:tabara2025app"
+};
+
+// Inițializează Firebase
+const app = initializeApp(firebaseConfig);
+const storage = getStorage(app);
+const db = getFirestore(app);
+
+// Funcție pentru încărcarea pozei în Firebase Storage
+async function uploadImageToFirebase(file, objectName) {
+try {
+    const timestamp = Date.now();
+    const fileName = `mesaje-tabara/${objectName}_${timestamp}.jpg`;
+    const storageRef = ref(storage, fileName);
+    const snapshot = await uploadBytes(storageRef, file);
+    const downloadURL = await getDownloadURL(snapshot.ref);
+    return downloadURL;
+} catch (error) {
+    console.error("Eroare la încărcarea pozei:", error);
+    throw error;
+}
+}
+
+// Funcție pentru încărcarea participanților din Firebase
+async function loadParticipantsFromFirebase() {
+    try {
+        const q = query(collection(db, "participants"), orderBy("createdAt", "asc"));
+        const querySnapshot = await getDocs(q);
+        const firebaseParticipants = [];
+        
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            firebaseParticipants.push({
+                id: data.localId || data.createdAt?.toMillis() || Date.now(),
+                name: data.name,
+                nickname: data.nickname || '',
+                color: data.color,
+                hasPassword: data.hasPassword || false,
+                password: null // Parolele nu se salvează în cloud pentru securitate
+            });
+        });
+        
+        return firebaseParticipants;
+    } catch (error) {
+        console.error("Eroare la încărcarea participanților:", error);
+        return [];
+    }
+}
+
+// Funcție pentru încărcarea mesajelor din Firebase
+async function loadMessagesFromFirebase() {
+    try {
+        const q = query(collection(db, "messages"), orderBy("createdAt", "asc"));
+        const querySnapshot = await getDocs(q);
+        const firebaseMessages = [];
+        
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            firebaseMessages.push({
+                id: data.localMessageId || data.createdAt || Date.now(),
+                recipientId: data.recipientId,
+                sender: data.sender,
+                type: data.type,
+                content: data.content,
+                photo: data.photo,
+                timestamp: data.createdAt || new Date().toISOString()
+            });
+        });
+        
+        return firebaseMessages;
+    } catch (error) {
+        console.error("Eroare la încărcarea mesajelor:", error);
+        return [];
+    }
+}
+
+// Funcție pentru sincronizare automată
+async function autoSync() {
+    if (!window.firebaseInitialized) return;
+    
+    try {
+        const firebaseParticipants = await window.loadParticipantsFromFirebase();
+        const firebaseMessages = await window.loadMessagesFromFirebase();
+        
+        let updated = false;
+        
+        if (firebaseParticipants.length > participants.length) {
+            participants = firebaseParticipants;
+            localStorage.setItem('participants', JSON.stringify(participants));
+            loadParticipants();
+            loadQuickParticipants();
+            updated = true;
+        }
+        
+        if (firebaseMessages.length > messages.length) {
+            messages = firebaseMessages;
+            localStorage.setItem('messages', JSON.stringify(messages));
+            updateParticipantMessages();
+            if (isLoggedIn) displayAllMessages();
+            updated = true;
+        }
+        
+        if (updated) {
+            console.log('Date sincronizate automat din cloud');
+        }
+    } catch (error) {
+        console.error('Eroare la sincronizarea automată:', error);
+    }
+}
+
+// Fă funcția disponibilă global
+window.autoSync = autoSync;
+
+// Fă funcțiile disponibile global
+window.loadParticipantsFromFirebase = loadParticipantsFromFirebase;
+window.loadMessagesFromFirebase = loadMessagesFromFirebase;
+
+
+// Funcție pentru salvarea mesajelor în Firebase
+async function saveMessageToFirebase(message, recipientName) {
+try {
+    const docRef = await addDoc(collection(db, "messages"), {
+        recipientId: message.recipientId,
+        recipientName: recipientName,
+        sender: message.sender,
+        type: message.type,
+        content: message.content,
+        photo: message.photo || null,
+        timestamp: serverTimestamp(),
+        createdAt: new Date().toISOString(),
+        localMessageId: message.id
+    });
+    return docRef.id;
+} catch (error) {
+    console.error("Eroare la salvarea mesajului:", error);
+    throw error;
+}
+}
+
+// Fă funcțiile disponibile global
+window.uploadImageToFirebase = uploadImageToFirebase;
+window.saveParticipantToFirebase = saveParticipantToFirebase;
+window.saveMessageToFirebase = saveMessageToFirebase;
+window.firebaseInitialized = true;
+</script>
+
+<script>
+// ==================== GLOBAL VARIABLES ====================
+let participants = [];
+let messages = [];
+let password = localStorage.getItem('password');
+let isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+let currentRecipient = null;
+let videoStream = null;
+let scanning = false;
+let currentPhotoData = null;
+
+// Password input states for numeric keypad
+let adminPasswordInput = '';
+let newPasswordInput = '';
+let confirmPasswordInput = '';
+let enterPasswordInput = '';
+
+// ==================== UTILITY FUNCTIONS ====================
+function showMessage(message, type = 'info') {
+const existingNotifications = document.querySelectorAll('.message-notification');
+existingNotifications.forEach(notif => notif.remove());
+
+const messageDiv = document.createElement('div');
+messageDiv.className = 'message-notification';
+messageDiv.textContent = message;
+
+const colors = {
+    'success': 'linear-gradient(135deg, #4caf50 0%, #45a049 100%)',
+    'error': 'linear-gradient(135deg, #f44336 0%, #d32f2f 100%)',
+    'info': 'linear-gradient(135deg, #2196f3 0%, #1976d2 100%)'
+};
+
+messageDiv.style.background = colors[type] || colors.info;
+messageDiv.style.position = 'fixed';
+messageDiv.style.top = '20px';
+messageDiv.style.right = '20px';
+messageDiv.style.padding = '12px 16px';
+messageDiv.style.borderRadius = '10px';
+messageDiv.style.color = 'white';
+messageDiv.style.fontWeight = '600';
+messageDiv.style.zIndex = '1000';
+messageDiv.style.maxWidth = '280px';
+messageDiv.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.2)';
+messageDiv.style.fontSize = '14px';
+
+document.body.appendChild(messageDiv);
+
+setTimeout(() => {
+    if (messageDiv.parentNode) {
+        messageDiv.remove();
+    }
+}, 3000);
+}
+
+function sanitizeInput(input) {
+const div = document.createElement('div');
+div.textContent = input;
+return div.innerHTML;
+}
+
+function hashCode(str) {
+let hash = 0;
+for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash;
+}
+return Math.abs(hash);
+}
+
+function getMessageTypeIcon(type) {
+const icons = {
+    'mesaj': '📝',
+    'compliment': '💝',
+    'amintire': '🌟',
+    'gluma': '😂',
+    'incurajare': '💪',
+    'multumire': '🙏',
+    'foto': '📸'
+};
+return icons[type] || '📝';
+}
+
+function getMessageTypeName(type) {
+const names = {
+    'mesaj': 'Mesaj simplu',
+    'compliment': 'Compliment',
+    'amintire': 'Amintire frumoasă',
+    'gluma': 'Glumă',
+    'incurajare': 'Încurajare',
+    'multumire': 'Mulțumire',
+    'foto': 'Doar fotografie'
+};
+return names[type] || 'Mesaj';
+}
+
+// ==================== PHOTO FUNCTIONS ====================
+function setupPhotoUpload() {
+const photoUpload = document.getElementById('photoUpload');
+const photoPreview = document.getElementById('photoPreview');
+const previewImage = document.getElementById('previewImage');
+const removePhoto = document.getElementById('removePhoto');
+
+if (photoUpload) {
+    photoUpload.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            if (file.size > 5 * 1024 * 1024) {
+                showMessage('Poza este prea mare! Maxim 5MB.', 'error');
+                return;
+            }
+
+            if (!file.type.startsWith('image/')) {
+                showMessage('Te rog selectează doar imagini!', 'error');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                currentPhotoData = e.target.result;
+                previewImage.src = currentPhotoData;
+                photoPreview.style.display = 'block';
+                showMessage('Poza a fost adăugată cu succes!', 'success');
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+}
+
+if (removePhoto) {
+    removePhoto.addEventListener('click', function() {
+        currentPhotoData = null;
+        photoPreview.style.display = 'none';
+        previewImage.src = '';
+        photoUpload.value = '';
+        showMessage('Poza a fost eliminată!', 'info');
+    });
+}
+}
+
+function setupPhotoModal() {
+const modal = document.getElementById('photoModal');
+const closeBtn = document.querySelector('.photo-modal-close');
+
+if (closeBtn) {
+    closeBtn.addEventListener('click', function() {
+        modal.style.display = 'none';
+    });
+}
+
+if (modal) {
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
+}
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && modal.style.display === 'block') {
+        modal.style.display = 'none';
+    }
+});
+}
+
+function openPhotoModal(imageSrc) {
+const modal = document.getElementById('photoModal');
+const modalImage = document.getElementById('modalImage');
+
+if (modal && modalImage) {
+    modalImage.src = imageSrc;
+    modal.style.display = 'block';
+}
+}
+
+function clearPhotoData() {
+currentPhotoData = null;
+const photoPreview = document.getElementById('photoPreview');
+const previewImage = document.getElementById('previewImage');
+const photoUpload = document.getElementById('photoUpload');
+
+if (photoPreview) photoPreview.style.display = 'none';
+if (previewImage) previewImage.src = '';
+if (photoUpload) photoUpload.value = '';
+}
+
+async function base64ToFile(base64, filename = 'photo.jpg') {
+const response = await fetch(base64);
+const blob = await response.blob();
+return new File([blob], filename, { type: blob.type });
+}
+
+// ==================== TAB MANAGEMENT ====================
+function showTab(tabName) {
+document.querySelectorAll('.tab-content').forEach(tab => {
+    tab.classList.remove('active');
+});
+document.querySelectorAll('.nav-tab').forEach(btn => {
+    btn.classList.remove('active');
+});
+
+const targetTab = document.getElementById(tabName);
+const targetButton = document.querySelector(`[data-tab="${tabName}"]`);
+
+if (targetTab) targetTab.classList.add('active');
+if (targetButton) targetButton.classList.add('active');
+
+switch (tabName) {
+    case 'admin':
+        loadParticipants();
+        break;
+    case 'scan':
+        loadQuickParticipants();
+        break;
+    case 'messages':
+        checkMessagesAccess();
+        break;
+    case 'participantMessages':
+        checkParticipantAccess();
+        break;
+}
+}
+
+// ==================== NUMERIC KEYPAD FUNCTIONS ====================
+function updatePasswordDisplay(keypadType, password) {
+const displays = {
+    'admin': 'adminPasswordDisplay',
+    'new': 'newPasswordDisplay', 
+    'confirm': 'confirmPasswordDisplay',
+    'enter': 'enterPasswordDisplay'
+};
+
+const displayId = displays[keypadType];
+const display = document.getElementById(displayId);
+
+if (display) {
+    display.textContent = '●'.repeat(password.length);
+}
+}
+
+function handleKeypadInput(keypadType, key) {
+const maxLengths = {
+    'admin': 6,
+    'new': 4,
+    'confirm': 4, 
+    'enter': 4
+};
+
+const maxLength = maxLengths[keypadType];
+
+if (key === 'delete') {
+    switch(keypadType) {
+        case 'admin':
+            adminPasswordInput = adminPasswordInput.slice(0, -1);
+            break;
+        case 'new':
+            newPasswordInput = newPasswordInput.slice(0, -1);
+            break;
+        case 'confirm':
+            confirmPasswordInput = confirmPasswordInput.slice(0, -1);
+            break;
+        case 'enter':
+            enterPasswordInput = enterPasswordInput.slice(0, -1);
+            break;
+    }
+} else if (key === 'submit') {
+    if (keypadType === 'admin') {
+        checkAdminPasswordFromKeypad();
+    } else if (keypadType === 'confirm') {
+        setParticipantPassword();
+    } else if (keypadType === 'enter') {
+        checkParticipantPassword();
+    }
+    return;
+} else if (key >= '0' && key <= '9') {
+    switch(keypadType) {
+        case 'admin':
+            if (adminPasswordInput.length < maxLength) {
+                adminPasswordInput += key;
+            }
+            break;
+        case 'new':
+            if (newPasswordInput.length < maxLength) {
+                newPasswordInput += key;
+            }
+            break;
+        case 'confirm':
+            if (confirmPasswordInput.length < maxLength) {
+                confirmPasswordInput += key;
+            }
+            break;
+        case 'enter':
+            if (enterPasswordInput.length < maxLength) {
+                enterPasswordInput += key;
+            }
+            break;
+    }
+}
+
+const passwords = {
+    'admin': adminPasswordInput,
+    'new': newPasswordInput,
+    'confirm': confirmPasswordInput,
+    'enter': enterPasswordInput
+};
+
+updatePasswordDisplay(keypadType, passwords[keypadType]);
+
+if (navigator.vibrate) {
+    navigator.vibrate(50);
+}
+}
+
+function setupNumericKeypad() {
+document.querySelectorAll('.numeric-key').forEach(key => {
+    key.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const keyValue = this.getAttribute('data-key');
+        const keypadType = this.getAttribute('data-keypad') || 'admin';
+        
+        handleKeypadInput(keypadType, keyValue);
+    });
+    
+    key.addEventListener('touchstart', function(e) {
+        e.preventDefault();
+        this.style.transform = 'translateY(-4px) scale(1.05)';
+        this.style.filter = 'brightness(1.2)';
+    });
+    
+    key.addEventListener('touchend', function(e) {
+        e.preventDefault();
+        setTimeout(() => {
+            this.style.transform = '';
+            this.style.filter = '';
+        }, 150);
+    });
+
+    key.addEventListener('mousedown', function(e) {
+        e.preventDefault();
+        this.style.transform = 'translateY(-4px) scale(1.05)';
+        this.style.filter = 'brightness(1.2)';
+    });
+    
+    key.addEventListener('mouseup', function(e) {
+        e.preventDefault();
+        setTimeout(() => {
+            this.style.transform = '';
+            this.style.filter = '';
+        }, 150);
+    });
+});
+}
+
+// ==================== PARTICIPANT MANAGEMENT ====================
+async function addParticipant() {
+const nameInput = document.getElementById('participantName');
+const nicknameInput = document.getElementById('participantNickname');
+const colorInput = document.getElementById('participantColor');
+
+if (!nameInput || !colorInput) {
+    showMessage('Elementele formularului nu sunt disponibile!', 'error');
+    return;
+}
+
+const name = nameInput.value.trim();
+const nickname = nicknameInput ? nicknameInput.value.trim() : '';
+const color = colorInput.value;
+
+if (!name) {
+    showMessage('Numele este obligatoriu!', 'error');
+    return;
+}
+
+const participant = {
+    id: Date.now(),
+    name: sanitizeInput(name),
+    nickname: sanitizeInput(nickname),
+    color: color,
+    password: null,
+    hasPassword: false,
+    messages: []
+};
+
+participants.push(participant);
+localStorage.setItem('participants', JSON.stringify(participants));
+
+if (window.firebaseInitialized && window.saveParticipantToFirebase) {
+    try {
+        await window.saveParticipantToFirebase(participant);
+        showMessage('Participantul a fost adăugat local și în cloud!', 'success');
+    } catch (error) {
+        console.error('Eroare la salvarea în Firebase:', error);
+        showMessage('Participantul a fost adăugat local. Eroare cloud: ' + error.message, 'success');
+    }
+} else {
+    showMessage('Participantul a fost adăugat local!', 'success');
+}
+
+nameInput.value = '';
+if (nicknameInput) nicknameInput.value = '';
+colorInput.value = '#4c63d2';
+
+loadParticipants();
+loadQuickParticipants();
+}
+
+function deleteParticipant(participantId) {
+if (!confirm('Sigur doriți să ștergeți acest participant și toate mesajele lui?')) {
+    return;
+}
+
+participants = participants.filter(p => p.id !== participantId);
+messages = messages.filter(m => m.recipientId !== participantId);
+
+localStorage.setItem('participants', JSON.stringify(participants));
+localStorage.setItem('messages', JSON.stringify(messages));
+
+loadParticipants();
+loadQuickParticipants();
+showMessage('Participantul a fost șters cu succes!', 'success');
+}
+
+function clearAllData() {
+if (!confirm('ATENȚIE: Această acțiune va șterge toți participanții și toate mesajele! Sigur doriți să continuați?')) {
+    return;
+}
+
+participants = [];
+messages = [];
+password = null;
+isLoggedIn = false;
+currentRecipient = null;
+
+adminPasswordInput = '';
+newPasswordInput = '';
+confirmPasswordInput = '';
+enterPasswordInput = '';
+
+localStorage.clear();
+
+loadParticipants();
+loadQuickParticipants();
+showMessage('Toate datele au fost șterse cu succes!', 'success');
+
+const passwordSection = document.getElementById('passwordSection');
+const messagesList = document.getElementById('messagesList');
+
+if (passwordSection) passwordSection.classList.remove('hidden');
+if (messagesList) messagesList.classList.add('hidden');
+}
+
+function loadParticipants() {
+const container = document.getElementById('participantsContainer');
+if (!container) return;
+
+container.innerHTML = '';
+if (participants.length === 0) {
+    container.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Nu există participanți adăugați.</p>';
+    return;
+}
+
+participants.forEach(participant => {
+    const card = createParticipantCard(participant);
+    container.appendChild(card);
+});
+}
+
+function loadQuickParticipants() {
+const container = document.getElementById('quickParticipantList');
+if (!container) return;
+
+container.innerHTML = '';
+
+if (participants.length === 0) {
+    container.innerHTML = '<p style="text-align: center; color: #666; grid-column: 1/-1;">Nu există participanți adăugați.</p>';
+    return;
+}
+
+participants.forEach(participant => {
+    const item = document.createElement('div');
+    item.className = 'quick-participant-item';
+    
+    const displayName = participant.nickname ? participant.name : participant.name;
+    const messageCount = messages.filter(m => m.recipientId === participant.id).length;
+    
+    item.innerHTML = `
+        ${displayName}
+        ${messageCount > 0 ? `<div class="quick-participant-badge">${messageCount}</div>` : ''}
+    `;
+    
+    item.style.borderLeftColor = participant.color;
+    
+    item.addEventListener('click', () => {
+        document.querySelectorAll('.quick-participant-item').forEach(i => {
+            i.classList.remove('active');
+        });
+        
+        item.classList.add('active');
+        
+        currentRecipient = participant;
+        const targetName = document.getElementById('targetName');
+        const participantMessagesName = document.getElementById('participantMessagesName');
+        
+        if (targetName) targetName.textContent = participant.name;
+        if (participantMessagesName) participantMessagesName.textContent = participant.name;
+        
+        const messageForm = document.getElementById('messageForm');
+        if (messageForm) messageForm.classList.remove('hidden');
+        
+        showMessage(`Participant selectat: ${participant.name}`, 'success');
+        
+        if (navigator.vibrate) {
+            navigator.vibrate([50, 50, 50]);
+        }
+    });
+    
+    container.appendChild(item);
+});
+}
+
+// ==================== PASSWORD MANAGEMENT ====================
+function checkAdminPasswordFromKeypad() {
+const errorDiv = document.getElementById('passwordError');
+
+if (!password) {
+    if (adminPasswordInput.length !== 6 || !/^\d{6}$/.test(adminPasswordInput)) {
+        if (errorDiv) {
+            errorDiv.textContent = 'Parola trebuie să fie de 6 cifre!';
+            errorDiv.classList.remove('hidden');
+        }
+        return;
+    }
+    password = adminPasswordInput;
+    localStorage.setItem('password', password);
+    localStorage.setItem('isLoggedIn', 'true');
+    isLoggedIn = true;
+} else if (adminPasswordInput !== password) {
+    if (errorDiv) {
+        errorDiv.textContent = 'Parola admin incorectă!';
+        errorDiv.classList.remove('hidden');
+    }
+    return;
+}
+
+const passwordSection = document.getElementById('passwordSection');
+const messagesList = document.getElementById('messagesList');
+
+if (passwordSection) passwordSection.classList.add('hidden');
+if (messagesList) messagesList.classList.remove('hidden');
+
+if (errorDiv) errorDiv.classList.add('hidden');
+
+isLoggedIn = true;
+localStorage.setItem('isLoggedIn', 'true');
+
+displayAllMessages();
+showMessage('Acces admin acordat!', 'success');
+
+adminPasswordInput = '';
+updatePasswordDisplay('admin', '');
+}
+
+function setParticipantPassword() {
+const errorDiv = document.getElementById('participantPasswordError');
+
+if (!currentRecipient) {
+    showMessage('Eroare la setarea parolei!', 'error');
+    return;
+}
+
+if (newPasswordInput.length !== 4 || !/^\d{4}$/.test(newPasswordInput)) {
+    if (errorDiv) {
+        errorDiv.textContent = 'Parola trebuie să fie de exact 4 cifre!';
+        errorDiv.classList.remove('hidden');
+    }
+    return;
+}
+
+if (newPasswordInput !== confirmPasswordInput) {
+    if (errorDiv) {
+        errorDiv.textContent = 'Parolele nu se potrivesc!';
+        errorDiv.classList.remove('hidden');
+    }
+    return;
+}
+
+const participantIndex = participants.findIndex(p => p.id === currentRecipient.id);
+if (participantIndex !== -1) {
+    participants[participantIndex].password = newPasswordInput;
+    participants[participantIndex].hasPassword = true;
+    currentRecipient = participants[participantIndex];
+    
+    localStorage.setItem('participants', JSON.stringify(participants));
+    
+    hidePasswordForms();
+    showParticipantMessagesList();
+    
+    if (errorDiv) errorDiv.classList.add('hidden');
+    showMessage('Parola a fost setată cu succes!', 'success');
+    
+    newPasswordInput = '';
+    confirmPasswordInput = '';
+    updatePasswordDisplay('new', '');
+    updatePasswordDisplay('confirm', '');
+    
+    loadParticipants();
+}
+}
+
+function checkParticipantPassword() {
+const errorDiv = document.getElementById('participantPasswordError');
+
+if (!currentRecipient) {
+    showMessage('Eroare la verificarea parolei!', 'error');
+    return;
+}
+
+if (enterPasswordInput.length !== 4 || !/^\d{4}$/.test(enterPasswordInput)) {
+    if (errorDiv) {
+        errorDiv.textContent = 'Parola trebuie să fie de exact 4 cifre!';
+        errorDiv.classList.remove('hidden');
+    }
+    return;
+}
+
+if (enterPasswordInput !== currentRecipient.password) {
+    if (errorDiv) {
+        errorDiv.textContent = 'Parolă incorectă!';
+        errorDiv.classList.remove('hidden');
+    }
+    return;
+}
+
+hidePasswordForms();
+showParticipantMessagesList();
+
+if (errorDiv) errorDiv.classList.add('hidden');
+showMessage('Acces permis!', 'success');
+
+enterPasswordInput = '';
+updatePasswordDisplay('enter', '');
+}
+
+function resetParticipantPassword() {
+if (!currentRecipient) return;
+
+if (!confirm('Sigur doriți să resetați parola? Va trebui să setați o parolă nouă.')) {
+    return;
+}
+
+const participantIndex = participants.findIndex(p => p.id === currentRecipient.id);
+if (participantIndex !== -1) {
+    participants[participantIndex].password = null;
+    participants[participantIndex].hasPassword = false;
+    currentRecipient = participants[participantIndex];
+    
+    localStorage.setItem('participants', JSON.stringify(participants));
+    
+    adminPasswordInput = '';
+    newPasswordInput = '';
+    confirmPasswordInput = '';
+    enterPasswordInput = '';
+    
+    updatePasswordDisplay('admin', '');
+    updatePasswordDisplay('new', '');
+    updatePasswordDisplay('confirm', '');
+    updatePasswordDisplay('enter', '');
+    
+    checkParticipantAccess();
+    
+    showMessage('Parola a fost resetată!', 'info');
+    loadParticipants();
+}
+}
+
+function hidePasswordForms() {
+const passwordSection = document.getElementById('participantPasswordSection');
+if (passwordSection) passwordSection.classList.add('hidden');
+}
+
+function showParticipantMessagesList() {
+const messagesList = document.getElementById('participantMessagesList');
+if (messagesList) {
+    messagesList.classList.remove('hidden');
+    displayParticipantMessages();
+}
+}
+
+function checkParticipantAccess() {
+if (!currentRecipient) return;
+
+const passwordSection = document.getElementById('participantPasswordSection');
+const messagesList = document.getElementById('participantMessagesList');
+const setPasswordForm = document.getElementById('setPasswordForm');
+const enterPasswordForm = document.getElementById('enterPasswordForm');
+const passwordStatus = document.getElementById('passwordStatus');
+
+if (!passwordSection || !messagesList || !setPasswordForm || !enterPasswordForm) return;
+
+passwordSection.classList.remove('hidden');
+messagesList.classList.add('hidden');
+setPasswordForm.classList.add('hidden');
+enterPasswordForm.classList.add('hidden');
+if (passwordStatus) passwordStatus.classList.add('hidden');
+
+adminPasswordInput = '';
+newPasswordInput = '';
+confirmPasswordInput = '';
+enterPasswordInput = '';
+
+updatePasswordDisplay('admin', '');
+updatePasswordDisplay('new', '');
+updatePasswordDisplay('confirm', '');
+updatePasswordDisplay('enter', '');
+
+if (!currentRecipient.hasPassword || !currentRecipient.password) {
+    setPasswordForm.classList.remove('hidden');
+} else {
+    if (passwordStatus) passwordStatus.classList.remove('hidden');
+    enterPasswordForm.classList.remove('hidden');
+}
+}
+
+// ==================== MESSAGE MANAGEMENT ====================
+async function sendMessage() {
+const senderNameInput = document.getElementById('senderName');
+const anonymousInput = document.getElementById('anonymous');
+const messageTypeInput = document.getElementById('messageType');
+const messageContentInput = document.getElementById('messageContent');
+
+if (!senderNameInput || !messageTypeInput || !messageContentInput) {
+    showMessage('Formularul nu este complet!', 'error');
+    return;
+}
+
+const senderName = senderNameInput.value.trim();
+const anonymous = anonymousInput ? anonymousInput.checked : false;
+const messageType = messageTypeInput.value;
+const content = messageContentInput.value.trim();
+
+if (!content && !currentPhotoData) {
+    showMessage('Trebuie să scrii un mesaj sau să adaugi o poză!', 'error');
+    return;
+}
+
+if (!currentRecipient) {
+    showMessage('Destinatarul este obligatoriu!', 'error');
+    return;
+}
+
+let photoUrl = null;
+
+if (currentPhotoData) {
+    try {
+        if (window.firebaseInitialized && window.uploadImageToFirebase) {
+            showMessage('Încărcăm poza...', 'info');
+            const file = await base64ToFile(currentPhotoData);
+            photoUrl = await window.uploadImageToFirebase(file, currentRecipient.name);
+        } else {
+            photoUrl = currentPhotoData;
+        }
+    } catch (error) {
+        console.error('Eroare la încărcarea pozei:', error);
+        showMessage('Eroare la încărcarea pozei, dar mesajul va fi trimis!', 'error');
+    }
+}
+
+const message = {
+    id: Date.now(),
+    recipientId: currentRecipient.id,
+    sender: anonymous ? 'Anonim' : (senderName || 'Anonim'),
+    type: messageType,
+    content: content ? sanitizeInput(content) : '',
+    photo: photoUrl,
+    timestamp: new Date().toISOString()
+};
+
+messages.push(message);
+localStorage.setItem('messages', JSON.stringify(messages));
+
+if (window.firebaseInitialized && window.saveMessageToFirebase) {
+    try {
+        await window.saveMessageToFirebase(message, currentRecipient.name);
+    } catch (error) {
+        console.error('Eroare la salvarea mesajului în Firebase:', error);
+    }
+}
+
+updateParticipantMessages();
+
+senderNameInput.value = '';
+messageContentInput.value = '';
+if (anonymousInput) anonymousInput.checked = false;
+clearPhotoData();
+
+const messageForm = document.getElementById('messageForm');
+if (messageForm) messageForm.classList.add('hidden');
+
+document.querySelectorAll('.quick-participant-item').forEach(i => {
+    i.classList.remove('active');
+});
+
+showMessage('Mesaj trimis cu succes!', 'success');
+loadQuickParticipants();
+currentRecipient = null;
+}
+
+async function sendPhotoOnly() {
+if (!currentPhotoData) {
+    showMessage('Nu ai selectat nicio fotografie!', 'error');
+    return;
+}
+
+if (!currentRecipient) {
+    showMessage('Destinatarul este obligatoriu!', 'error');
+    return;
+}
+
+const senderNameInput = document.getElementById('senderName');
+const anonymousInput = document.getElementById('anonymous');
+
+const senderName = senderNameInput ? senderNameInput.value.trim() : '';
+const anonymous = anonymousInput ? anonymousInput.checked : false;
+
+let photoUrl = null;
+
+try {
+    if (window.firebaseInitialized && window.uploadImageToFirebase) {
+        showMessage('Încărcăm poza...', 'info');
+        const file = await base64ToFile(currentPhotoData);
+        photoUrl = await window.uploadImageToFirebase(file, currentRecipient.name);
+    } else {
+        photoUrl = currentPhotoData;
+    }
+} catch (error) {
+    console.error('Eroare la încărcarea pozei:', error);
+    showMessage('Eroare la încărcarea pozei!', 'error');
+    return;
+}
+
+const message = {
+    id: Date.now(),
+    recipientId: currentRecipient.id,
+    sender: anonymous ? 'Anonim' : (senderName || 'Anonim'),
+    type: 'foto',
+    content: '',
+    photo: photoUrl,
+    timestamp: new Date().toISOString()
+};
+
+messages.push(message);
+localStorage.setItem('messages', JSON.stringify(messages));
+
+if (window.firebaseInitialized && window.saveMessageToFirebase) {
+    try {
+        await window.saveMessageToFirebase(message, currentRecipient.name);
+    } catch (error) {
+        console.error('Eroare la salvarea mesajului în Firebase:', error);
+    }
+}
+
+updateParticipantMessages();
+
+if (senderNameInput) senderNameInput.value = '';
+if (anonymousInput) anonymousInput.checked = false;
+clearPhotoData();
+
+const messageForm = document.getElementById('messageForm');
+if (messageForm) messageForm.classList.add('hidden');
+
+document.querySelectorAll('.quick-participant-item').forEach(i => {
+    i.classList.remove('active');
+});
+
+showMessage('Fotografia a fost trimisă cu succes!', 'success');
+loadQuickParticipants();
+currentRecipient = null;
+}
+
+function updateParticipantMessages() {
+participants.forEach(participant => {
+    participant.messages = messages.filter(msg => msg.recipientId === participant.id);
+});
+localStorage.setItem('participants', JSON.stringify(participants));
+}
+
+function cancelMessage() {
+const messageForm = document.getElementById('messageForm');
+if (messageForm) messageForm.classList.add('hidden');
+
+const senderNameInput = document.getElementById('senderName');
+const messageContentInput = document.getElementById('messageContent');
+const anonymousInput = document.getElementById('anonymous');
+
+if (senderNameInput) senderNameInput.value = '';
+if (messageContentInput) messageContentInput.value = '';
+if (anonymousInput) anonymousInput.checked = false;
+
+clearPhotoData();
+
+document.querySelectorAll('.quick-participant-item').forEach(i => {
+    i.classList.remove('active');
+});
+
+currentRecipient = null;
+showMessage('Mesaj anulat!', 'info');
+}
+
+// ==================== AUTHENTICATION ====================
+function checkMessagesAccess() {
+if (isLoggedIn) {
+    const passwordSection = document.getElementById('passwordSection');
+    const messagesList = document.getElementById('messagesList');
+    
+    if (passwordSection) passwordSection.classList.add('hidden');
+    if (messagesList) messagesList.classList.remove('hidden');
+    
+    displayAllMessages();
+} else {
+    const passwordSection = document.getElementById('passwordSection');
+    const messagesList = document.getElementById('messagesList');
+    
+    if (passwordSection) passwordSection.classList.remove('hidden');
+    if (messagesList) messagesList.classList.add('hidden');
+}
+}
+
+// ==================== MESSAGE DISPLAY ====================
+function displayAllMessages() {
+const list = document.getElementById('messagesList');
+if (!list || !isLoggedIn) return;
+
+if (messages.length === 0) {
+    list.innerHTML = '<p style="text-align: center; color: #666;">Nu există mesaje primite.</p>';
+    return;
+}
+
+list.innerHTML = '<h3>Toate mesajele primite:</h3>';
+
+const messagesByParticipant = {};
+messages.forEach(msg => {
+    const participant = participants.find(p => p.id === msg.recipientId);
+    if (participant) {
+        if (!messagesByParticipant[participant.id]) {
+            messagesByParticipant[participant.id] = {
+                participant: participant,
+                messages: []
+            };
+        }
+        messagesByParticipant[participant.id].messages.push(msg);
+    }
+});
+
+Object.values(messagesByParticipant).forEach(group => {
+    const participantDiv = document.createElement('div');
+    participantDiv.style.marginBottom = '25px';
+    participantDiv.style.padding = '15px';
+    participantDiv.style.border = `3px solid ${group.participant.color}`;
+    participantDiv.style.borderRadius = '15px';
+    participantDiv.style.background = 'rgba(255, 255, 255, 0.8)';
+    
+    const participantName = group.participant.nickname ? 
+        `${group.participant.name} (${group.participant.nickname})` : 
+        group.participant.name;
+    
+    participantDiv.innerHTML = `
+        <h4 style="color: ${group.participant.color}; margin-bottom: 12px; font-size: 16px;">
+            📬 Mesaje pentru ${participantName} (${group.messages.length})
+        </h4>
+        <div class="messages-container">
+            ${group.messages.map(msg => `
+                <div class="message" style="border-left: 4px solid ${group.participant.color};">
+                    <div class="message-header">
+                        <span class="message-sender">${getMessageTypeIcon(msg.type)} ${msg.sender}</span>
+                        <span class="message-time">${new Date(msg.timestamp).toLocaleString('ro-RO')}</span>
+                    </div>
+                    <div class="message-type">${getMessageTypeName(msg.type)}</div>
+                    <div class="message-content">${msg.content || 'Fără text'}</div>
+                    ${msg.photo ? `
+                        <div class="message-photo">
+                            <img src="${msg.photo}" alt="Photo" onclick="openPhotoModal('${msg.photo}')" style="max-width: 150px; max-height: 120px; cursor: pointer;">
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('')}
+        </div>
+    `;
+    
+    list.appendChild(participantDiv);
+});
+}
+
+function displayParticipantMessages() {
+const list = document.getElementById('participantMessagesList');
+if (!list || !currentRecipient) return;
+
+const filteredMessages = messages.filter(m => m.recipientId === currentRecipient.id);
+
+if (filteredMessages.length === 0) {
+    list.innerHTML = '<p style="text-align: center; color: #666;">Nu există mesaje primite pentru acest participant.</p>';
+    return;
+}
+
+list.innerHTML = `<h3>Mesaje pentru ${currentRecipient.name} (${filteredMessages.length}):</h3>`;
+
+filteredMessages.forEach(msg => {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'message';
+    messageDiv.style.borderLeft = `4px solid ${currentRecipient.color}`;
+    
+    messageDiv.innerHTML = `
+        <div class="message-header">
+            <span class="message-sender">${getMessageTypeIcon(msg.type)} ${msg.sender}</span>
+            <span class="message-time">${new Date(msg.timestamp).toLocaleString('ro-RO')}</span>
+        </div>
+        <div class="message-type">${getMessageTypeName(msg.type)}</div>
+        <div class="message-content">${msg.content || 'Fără text'}</div>
+        ${msg.photo ? `
+            <div class="message-photo">
+                <img src="${msg.photo}" alt="Photo" onclick="openPhotoModal('${msg.photo}')" style="max-width: 200px; max-height: 150px; cursor: pointer;">
+            </div>
+        ` : ''}
+    `;
+    
+    list.appendChild(messageDiv);
+});
+}
+
+// ==================== QR SCANNING ====================
+function startScanning() {
+navigator.mediaDevices.getUserMedia({ 
+    video: { 
+        facingMode: 'environment',
+        width: { ideal: 1280 },
+        height: { ideal: 720 }
+    } 
+}).then(stream => {
+    videoStream = stream;
+    const video = document.getElementById('video');
+    
+    if (video) {
+        video.srcObject = stream;
+        video.style.display = 'block';
+    }
+    
+    scanning = true;
+    showMessage('Camera pornită! Scanează un cod QR...', 'info');
+}).catch(err => {
+    console.error('Eroare la pornirea camerei:', err);
+    showMessage('Nu pot accesa camera! Folosește butonul de simulare pentru test.', 'error');
+});
+}
+
+function stopScanning() {
+if (videoStream) {
+    videoStream.getTracks().forEach(track => track.stop());
+    videoStream = null;
+}
+
+scanning = false;
+
+const video = document.getElementById('video');
+if (video) video.style.display = 'none';
+
+showMessage('Camera oprită!', 'info');
+}
+
+function simulateQRScan() {
+if (participants.length === 0) {
+    showMessage('Nu există participanți! Adaugă primul participant în secțiunea Administrare.', 'error');
+    return;
+}
+
+const randomParticipant = participants[Math.floor(Math.random() * participants.length)];
+
+currentRecipient = randomParticipant;
+const targetName = document.getElementById('targetName');
+
+if (targetName) targetName.textContent = randomParticipant.name;
+
+document.querySelectorAll('.quick-participant-item').forEach(i => {
+    i.classList.remove('active');
+});
+
+const quickItems = document.querySelectorAll('.quick-participant-item');
+quickItems.forEach(item => {
+    if (item.textContent.trim().includes(randomParticipant.name)) {
+        item.classList.add('active');
+    }
+});
+
+const messageForm = document.getElementById('messageForm');
+if (messageForm) messageForm.classList.remove('hidden');
+
+showMessage(`QR scanat! Participant selectat: ${randomParticipant.name}`, 'success');
+}
+
+function showParticipantMessages() {
+if (!currentRecipient) {
+    showMessage('Nu există participant selectat!', 'error');
+    return;
+}
+
+showTab('participantMessages');
+}
+
+// ==================== EVENT LISTENERS ====================
+function setupEventListeners() {
+    // Adaugă acestea la începutul funcției setupEventListeners()
+document.querySelectorAll('.nav-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+        const tabName = tab.getAttribute('data-tab');
+        showTab(tabName);
+    });
+});
+document.querySelectorAll('.nav-tab').forEach(tab => {
+    // Click pentru desktop
+    tab.addEventListener('click', (e) => {
+        e.preventDefault();
+        const tabName = tab.getAttribute('data-tab');
+        showTab(tabName);
+    });
+    
+    // Touch pentru mobil
+    tab.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        tab.style.transform = 'translateY(-1px)';
+    });
+    
+    tab.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        setTimeout(() => {
+            tab.style.transform = '';
+            const tabName = tab.getAttribute('data-tab');
+            showTab(tabName);
+        }, 100);
+    });
+});
+}
+
+const addParticipantBtn = document.getElementById('addParticipantBtn');
+if (addParticipantBtn) {
+    addParticipantBtn.addEventListener('click', addParticipant);
+}
+
+const clearAllDataBtn = document.getElementById('clearAllDataBtn');
+if (clearAllDataBtn) {
+    clearAllDataBtn.addEventListener('click', clearAllData);
+}
+
+const setParticipantPasswordBtn = document.getElementById('setParticipantPasswordBtn');
+if (setParticipantPasswordBtn) {
+    setParticipantPasswordBtn.addEventListener('click', setParticipantPassword);
+}
+
+const checkParticipantPasswordBtn = document.getElementById('checkParticipantPasswordBtn');
+if (checkParticipantPasswordBtn) {
+    checkParticipantPasswordBtn.addEventListener('click', checkParticipantPassword);
+}
+
+const resetParticipantPasswordBtn = document.getElementById('resetParticipantPasswordBtn');
+if (resetParticipantPasswordBtn) {
+    resetParticipantPasswordBtn.addEventListener('click', resetParticipantPassword);
+}
+
+const checkAdminPasswordBtn = document.getElementById('checkAdminPasswordBtn');
+if (checkAdminPasswordBtn) {
+    checkAdminPasswordBtn.addEventListener('click', checkAdminPasswordFromKeypad);
+}
+
+const sendMessageBtn = document.getElementById('sendMessageBtn');
+if (sendMessageBtn) {
+    sendMessageBtn.addEventListener('click', sendMessage);
+}
+
+const sendPhotoOnlyBtn = document.getElementById('sendPhotoOnlyBtn');
+if (sendPhotoOnlyBtn) {
+    sendPhotoOnlyBtn.addEventListener('click', sendPhotoOnly);
+}
+
+const cancelMessageBtn = document.getElementById('cancelMessageBtn');
+if (cancelMessageBtn) {
+    cancelMessageBtn.addEventListener('click', cancelMessage);
+}
+
+const showParticipantMessagesBtn = document.getElementById('showParticipantMessagesBtn');
+if (showParticipantMessagesBtn) {
+    showParticipantMessagesBtn.addEventListener('click', showParticipantMessages);
+}
+
+const startScanBtn = document.getElementById('startScanBtn');
+if (startScanBtn) {
+    startScanBtn.addEventListener('click', startScanning);
+}
+
+const stopScanBtn = document.getElementById('stopScanBtn');
+if (stopScanBtn) {
+    stopScanBtn.addEventListener('click', stopScanning);
+}
+
+const simulateQRBtn = document.getElementById('simulateQRBtn');
+if (simulateQRBtn) {
+    simulateQRBtn.addEventListener('click', simulateQRScan);
+}
+
+const backToScanBtn = document.getElementById('backToScanBtn');
+if (backToScanBtn) {
+    backToScanBtn.addEventListener('click', () => showTab('scan'));
+}
+
+const participantNameInput = document.getElementById('participantName');
+if (participantNameInput) {
+    participantNameInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            addParticipant();
+        }
+    });
+}
+
+const messageContentInput = document.getElementById('messageContent');
+if (messageContentInput) {
+    messageContentInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+        }
+    });
+}
+
+// ==================== CLEANUP ====================
+function cleanup() {
+if (videoStream) {
+    videoStream.getTracks().forEach(track => track.stop());
+    videoStream = null;
+}
+scanning = false;
+}
+
+// ==================== INITIALIZATION ====================
+document.addEventListener('DOMContentLoaded', async function() {
+    // Încarcă mai întâi din localStorage
+    participants = JSON.parse(localStorage.getItem('participants')) || [];
+    messages = JSON.parse(localStorage.getItem('messages')) || [];
+
+    // Apoi încearcă să încarce din Firebase
+    if (window.firebaseInitialized) {
+        try {
+            showMessage('Încărcăm datele din cloud...', 'info');
+            
+            const firebaseParticipants = await window.loadParticipantsFromFirebase();
+            const firebaseMessages = await window.loadMessagesFromFirebase();
+            
+            if (firebaseParticipants.length > 0) {
+                participants = firebaseParticipants;
+                localStorage.setItem('participants', JSON.stringify(participants));
+            }
+            
+            if (firebaseMessages.length > 0) {
+                messages = firebaseMessages;
+                localStorage.setItem('messages', JSON.stringify(messages));
+            }
+            
+            showMessage('Datele au fost sincronizate!', 'success');
+            
+            // Pornește sincronizarea automată la fiecare 30 secunde
+            setInterval(window.autoSync, 30000);
+            
+        } catch (error) {
+            console.error('Eroare la sincronizarea cu cloud:', error);
+            showMessage('Folosim datele locale. Eroare cloud: ' + error.message, 'info');
+        }
+    }
+
+    // Restul codului existent rămâne la fel...
+    participants.forEach(participant => {
+        if (participant.password === undefined) {
+            participant.password = null;
+        }
+        if (participant.hasPassword === undefined) {
+            participant.hasPassword = false;
+        }
+    });
+
+    localStorage.setItem('participants', JSON.stringify(participants));
+
+    updateParticipantMessages();
+    setupEventListeners();
+    setupNumericKeypad();
+    setupPhotoUpload();
+    setupPhotoModal();
+
+    if (password && isLoggedIn) {
+        const passwordSection = document.getElementById('passwordSection');
+        const messagesList = document.getElementById('messagesList');
+        
+        if (passwordSection) passwordSection.classList.add('hidden');
+        if (messagesList) messagesList.classList.remove('hidden');
+    }
+
+    loadParticipants();
+    loadQuickParticipants();
+    showMessage('Aplicația a fost încărcată cu succes!', 'success');
+});
+
+window.addEventListener('beforeunload', cleanup);
+
+document.addEventListener('touchstart', function(e) {
+if (e.touches.length > 1) {
+    e.preventDefault();
+}
+});
+
+let lastTouchEnd = 0;
+document.addEventListener('touchend', function(e) {
+const now = (new Date()).getTime();
+if (now - lastTouchEnd <= 300) {
+    e.preventDefault();
+}
+lastTouchEnd = now;
+}, false);
+
+window.participants = participants;
+window.messages = messages;
+window.showTab = showTab;
+window.deleteParticipant = deleteParticipant;
+window.openPhotoModal = openPhotoModal;
+
+// Adaugă la sfârșitul fișierului, înainte de închiderea script-ului
+document.addEventListener('visibilitychange', function() {
+    if (!document.hidden && window.autoSync) {
+        // Când utilizatorul revine pe tab, sincronizează
+        setTimeout(window.autoSync, 1000);
+    }
+});
+
+// Sincronizare când se schimbă focus-ul pe fereastră
+window.addEventListener('focus', function() {
+    if (window.autoSync) {
+        setTimeout(window.autoSync, 1000);
+    }
+});
+</script>
