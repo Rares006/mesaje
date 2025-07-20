@@ -1178,6 +1178,23 @@ window.autoSync = autoSync;
 window.loadParticipantsFromFirebase = loadParticipantsFromFirebase;
 window.loadMessagesFromFirebase = loadMessagesFromFirebase;
 
+// Funcție pentru salvarea participanților în Firebase
+async function saveParticipantToFirebase(participant) {
+try {
+    const docRef = await addDoc(collection(db, "participants"), {
+        name: participant.name,
+        nickname: participant.nickname || '',
+        color: participant.color,
+        hasPassword: participant.hasPassword,
+        createdAt: serverTimestamp(),
+        localId: participant.id
+    });
+    return docRef.id;
+} catch (error) {
+    console.error("Eroare la salvarea participantului:", error);
+    throw error;
+}
+}
 
 // Funcție pentru salvarea mesajelor în Firebase
 async function saveMessageToFirebase(message, recipientName) {
@@ -1674,6 +1691,123 @@ participants.forEach(participant => {
     const card = createParticipantCard(participant);
     container.appendChild(card);
 });
+}
+
+function createParticipantCard(participant) {
+const card = document.createElement('div');
+card.className = 'participant-card';
+card.style.borderLeft = `5px solid ${participant.color}`;
+
+const displayName = participant.nickname ? 
+    `${participant.name} (${participant.nickname})` : 
+    participant.name;
+
+const participantMessages = messages.filter(m => m.recipientId === participant.id);
+const messageCount = participantMessages.length;
+const passwordStatusIcon = participant.hasPassword ? '🔒' : '🔓';
+const passwordStatusText = participant.hasPassword ? 'Parolă setată' : 'Fără parolă';
+
+card.innerHTML = `
+    <div class="participant-name">${displayName}</div>
+    <div style="text-align: center; margin-bottom: 10px; color: #666; font-size: 12px;">
+        ${passwordStatusIcon} ${passwordStatusText}
+    </div>
+    <div class="qr-code">
+        <canvas id="qr-${participant.id}" width="120" height="120"></canvas>
+    </div>
+    <div style="text-align: center; margin: 10px 0;">
+        <button class="btn btn-danger" onclick="deleteParticipant(${participant.id})">🗑️ Șterge</button>
+    </div>
+    <div class="messages-container">
+        <strong>Mesaje primite (${messageCount}):</strong>
+        <div id="messages-${participant.id}">
+            ${participantMessages.length > 0 ? 
+                participantMessages.slice(0, 3).map(msg => `
+                    <div class="message">
+                        <div class="message-header">
+                            <span class="message-sender">${getMessageTypeIcon(msg.type)} ${msg.sender}</span>
+                            <span class="message-time">${new Date(msg.timestamp).toLocaleString('ro-RO')}</span>
+                        </div>
+                        <div class="message-type">${getMessageTypeName(msg.type)}</div>
+                        <div class="message-content">${msg.content || 'Fără text'}</div>
+                        ${msg.photo ? `
+                            <div class="message-photo">
+                                <img src="${msg.photo}" alt="Photo" onclick="openPhotoModal('${msg.photo}')" style="max-width: 100px; max-height: 80px;">
+                            </div>
+                        ` : ''}
+                    </div>
+                `).join('') + (participantMessages.length > 3 ? '<p style="color: #666; font-style: italic; text-align: center;">... și alte mesaje</p>' : '') : 
+                '<p style="color: #666; font-style: italic;">Nu există mesaje</p>'
+            }
+        </div>
+    </div>
+`;
+
+card.addEventListener('click', () => {
+    currentRecipient = participant;
+    const targetName = document.getElementById('targetName');
+    const participantMessagesName = document.getElementById('participantMessagesName');
+    
+    if (targetName) targetName.textContent = participant.name;
+    if (participantMessagesName) participantMessagesName.textContent = participant.name;
+    
+    showTab('scan');
+    
+    const messageForm = document.getElementById('messageForm');
+    if (messageForm) messageForm.classList.remove('hidden');
+});
+
+setTimeout(() => {
+    generateQRCode(participant.id, displayName);
+}, 100);
+
+return card;
+}
+
+function generateQRCode(participantId, name) {
+const canvas = document.getElementById(`qr-${participantId}`);
+if (!canvas) return;
+
+const ctx = canvas.getContext('2d');
+const size = 120;
+
+ctx.clearRect(0, 0, size, size);
+ctx.fillStyle = '#ffffff';
+ctx.fillRect(0, 0, size, size);
+ctx.fillStyle = '#000000';
+const cellSize = size / 21;
+
+for (let i = 0; i < 21; i++) {
+    for (let j = 0; j < 21; j++) {
+        const hash = hashCode(participantId.toString() + i + j);
+        if (hash % 2 === 0) {
+            ctx.fillRect(i * cellSize, j * cellSize, cellSize, cellSize);
+        }
+    }
+}
+
+const cornerSize = 7;
+
+ctx.fillStyle = '#000000';
+ctx.fillRect(0, 0, cornerSize * cellSize, cornerSize * cellSize);
+ctx.fillStyle = '#ffffff';
+ctx.fillRect(cellSize, cellSize, (cornerSize - 2) * cellSize, (cornerSize - 2) * cellSize);
+ctx.fillStyle = '#000000';
+ctx.fillRect(2 * cellSize, 2 * cellSize, (cornerSize - 4) * cellSize, (cornerSize - 4) * cellSize);
+
+ctx.fillStyle = '#000000';
+ctx.fillRect((21 - cornerSize) * cellSize, 0, cornerSize * cellSize, cornerSize * cellSize);
+ctx.fillStyle = '#ffffff';
+ctx.fillRect((21 - cornerSize + 1) * cellSize, cellSize, (cornerSize - 2) * cellSize, (cornerSize - 2) * cellSize);
+ctx.fillStyle = '#000000';
+ctx.fillRect((21 - cornerSize + 2) * cellSize, 2 * cellSize, (cornerSize - 4) * cellSize, (cornerSize - 4) * cellSize);
+
+ctx.fillStyle = '#000000';
+ctx.fillRect(0, (21 - cornerSize) * cellSize, cornerSize * cellSize, cornerSize * cellSize);
+ctx.fillStyle = '#ffffff';
+ctx.fillRect(cellSize, (21 - cornerSize + 1) * cellSize, (cornerSize - 2) * cellSize, (cornerSize - 2) * cellSize);
+ctx.fillStyle = '#000000';
+ctx.fillRect(2 * cellSize, (21 - cornerSize + 2) * cellSize, (cornerSize - 4) * cellSize, (cornerSize - 4) * cellSize);
 }
 
 function loadQuickParticipants() {
