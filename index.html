@@ -2431,14 +2431,42 @@ function setupDrawingCanvas() {
     canvas.addEventListener('mouseup', stopDrawing);
     canvas.addEventListener('mouseout', stopDrawing);
     
-    canvas.addEventListener('touchstart', startDrawing);
-    canvas.addEventListener('touchmove', draw);
+    canvas.addEventListener('touchstart', startDrawingTouch, { passive: false });
+    canvas.addEventListener('touchmove', drawTouch, { passive: false });
     canvas.addEventListener('touchend', stopDrawing);
-    
+    canvas.addEventListener('touchcancel', stopDrawing);
+
     const clearDrawingBtn = document.getElementById('clearDrawingBtn');
     if (clearDrawingBtn) {
         clearDrawingBtn.addEventListener('click', clearDrawing);
     }
+}
+
+function startDrawingTouch(e) {
+    isDrawing = true;
+    const rect = e.target.getBoundingClientRect();
+    lastX = e.touches[0].clientX - rect.left;
+    lastY = e.touches[0].clientY - rect.top;
+}
+
+function drawTouch(e) {
+    if (!isDrawing) return;
+    
+    e.preventDefault();
+    
+    const canvas = document.getElementById('drawingCanvas');
+    const ctx = canvas.getContext('2d');
+    const rect = canvas.getBoundingClientRect();
+    
+    const x = e.touches[0].clientX - rect.left;
+    const y = e.touches[0].clientY - rect.top;
+    
+    ctx.beginPath();
+    ctx.moveTo(lastX, lastY);
+    ctx.lineTo(x, y);
+    ctx.stroke();
+    
+    [lastX, lastY] = [x, y];
 }
 
 function startDrawing(e) {
