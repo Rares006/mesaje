@@ -1960,6 +1960,7 @@ async function downloadQRCodes() {
     }
 
     showMessage('Generăm codurile QR...', 'info');
+    console.log('Participanți de procesat:', participants.length); // Debug
 
     const doc = new jspdf.jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
@@ -1967,7 +1968,7 @@ async function downloadQRCodes() {
     const margin = 10;
     const qrSize = 50;
     const qrsPerRow = Math.floor((pageWidth - 2 * margin) / (qrSize + margin));
-    const qrsPerColumn = Math.floor((pageHeight - 2 * margin) / (qrSize + margin + 10)); // +10 pentru text
+    const qrsPerColumn = Math.floor((pageHeight - 2 * margin) / (qrSize + margin + 10));
     const maxQRsPerPage = qrsPerRow * qrsPerColumn;
 
     let qrCount = 0;
@@ -1975,46 +1976,45 @@ async function downloadQRCodes() {
 
     try {
         for (const participant of participants) {
-            // Verifică dacă trebuie să adaugi o pagină nouă
+            console.log(`Procesând participant: ${participant.name} (ID: ${participant.id})`); // Debug
+            
             if (qrCount >= maxQRsPerPage) {
                 doc.addPage();
                 pageCount++;
                 qrCount = 0;
             }
 
-            // Calculează poziția QR-ului pe pagină
             const row = Math.floor(qrCount / qrsPerRow);
             const col = qrCount % qrsPerRow;
             const x = margin + col * (qrSize + margin);
             const y = margin + row * (qrSize + margin + 10);
 
-            // Generează codul QR pentru participantul curent
-            const qrCodeDataUrl = await generateQRCodeDataUrl(participant.id);
-            
-            // Adaugă imaginea QR în PDF
-            doc.addImage(qrCodeDataUrl, 'PNG', x, y, qrSize, qrSize);
-            
-            // Adaugă numele participantului sub QR
-            const displayName = participant.nickname ? 
-                `${participant.name} (${participant.nickname})` : 
-                participant.name;
-            
-            // Setează font mai mic pentru text
-            doc.setFontSize(8);
-            
-            // Centrează textul sub QR
-            const textWidth = doc.getTextWidth(displayName);
-            const textX = x + (qrSize - textWidth) / 2;
-            doc.text(displayName, textX, y + qrSize + 8);
+            try {
+                // Folosește noua funcție îmbunătățită
+                const qrCodeDataUrl = await generateQRCodeDataUrl(participant.id);
+                doc.addImage(qrCodeDataUrl, 'PNG', x, y, qrSize, qrSize);
+                
+                const displayName = participant.nickname ? 
+                    `${participant.name} (${participant.nickname})` : 
+                    participant.name;
+                
+                doc.setFontSize(8);
+                const textWidth = doc.getTextWidth(displayName);
+                const textX = x + (qrSize - textWidth) / 2;
+                doc.text(displayName, textX, y + qrSize + 8);
 
-            qrCount++;
+                qrCount++;
+                
+            } catch (qrError) {
+                console.error(`Eroare la generarea QR pentru ${participant.name}:`, qrError);
+                // Continuă cu următorul participant
+            }
         }
 
-        // Salvează PDF-ul
         const fileName = `Tabara_2025_QR_Codes_${new Date().toISOString().split('T')[0]}.pdf`;
         doc.save(fileName);
         
-        showMessage(`PDF cu ${participants.length} coduri QR a fost descărcat!`, 'success');
+        showMessage(`PDF cu ${qrCount} coduri QR a fost descărcat!`, 'success');
         
     } catch (error) {
         console.error('Eroare la generarea PDF-ului:', error);
@@ -2026,7 +2026,6 @@ async function generateQRCodeDataUrl(participantId) {
     return new Promise((resolve) => {
         const qrCodeDiv = document.createElement('div');
         const url = `${window.location.origin}${window.location.pathname}?tab=scan&participantId=${participantId}`;
-
         new QRCode(qrCodeDiv, {
             text: url,
             width: 500,
