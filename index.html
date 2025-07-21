@@ -951,9 +951,6 @@ margin-top: 15px;
         <!-- Lista va fi populată dinamic -->
     </div>
 </div>
-<div class="action-buttons">
-    <button class="btn btn-secondary" id="downloadQRCodesBtn">📥 Descarcă Coduri QR</button>
-</div>
 
 <!-- Mesaje Participant Individual -->
 <div id="participantMessages" class="tab-content">
@@ -1048,6 +1045,9 @@ margin-top: 15px;
     <button class="btn" id="backToScanBtn">❌ Înapoi</button>
 </div>
 </div>
+</div>
+<div class="action-buttons">
+    <button class="btn btn-secondary" id="downloadQRCodesBtn">📥 Descarcă Coduri QR</button>
 </div>
 
 <!-- Photo Modal -->
@@ -2502,35 +2502,100 @@ function clearDrawing() {
 
 
 async function sendMessage() {
-    // ...
+    if (!currentRecipient) {
+        showMessage('Destinatarul este obligatoriu!', 'error');
+        return;
+    }
+
+    const senderNameInput = document.getElementById('senderName');
+    const messageTypeInput = document.getElementById('messageType');
+    const messageContentInput = document.getElementById('messageContent');
+    const anonymousInput = document.getElementById('anonymous');
+
+    const senderName = senderNameInput ? senderNameInput.value.trim() : '';
+    const messageType = messageTypeInput ? messageTypeInput.value : 'mesaj';
+    const messageContent = messageContentInput ? messageContentInput.value.trim() : '';
+    const anonymous = anonymousInput ? anonymousInput.checked : false;
+
+    if (!senderName && !anonymous) {
+        showMessage('Expeditorul este obligatoriu!', 'error');
+        return;
+    }
 
     let photoUrl = null;
-    
-    if (currentPhotoData) {
-        // ...
-    } else {
-        // Verifică dacă există un desen
-        const canvas = document.getElementById('drawingCanvas');
-        if (canvas && canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height).data.some(channel => channel !== 0)) {
-            currentPhotoData = canvas.toDataURL('image/png');
-            
-            try {
-                if (window.firebaseInitialized && window.uploadImageToFirebase) {
-                    showMessage('Încărcăm desenul...', 'info');
-                    const file = await base64ToFile(currentPhotoData, 'drawing.png');
-                    photoUrl = await window.uploadImageToFirebase(file, currentRecipient.name);
-                } else {
-                    photoUrl = currentPhotoData;
-                }
-            } catch (error) {
-                console.error('Eroare la încărcarea desenului:', error);
-                showMessage('Eroare la încărcarea desenului, dar mesajul va fi trimis!', 'error');
+
+    // Verifică dacă există un desen
+    const canvas = document.getElementById('drawingCanvas');
+    if (canvas && canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height).data.some(channel => channel !== 0)) {
+        try {
+            if (window.firebaseInitialized && window.uploadImageToFirebase) {
+                showMessage('Încărcăm desenul...', 'info');
+                const dataUrl = canvas.toDataURL('image/png');
+                const file = await base64ToFile(dataUrl, 'drawing.png');
+                photoUrl = await window.uploadImageToFirebase(file, currentRecipient.name);
+            } else {
+                photoUrl = canvas.toDataURL('image/png');
             }
+        } catch (error) {
+            console.error('Eroare la încărcarea desenului:', error);
+            showMessage('Eroare la încărcarea desenului, dar mesajul va fi trimis!', 'error');
+        }
+    } else if (currentPhotoData) {
+        // Dacă nu există un desen, verifică dacă există o fotografie
+        try {
+            if (window.firebaseInitialized && window.uploadImageToFirebase) {
+                showMessage('Încărcăm poza...', 'info');
+                const file = await base64ToFile(currentPhotoData);
+                photoUrl = await window.uploadImageToFirebase(file, currentRecipient.name);
+            } else {
+                photoUrl = currentPhotoData;
+            }
+        } catch (error) {
+            console.error('Eroare la încărcarea pozei:', error);
+            showMessage('Eroare la încărcarea pozei, dar mesajul va fi trimis!', 'error');
         }
     }
-    
-    // ...
-}   
+
+    const message = {
+        id: Date.now(),
+        recipientId: currentRecipient.id,
+        sender: anonymous ? 'Anonim' : (senderName || 'Anonim'),
+        type: messageType,
+        content: messageContent,
+        photo: photoUrl,
+        timestamp: new Date().toISOString()
+    };
+
+    messages.push(message);
+    localStorage.setItem('messages', JSON.stringify(messages));
+
+    if (window.firebaseInitialized && window.saveMessageToFirebase) {
+        try {
+            await window.saveMessageToFirebase(message, currentRecipient.name);
+        } catch (error) {
+            console.error('Eroare la salvarea mesajului în Firebase:', error);
+        }
+    }
+
+    updateParticipantMessages();
+
+    if (senderNameInput) senderNameInput.value = '';
+    if (messageContentInput) messageContentInput.value = '';
+    if (anonymousInput) anonymousInput.checked = false;
+    clearPhotoData();
+    clearDrawing();
+
+    const messageForm = document.getElementById('messageForm');
+    if (messageForm) messageForm.classList.add('hidden');
+
+    document.querySelectorAll('.quick-participant-item').forEach(i => {
+        i.classList.remove('active');
+    });
+
+    showMessage('Mesajul a fost trimis cu succes!', 'success');
+    loadQuickParticipants();
+    currentRecipient = null;
+}
 
     async function sendPhotoOnly() {
     if (!currentPhotoData) {
