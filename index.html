@@ -1929,41 +1929,60 @@ function setupNumericKeypad() {
     ctx.clearRect(0, 0, size, size);
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, size, size);
-    ctx.fillStyle = '#000000';
-    const cellSize = size / 21;
     
-    for (let i = 0; i < 21; i++) {
-        for (let j = 0; j < 21; j++) {
-            const hash = hashCode(participantId.toString() + i + j);
-            if (hash % 2 === 0) {
-                ctx.fillRect(i * cellSize, j * cellSize, cellSize, cellSize);
+    // Convertește ID-ul în binar pentru a crea pattern-ul
+    const idBinary = participantId.toString(2).padStart(50, '0');
+    const cellSize = size / 25; // Mărim grid-ul pentru mai multă precizie
+    
+    ctx.fillStyle = '#000000';
+    
+    // Generează pattern bazat pe ID
+    for (let i = 0; i < 25; i++) {
+        for (let j = 0; j < 25; j++) {
+            // Rezervă spațiu pentru colțuri
+            if ((i < 8 && j < 8) || (i < 8 && j >= 17) || (i >= 17 && j < 8)) {
+                continue;
+            }
+            
+            // Folosește biții din ID pentru pattern
+            const bitIndex = (i * 25 + j) % idBinary.length;
+            if (idBinary[bitIndex] === '1') {
+                ctx.fillRect(j * cellSize, i * cellSize, cellSize, cellSize);
             }
         }
     }
     
-    const cornerSize = 7;
+    // Adaugă colțurile QR standard
+    drawQRCorner(ctx, 0, 0, cellSize);
+    drawQRCorner(ctx, 17 * cellSize, 0, cellSize);
+    drawQRCorner(ctx, 0, 17 * cellSize, cellSize);
     
-    ctx.fillStyle = '#000000';
-    ctx.fillRect(0, 0, cornerSize * cellSize, cornerSize * cellSize);
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(cellSize, cellSize, (cornerSize - 2) * cellSize, (cornerSize - 2) * cellSize);
-    ctx.fillStyle = '#000000';
-    ctx.fillRect(2 * cellSize, 2 * cellSize, (cornerSize - 4) * cellSize, (cornerSize - 4) * cellSize);
-    
-    ctx.fillStyle = '#000000';
-    ctx.fillRect((21 - cornerSize) * cellSize, 0, cornerSize * cellSize, cornerSize * cellSize);
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect((21 - cornerSize + 1) * cellSize, cellSize, (cornerSize - 2) * cellSize, (cornerSize - 2) * cellSize);
-    ctx.fillStyle = '#000000';
-    ctx.fillRect((21 - cornerSize + 2) * cellSize, 2 * cellSize, (cornerSize - 4) * cellSize, (cornerSize - 4) * cellSize);
-    
-    ctx.fillStyle = '#000000';
-    ctx.fillRect(0, (21 - cornerSize) * cellSize, cornerSize * cellSize, cornerSize * cellSize);
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(cellSize, (21 - cornerSize + 1) * cellSize, (cornerSize - 2) * cellSize, (cornerSize - 2) * cellSize);
-    ctx.fillStyle = '#000000';
-    ctx.fillRect(2 * cellSize, (21 - cornerSize + 2) * cellSize, (cornerSize - 4) * cellSize, (cornerSize - 4) * cellSize);
+    // Codifică ID-ul în centru (pentru detectare mai ușoară)
+    const centerStart = 10;
+    const idString = participantId.toString();
+    for (let i = 0; i < idString.length && i < 5; i++) {
+        const digit = parseInt(idString[i]);
+        for (let b = 0; b < 4; b++) {
+            if ((digit >> b) & 1) {
+                ctx.fillRect((centerStart + i) * cellSize, (centerStart + b) * cellSize, cellSize, cellSize);
+            }
+        }
     }
+}
+
+function drawQRCorner(ctx, x, y, cellSize) {
+    // Pătrat exterior
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(x, y, 7 * cellSize, 7 * cellSize);
+    
+    // Pătrat interior alb
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(x + cellSize, y + cellSize, 5 * cellSize, 5 * cellSize);
+    
+    // Pătrat central negru
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(x + 2 * cellSize, y + 2 * cellSize, 3 * cellSize, 3 * cellSize);
+}
     
     function loadQuickParticipants() {
     const container = document.getElementById('quickParticipantList');
@@ -2777,16 +2796,16 @@ function startQRDetection() {
     
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
     
+    // Setează dimensiuni fixe pentru canvas
+    canvas.width = 640;
+    canvas.height = 480;
+    
     // Funcție de scanare continuă
     const scan = () => {
         if (!scanning) return;
         
         if (video.readyState === video.HAVE_ENOUGH_DATA) {
-            // Setează dimensiunile canvas-ului
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            
-            // Desenează frame-ul curent
+            // Desenează și scalează imaginea
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
             
             // Obține datele imaginii
@@ -2796,14 +2815,13 @@ function startQRDetection() {
             detectQRCode(imageData);
         }
         
-        // Continuă scanarea
-        requestAnimationFrame(scan);
+        // Continuă scanarea la fiecare 100ms
+        setTimeout(() => requestAnimationFrame(scan), 100);
     };
     
     // Începe scanarea
     scan();
 }
-
 // Funcție pentru detectarea efectivă a QR
 function detectQRCode(imageData) {
     try {
@@ -2831,23 +2849,53 @@ function detectQRCode(imageData) {
 
 // Funcție simplificată pentru detectarea pattern-ului QR custom
 function detectCustomQRPattern(imageData) {
-    // Pentru QR-urile generate cu pattern custom
-    // Implementare simplificată - verifică doar dacă imaginea conține un pattern QR valid
-    
     const { data, width, height } = imageData;
     
-    // Caută colțurile caracteristice QR (pătrate mari în 3 colțuri)
-    const hasQRCorners = checkForQRCorners(data, width, height);
+    // Verifică dacă are colțurile QR
+    if (!checkForQRCorners(data, width, height)) {
+        return null;
+    }
     
-    if (hasQRCorners && participants.length > 0) {
-        // Pentru demo/test - returnează primul participant
-        // În producție, ar trebui să decodeze efectiv QR-ul
-        return `participant:${participants[0].id}`;
+    // Încearcă să extragă ID-ul din zona centrală
+    const cellSize = Math.floor(width / 25);
+    const centerStart = 10;
+    let detectedId = '';
+    
+    // Citește cifrele codificate în centru
+    for (let i = 0; i < 5; i++) {
+        let digit = 0;
+        for (let b = 0; b < 4; b++) {
+            const x = (centerStart + i) * cellSize + cellSize / 2;
+            const y = (centerStart + b) * cellSize + cellSize / 2;
+            
+            if (x < width && y < height) {
+                const idx = (Math.floor(y) * width + Math.floor(x)) * 4;
+                const brightness = (data[idx] + data[idx + 1] + data[idx + 2]) / 3;
+                
+                if (brightness < 128) {
+                    digit |= (1 << b);
+                }
+            }
+        }
+        
+        if (digit <= 9) {
+            detectedId += digit.toString();
+        }
+    }
+    
+    if (detectedId.length >= 3) {
+        // Caută participant cu ID care începe cu cifrele detectate
+        const participant = participants.find(p => 
+            p.id.toString().startsWith(detectedId)
+        );
+        
+        if (participant) {
+            return `participant:${participant.id}`;
+        }
     }
     
     return null;
 }
-
 // Verifică prezența colțurilor QR
 function checkForQRCorners(data, width, height) {
     // Verificare simplificată - caută zone cu contrast mare în colțuri
