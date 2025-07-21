@@ -1990,8 +1990,8 @@ async function downloadQRCodes() {
             const y = margin + row * (qrSize + margin + 10);
 
             try {
-                // Folosește noua funcție îmbunătățită
-                const qrCodeDataUrl = await generateQRCodeDataUrl(participant.id);
+                const url = `${window.location.origin}${window.location.pathname}?participantId=${participant.id}#message`;
+                const qrCodeDataUrl = await generateQRCodeDataUrl(url);
                 doc.addImage(qrCodeDataUrl, 'PNG', x, y, qrSize, qrSize);
                 
                 const displayName = participant.nickname ? 
@@ -2021,6 +2021,7 @@ async function downloadQRCodes() {
         showMessage('Eroare la generarea PDF-ului: ' + error.message, 'error');
     }
 }
+
 
 async function generateQRCodeDataUrl(participantId) {
     return new Promise((resolve) => {
@@ -3416,6 +3417,7 @@ if (downloadQRCodesBtn) {
                 participant.passwordHash = null;
             }
         });
+
     
         localStorage.setItem('participants', JSON.stringify(participants));
     
@@ -3437,6 +3439,15 @@ if (downloadQRCodesBtn) {
         loadParticipants();
         loadQuickParticipants();
         showMessage('Aplicația a fost încărcată cu succes!', 'success');
+        
+        const urlParams = new URLSearchParams(window.location.search);
+    const participantId = urlParams.get('participantId');
+    if (participantId && window.location.hash === '#message') {
+        const participant = participants.find(p => p.id === parseInt(participantId));
+        if (participant) {
+            selectParticipantFromQR(participant);
+        }
+    }
     });
     
     window.addEventListener('beforeunload', cleanup);
