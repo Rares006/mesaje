@@ -4,6 +4,7 @@
 <html lang="ro">
 <head>
 <meta charset="UTF-8">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tabăra 2025</title>
@@ -874,42 +875,10 @@ margin-top: 15px;
 <div class="header">
 <h1>🏕️ Tabăra 2025</h1>
 </div>
-    
-    <!-- Administrare Tab -->
-    <div id="admin" class="tab-content">
-    <h2>Administrare Participanți</h2>
-    
-    <div class="form-group">
-        <label for="participantName">Numele participantului:</label>
-        <input type="text" id="participantName" placeholder="Introduceți numele...">
-    </div>
-    
-    <div class="form-group">
-        <label for="participantNickname">Porecla (opțional):</label>
-        <input type="text" id="participantNickname" placeholder="Porecla...">
-    </div>
-    
-    <div class="form-group">
-        <label for="participantColor">Culoare personalizată:</label>
-        <input type="color" id="participantColor" value="#4c63d2">
-    </div>
-    
-    <div class="action-buttons">
-        <button class="btn" id="addParticipantBtn">➕ Adaugă</button>
-        <button class="btn btn-danger" id="clearAllDataBtn">🗑️ Șterge Tot</button>
-    </div>
-    
-    <div id="participantsContainer" class="participants-grid">
-        <!-- Participanții vor fi afișați aici -->
-    </div>
-    </div>
-    
 
 
 <!-- Scanare QR Tab -->
 <div id="scan" class="tab-content active">
-<h2>Scanare Cod QR</h2>
-
 <div id="qrResult"></div>
 
 <div id="messageForm" class="message-form hidden">
@@ -981,6 +950,9 @@ margin-top: 15px;
     <div id="quickParticipantList" class="quick-participant-list">
         <!-- Lista va fi populată dinamic -->
     </div>
+</div>
+<div class="action-buttons">
+    <button class="btn btn-secondary" id="downloadQRCodesBtn">📥 Descarcă Coduri QR</button>
 </div>
 
 <!-- Mesaje Participant Individual -->
@@ -1980,6 +1952,59 @@ return card;
         correctLevel: QRCode.CorrectLevel.H
     });
 }  
+
+async function downloadQRCodes() {
+    const doc = new jspdf.jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const margin = 10;
+    const qrSize = 50;
+    const maxQRsPerPage = Math.floor((pageWidth - 2 * margin) / (qrSize + margin)) * Math.floor((pageHeight - 2 * margin) / (qrSize + margin));
+
+    let currentPage = 1;
+    let qrCount = 0;
+
+    for (const participant of participants) {
+        if (qrCount >= maxQRsPerPage) {
+            doc.addPage();
+            currentPage++;
+            qrCount = 0;
+        }
+
+        const x = margin + (qrCount % Math.floor((pageWidth - 2 * margin) / (qrSize + margin))) * (qrSize + margin);
+        const y = margin + Math.floor(qrCount / Math.floor((pageWidth - 2 * margin) / (qrSize + margin))) * (qrSize + margin);
+
+        const qrCodeDataUrl = await generateQRCodeDataUrl(participant.id);
+        doc.addImage(qrCodeDataUrl, 'PNG', x, y, qrSize, qrSize);
+        doc.text(participant.name, x, y + qrSize + 5);
+
+        qrCount++;
+    }
+
+    doc.save('qr_codes.pdf');
+}
+
+async function generateQRCodeDataUrl(participantId) {
+    return new Promise((resolve) => {
+        const qrCodeDiv = document.createElement('div');
+        const url = `${window.location.origin}${window.location.pathname}?tab=scan&participantId=${participantId}`;
+
+        new QRCode(qrCodeDiv, {
+            text: url,
+            width: 500,
+            height: 500,
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+        });
+
+        setTimeout(() => {
+            const qrCodeImage = qrCodeDiv.querySelector('img');
+            resolve(qrCodeImage.src);
+        }, 100);
+    });
+}
+
     function loadQuickParticipants() {
     const container = document.getElementById('quickParticipantList');
     if (!container) return;
@@ -3198,6 +3223,11 @@ window.addEventListener('beforeunload', () => {
             }
         });
     }
+
+    const downloadQRCodesBtn = document.getElementById('downloadQRCodesBtn');
+if (downloadQRCodesBtn) {
+    downloadQRCodesBtn.addEventListener('click', downloadQRCodes);
+}
     }
     
     // ==================== CLEANUP ====================
