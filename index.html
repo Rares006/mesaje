@@ -877,7 +877,7 @@ margin-top: 15px;
 </div>
 
 <!-- Administrare Tab -->
-<div id="admin" class="tab-content">
+<div id="admin" class="tab-content ">
     
     <div id="participantsContainer" class="participants-grid">
         <!-- Participanții vor fi afișați aici -->
@@ -3497,5 +3497,14 @@ if (downloadQRCodesBtn) {
             setTimeout(window.autoSyncWithPasswords, 1000);
         }
     });
+
+    document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const page = urlParams.get('page');
+    
+    if (page === 'admin') {
+        window.location.href = 'administrare.html';
+    }
+});
     </script>
 
