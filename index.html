@@ -1997,21 +1997,25 @@ async function downloadQRCodes() {
             const y = margin + row * (qrSize + margin + 10);
 
             try {
-                const url = `${window.location.origin}${window.location.pathname}?participantId=${participant.id}#message`;
-                const qrCodeDataUrl = await generateQRCodeDataUrl(url);
-                doc.addImage(qrCodeDataUrl, 'PNG', x, y, qrSize, qrSize);
-                
-                const displayName = participant.nickname ? 
-                    `${participant.name} (${participant.nickname})` : 
-                    participant.name;
-                
-                doc.setFontSize(8);
-                const textWidth = doc.getTextWidth(displayName);
-                const textX = x + (qrSize - textWidth) / 2;
-                doc.text(displayName, textX, y + qrSize + 8);
+                const qrCodeDiv = document.getElementById(`qr-${participant.id}`);
+                if (qrCodeDiv) {
+                    const qrCodeImage = qrCodeDiv.querySelector('img');
+                    if (qrCodeImage) {
+                        const qrCodeDataUrl = qrCodeImage.src;
+                        doc.addImage(qrCodeDataUrl, 'PNG', x, y, qrSize, qrSize);
+                        
+                        const displayName = participant.nickname ? 
+                            `${participant.name} (${participant.nickname})` : 
+                            participant.name;
+                        
+                        doc.setFontSize(8);
+                        const textWidth = doc.getTextWidth(displayName);
+                        const textX = x + (qrSize - textWidth) / 2;
+                        doc.text(displayName, textX, y + qrSize + 8);
 
-                qrCount++;
-                
+                        qrCount++;
+                    }
+                }
             } catch (qrError) {
                 console.error(`Eroare la generarea QR pentru ${participant.name}:`, qrError);
                 // Continuă cu următorul participant
@@ -2028,7 +2032,6 @@ async function downloadQRCodes() {
         showMessage('Eroare la generarea PDF-ului: ' + error.message, 'error');
     }
 }
-
 
 async function generateQRCodeDataUrl(participantId) {
     return new Promise((resolve) => {
