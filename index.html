@@ -702,6 +702,13 @@ flex-wrap: wrap;
 margin-top: 15px;
 }
 
+#drawingCanvas {
+    border: 2px solid #4c63d2;
+    border-radius: 10px;
+    touch-action: none;
+    margin-bottom: 10px;
+}
+
 @media (max-width: 768px) {
 .container {
     padding: 8px;
@@ -940,7 +947,15 @@ margin-top: 15px;
         <label for="messageContent">Mesajul tău:</label>
         <textarea id="messageContent" rows="4" placeholder="Scrie aici mesajul tău..."></textarea>
     </div>
-
+    
+    <!-- Adaugă acest cod pentru canvas-ul de desen -->
+    <div class="form-group">
+        <label for="drawingCanvas">Sau desenează mesajul:</label>
+        <canvas id="drawingCanvas" width="300" height="200"></canvas>
+        <div class="action-buttons">
+            <button type="button" id="clearDrawingBtn" class="btn btn-secondary">🗑️ Șterge</button>
+        </div>
+    </div>
     <!-- Photo Upload Section -->
     <div class="photo-upload-section">
         <label for="photoUpload" style="color: #4c63d2; margin-bottom: 10px; display: block;">
@@ -2379,89 +2394,98 @@ function hideAllPasswordForms() {
     if (passwordStatus) passwordStatus.classList.add('hidden');
 }
     // ==================== MESSAGE MANAGEMENT ====================
-    async function sendMessage() {
-    const senderNameInput = document.getElementById('senderName');
-    const anonymousInput = document.getElementById('anonymous');
-    const messageTypeInput = document.getElementById('messageType');
-    const messageContentInput = document.getElementById('messageContent');
+    let isDrawing = false;
+let lastX = 0;
+let lastY = 0;
+
+function setupDrawingCanvas() {
+    const canvas = document.getElementById('drawingCanvas');
+    const ctx = canvas.getContext('2d');
     
-    if (!senderNameInput || !messageTypeInput || !messageContentInput) {
-        showMessage('Formularul nu este complet!', 'error');
-        return;
+    // Setează stilul liniei
+    ctx.strokeStyle = '#4c63d2';
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+    
+    // Event listeners pentru desenare
+    canvas.addEventListener('mousedown', startDrawing);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', stopDrawing);
+    canvas.addEventListener('mouseout', stopDrawing);
+    
+    canvas.addEventListener('touchstart', startDrawing);
+    canvas.addEventListener('touchmove', draw);
+    canvas.addEventListener('touchend', stopDrawing);
+    
+    const clearDrawingBtn = document.getElementById('clearDrawingBtn');
+    if (clearDrawingBtn) {
+        clearDrawingBtn.addEventListener('click', clearDrawing);
     }
+}
+
+function startDrawing(e) {
+    isDrawing = true;
+    [lastX, lastY] = [e.offsetX || e.touches[0].clientX, e.offsetY || e.touches[0].clientY];
+}
+
+function draw(e) {
+    if (!isDrawing) return;
     
-    const senderName = senderNameInput.value.trim();
-    const anonymous = anonymousInput ? anonymousInput.checked : false;
-    const messageType = messageTypeInput.value;
-    const content = messageContentInput.value.trim();
+    const canvas = document.getElementById('drawingCanvas');
+    const ctx = canvas.getContext('2d');
     
-    if (!content && !currentPhotoData) {
-        showMessage('Trebuie să scrii un mesaj sau să adaugi o poză!', 'error');
-        return;
-    }
+    const [x, y] = [e.offsetX || e.touches[0].clientX, e.offsetY || e.touches[0].clientY];
     
-    if (!currentRecipient) {
-        showMessage('Destinatarul este obligatoriu!', 'error');
-        return;
-    }
+    ctx.beginPath();
+    ctx.moveTo(lastX, lastY);
+    ctx.lineTo(x, y);
+    ctx.stroke();
     
+    [lastX, lastY] = [x, y];
+}
+
+function stopDrawing() {
+    isDrawing = false;
+}
+
+function clearDrawing() {
+    const canvas = document.getElementById('drawingCanvas');
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+
+async function sendMessage() {
+    // ...
+
     let photoUrl = null;
     
     if (currentPhotoData) {
-        try {
-            if (window.firebaseInitialized && window.uploadImageToFirebase) {
-                showMessage('Încărcăm poza...', 'info');
-                const file = await base64ToFile(currentPhotoData);
-                photoUrl = await window.uploadImageToFirebase(file, currentRecipient.name);
-            } else {
-                photoUrl = currentPhotoData;
+        // ...
+    } else {
+        // Verifică dacă există un desen
+        const canvas = document.getElementById('drawingCanvas');
+        if (canvas && canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height).data.some(channel => channel !== 0)) {
+            currentPhotoData = canvas.toDataURL('image/png');
+            
+            try {
+                if (window.firebaseInitialized && window.uploadImageToFirebase) {
+                    showMessage('Încărcăm desenul...', 'info');
+                    const file = await base64ToFile(currentPhotoData, 'drawing.png');
+                    photoUrl = await window.uploadImageToFirebase(file, currentRecipient.name);
+                } else {
+                    photoUrl = currentPhotoData;
+                }
+            } catch (error) {
+                console.error('Eroare la încărcarea desenului:', error);
+                showMessage('Eroare la încărcarea desenului, dar mesajul va fi trimis!', 'error');
             }
-        } catch (error) {
-            console.error('Eroare la încărcarea pozei:', error);
-            showMessage('Eroare la încărcarea pozei, dar mesajul va fi trimis!', 'error');
         }
     }
     
-    const message = {
-        id: Date.now(),
-        recipientId: currentRecipient.id,
-        sender: anonymous ? 'Anonim' : (senderName || 'Anonim'),
-        type: messageType,
-        content: content ? sanitizeInput(content) : '',
-        photo: photoUrl,
-        timestamp: new Date().toISOString()
-    };
-    
-    messages.push(message);
-    localStorage.setItem('messages', JSON.stringify(messages));
-    
-    if (window.firebaseInitialized && window.saveMessageToFirebase) {
-        try {
-            await window.saveMessageToFirebase(message, currentRecipient.name);
-        } catch (error) {
-            console.error('Eroare la salvarea mesajului în Firebase:', error);
-        }
-    }
-    
-    updateParticipantMessages();
-    
-    senderNameInput.value = '';
-    messageContentInput.value = '';
-    if (anonymousInput) anonymousInput.checked = false;
-    clearPhotoData();
-    
-    const messageForm = document.getElementById('messageForm');
-    if (messageForm) messageForm.classList.add('hidden');
-    
-    document.querySelectorAll('.quick-participant-item').forEach(i => {
-        i.classList.remove('active');
-    });
-    
-    showMessage('Mesaj trimis cu succes!', 'success');
-    loadQuickParticipants();
-    currentRecipient = null;
-    }
-    
+    // ...
+}   
+
     async function sendPhotoOnly() {
     if (!currentPhotoData) {
         showMessage('Nu ai selectat nicio fotografie!', 'error');
@@ -3247,6 +3271,7 @@ window.addEventListener('beforeunload', () => {
         setupNumericKeypad();
         setupPhotoUpload();
         setupPhotoModal();
+        setupDrawingCanvas();
     
         if (password && isLoggedIn) {
             const passwordSection = document.getElementById('passwordSection');
