@@ -6,6 +6,7 @@
 <meta charset="UTF-8">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsqr/1.4.0/jsQR.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tabăra 2025</title>
 <style>
@@ -1948,8 +1949,8 @@ function generateQRCode(participantId, name) {
     
     qrCodeDiv.innerHTML = ''; // Șterge conținutul anterior
     
-    const url = `${window.location.origin}${window.location.pathname}?tab=scan&participantId=${participantId}`;
-    
+    const url = `${window.location.origin}${window.location.pathname}?participantId=${participantId}&action=message`;
+
     new QRCode(qrCodeDiv, {
         text: url,
         width: 120,
@@ -3450,14 +3451,54 @@ if (downloadQRCodesBtn) {
         loadQuickParticipants();
         showMessage('Aplicația a fost încărcată cu succes!', 'success');
         
-        const urlParams = new URLSearchParams(window.location.search);
-    const participantId = urlParams.get('participantId');
-    if (participantId && window.location.hash === '#message') {
-        const participant = participants.find(p => p.id === parseInt(participantId));
-        if (participant) {
-            selectParticipantFromQR(participant);
+       // Verifică dacă a fost accesat prin QR
+const urlParams = new URLSearchParams(window.location.search);
+const participantId = urlParams.get('participantId');
+const action = urlParams.get('action');
+
+console.log('URL curent:', window.location.href);
+console.log('Parametri URL:', urlParams.toString());
+console.log('ParticipantId:', participantId);
+console.log('Action:', action);
+
+if (participantId && action === 'message') {
+    const participant = participants.find(p => p.id === parseInt(participantId));
+    if (participant) {
+        // Selectează participantul automat
+        currentRecipient = participant;
+        
+        // Actualizează UI
+        const targetName = document.getElementById('targetName');
+        if (targetName) targetName.textContent = participant.name;
+        
+        // Afișează formularul de mesaj
+        showTab('scan');
+        const messageForm = document.getElementById('messageForm');
+        if (messageForm) {
+            messageForm.classList.remove('hidden');
+            messageForm.scrollIntoView({ behavior: 'smooth' });
         }
+        
+        // Evidențiază participantul în listă
+        setTimeout(() => {
+            document.querySelectorAll('.quick-participant-item').forEach(item => {
+                if (item.textContent.includes(participant.name)) {
+                    item.classList.add('active');
+                }
+            });
+        }, 500);
+        
+        showMessage(`✅ QR scanat! Trimite mesaj către ${participant.name}`, 'success');
+    } else {
+        showMessage('Participantul nu a fost găsit!', 'error');
     }
+} else if (participantId) {
+    // Fallback pentru formatele vechi
+    const participant = participants.find(p => p.id === parseInt(participantId));
+    if (participant) {
+        selectParticipantFromQR(participant);
+    }
+}
     });
     
     window.addEventListener('beforeunload', cleanup);
@@ -3497,7 +3538,6 @@ if (downloadQRCodesBtn) {
             setTimeout(window.autoSyncWithPasswords, 1000);
         }
     });
-
     document.addEventListener('DOMContentLoaded', function() {
     const urlParams = new URLSearchParams(window.location.search);
     const page = urlParams.get('page');
