@@ -4,6 +4,7 @@
 <html lang="ro">
 <head>
 <meta charset="UTF-8">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tabăra 2025</title>
 <style>
@@ -316,17 +317,17 @@ font-weight: bold;
 }
 
 .qr-code {
-text-align: center;
-margin: 10px 0;
+    text-align: center;
+    margin: 10px 0;
 }
 
-.qr-code canvas {
-border: 3px solid #4c63d2;
-border-radius: 10px;
-padding: 8px;
-background: white;
-box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-max-width: 100%;
+.qr-code div {
+    display: inline-block;
+    border: 3px solid #4c63d2;
+    border-radius: 10px;
+    padding: 8px;
+    background: white;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 .camera-container {
@@ -909,24 +910,6 @@ margin-top: 15px;
 <div id="scan" class="tab-content active">
 <h2>Scanare Cod QR</h2>
 
-<div class="camera-container">
-    <video id="video" autoplay muted playsinline style="display: none;"></video>
-    <canvas id="canvas" style="display: none;"></canvas>
-</div>
-
-<div class="action-buttons">
-    <button class="btn" id="startScanBtn">📷 Camera</button>
-    <button class="btn btn-danger" id="stopScanBtn">🛑 Stop</button>
-</div>
-
-<!-- Quick Participants List -->
-<div id="quickParticipants" class="quick-participants">
-    <h3>🎯 Acces Rapid la Participanți</h3>
-    <div id="quickParticipantList" class="quick-participant-list">
-        <!-- Lista va fi populată dinamic -->
-    </div>
-</div>
-
 <div id="qrResult"></div>
 
 <div id="messageForm" class="message-form hidden">
@@ -982,6 +965,14 @@ margin-top: 15px;
         <button class="btn btn-danger" id="cancelMessageBtn">❌ Anulează</button>
     </div>
 </div>
+</div>
+
+<!-- Quick Participants List -->
+<div id="quickParticipants" class="quick-participants">
+    <h3>🎯 Acces Rapid la Participanți</h3>
+    <div id="quickParticipantList" class="quick-participant-list">
+        <!-- Lista va fi populată dinamic -->
+    </div>
 </div>
 
 <!-- Mesaje Participant Individual -->
@@ -1891,141 +1882,96 @@ function setupNumericKeypad() {
     }
     
     function createParticipantCard(participant) {
-    const card = document.createElement('div');
-    card.className = 'participant-card';
-    card.style.borderLeft = `5px solid ${participant.color}`;
-    
-    const displayName = participant.nickname ? 
-        `${participant.name} (${participant.nickname})` : 
-        participant.name;
-    
-    const participantMessages = messages.filter(m => m.recipientId === participant.id);
-    const messageCount = participantMessages.length;
-    const passwordStatusIcon = participant.hasPassword ? '🔒' : '🔓';
-    const passwordStatusText = participant.hasPassword ? 'Parolă setată' : 'Fără parolă';
-    
-    card.innerHTML = `
-        <div class="participant-name">${displayName}</div>
-        <div style="text-align: center; margin-bottom: 10px; color: #666; font-size: 12px;">
-            ${passwordStatusIcon} ${passwordStatusText}
-        </div>
+const card = document.createElement('div');
+card.className = 'participant-card';
+card.style.borderLeft = `5px solid ${participant.color}`;
+
+const displayName = participant.nickname ? 
+    `${participant.name} (${participant.nickname})` : 
+    participant.name;
+
+const participantMessages = messages.filter(m => m.recipientId === participant.id);
+const messageCount = participantMessages.length;
+const passwordStatusIcon = participant.hasPassword ? '🔒' : '🔓';
+const passwordStatusText = participant.hasPassword ? 'Parolă setată' : 'Fără parolă';
+
+card.innerHTML = `
+    <div class="participant-name">${displayName}</div>
+    <div style="text-align: center; margin-bottom: 10px; color: #666; font-size: 12px;">
+        ${passwordStatusIcon} ${passwordStatusText}
+    </div>
+    <div class="qr-code">
         <div class="qr-code">
-            <canvas id="qr-${participant.id}" width="120" height="120"></canvas>
-        </div>
-        <div style="text-align: center; margin: 10px 0;">
-            <button class="btn btn-danger" onclick="deleteParticipant(${participant.id})">🗑️ Șterge</button>
-        </div>
-        <div class="messages-container">
-            <strong>Mesaje primite (${messageCount}):</strong>
-            <div id="messages-${participant.id}">
-                ${participantMessages.length > 0 ? 
-                    participantMessages.slice(0, 3).map(msg => `
-                        <div class="message">
-                            <div class="message-header">
-                                <span class="message-sender">${getMessageTypeIcon(msg.type)} ${msg.sender}</span>
-                                <span class="message-time">${new Date(msg.timestamp).toLocaleString('ro-RO')}</span>
-                            </div>
-                            <div class="message-type">${getMessageTypeName(msg.type)}</div>
-                            <div class="message-content">${msg.content || 'Fără text'}</div>
-                            ${msg.photo ? `
-                                <div class="message-photo">
-                                    <img src="${msg.photo}" alt="Photo" onclick="openPhotoModal('${msg.photo}')" style="max-width: 100px; max-height: 80px;">
-                                </div>
-                            ` : ''}
+    <div id="qr-${participant.id}"></div>
+</div>
+    </div>
+    <div style="text-align: center; margin: 10px 0;">
+        <button class="btn btn-danger" onclick="deleteParticipant(${participant.id})">🗑️ Șterge</button>
+    </div>
+    <div class="messages-container">
+        <strong>Mesaje primite (${messageCount}):</strong>
+        <div id="messages-${participant.id}">
+            ${participantMessages.length > 0 ? 
+                participantMessages.slice(0, 3).map(msg => `
+                    <div class="message">
+                        <div class="message-header">
+                            <span class="message-sender">${getMessageTypeIcon(msg.type)} ${msg.sender}</span>
+                            <span class="message-time">${new Date(msg.timestamp).toLocaleString('ro-RO')}</span>
                         </div>
-                    `).join('') + (participantMessages.length > 3 ? '<p style="color: #666; font-style: italic; text-align: center;">... și alte mesaje</p>' : '') : 
-                    '<p style="color: #666; font-style: italic;">Nu există mesaje</p>'
-                }
-            </div>
+                        <div class="message-type">${getMessageTypeName(msg.type)}</div>
+                        <div class="message-content">${msg.content || 'Fără text'}</div>
+                        ${msg.photo ? `
+                            <div class="message-photo">
+                                <img src="${msg.photo}" alt="Photo" onclick="openPhotoModal('${msg.photo}')" style="max-width: 100px; max-height: 80px;">
+                            </div>
+                        ` : ''}
+                    </div>
+                `).join('') + (participantMessages.length > 3 ? '<p style="color: #666; font-style: italic; text-align: center;">... și alte mesaje</p>' : '') : 
+                '<p style="color: #666; font-style: italic;">Nu există mesaje</p>'
+            }
         </div>
-    `;
+    </div>
+`;
+
+card.addEventListener('click', () => {
+    currentRecipient = participant;
+    const targetName = document.getElementById('targetName');
+    const participantMessagesName = document.getElementById('participantMessagesName');
     
-    card.addEventListener('click', () => {
-        currentRecipient = participant;
-        const targetName = document.getElementById('targetName');
-        const participantMessagesName = document.getElementById('participantMessagesName');
-        
-        if (targetName) targetName.textContent = participant.name;
-        if (participantMessagesName) participantMessagesName.textContent = participant.name;
-        
-        showTab('scan');
-        
-        const messageForm = document.getElementById('messageForm');
-        if (messageForm) messageForm.classList.remove('hidden');
-    });
+    if (targetName) targetName.textContent = participant.name;
+    if (participantMessagesName) participantMessagesName.textContent = participant.name;
     
-    setTimeout(() => {
-        generateQRCode(participant.id, displayName);
-    }, 100);
+    showTab('scan');
     
-    return card;
-    }
-    
-    function generateQRCode(participantId, name) {
-    const canvas = document.getElementById(`qr-${participantId}`);
-    if (!canvas) return;
-    
-    const ctx = canvas.getContext('2d');
-    const size = 120;
-    
-    ctx.clearRect(0, 0, size, size);
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, size, size);
-    
-    // Convertește ID-ul în binar pentru a crea pattern-ul
-    const idBinary = participantId.toString(2).padStart(50, '0');
-    const cellSize = size / 25; // Mărim grid-ul pentru mai multă precizie
-    
-    ctx.fillStyle = '#000000';
-    
-    // Generează pattern bazat pe ID
-    for (let i = 0; i < 25; i++) {
-        for (let j = 0; j < 25; j++) {
-            // Rezervă spațiu pentru colțuri
-            if ((i < 8 && j < 8) || (i < 8 && j >= 17) || (i >= 17 && j < 8)) {
-                continue;
-            }
-            
-            // Folosește biții din ID pentru pattern
-            const bitIndex = (i * 25 + j) % idBinary.length;
-            if (idBinary[bitIndex] === '1') {
-                ctx.fillRect(j * cellSize, i * cellSize, cellSize, cellSize);
-            }
-        }
-    }
-    
-    // Adaugă colțurile QR standard
-    drawQRCorner(ctx, 0, 0, cellSize);
-    drawQRCorner(ctx, 17 * cellSize, 0, cellSize);
-    drawQRCorner(ctx, 0, 17 * cellSize, cellSize);
-    
-    // Codifică ID-ul în centru (pentru detectare mai ușoară)
-    const centerStart = 10;
-    const idString = participantId.toString();
-    for (let i = 0; i < idString.length && i < 5; i++) {
-        const digit = parseInt(idString[i]);
-        for (let b = 0; b < 4; b++) {
-            if ((digit >> b) & 1) {
-                ctx.fillRect((centerStart + i) * cellSize, (centerStart + b) * cellSize, cellSize, cellSize);
-            }
-        }
-    }
+    const messageForm = document.getElementById('messageForm');
+    if (messageForm) messageForm.classList.remove('hidden');
+});
+
+setTimeout(() => {
+    generateQRCode(participant.id, displayName);
+}, 100);
+
+return card;
 }
 
-function drawQRCorner(ctx, x, y, cellSize) {
-    // Pătrat exterior
-    ctx.fillStyle = '#000000';
-    ctx.fillRect(x, y, 7 * cellSize, 7 * cellSize);
     
-    // Pătrat interior alb
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(x + cellSize, y + cellSize, 5 * cellSize, 5 * cellSize);
+    function generateQRCode(participantId, name) {
+    const qrCodeDiv = document.getElementById(`qr-${participantId}`);
+    if (!qrCodeDiv) return;
     
-    // Pătrat central negru
-    ctx.fillStyle = '#000000';
-    ctx.fillRect(x + 2 * cellSize, y + 2 * cellSize, 3 * cellSize, 3 * cellSize);
-}
+    qrCodeDiv.innerHTML = ''; // Șterge conținutul anterior
     
+    const url = `${window.location.origin}${window.location.pathname}?tab=scan&participantId=${participantId}`;
+    
+    new QRCode(qrCodeDiv, {
+        text: url,
+        width: 120,
+        height: 120,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+    });
+}  
     function loadQuickParticipants() {
     const container = document.getElementById('quickParticipantList');
     if (!container) return;
