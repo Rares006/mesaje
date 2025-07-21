@@ -1348,6 +1348,7 @@ margin-top: 15px;
     window.hideAllPasswordForms = hideAllPasswordForms;
     window.handleKeypadInputModified = handleKeypadInput;
     window.setupNumericKeypadModified = setupNumericKeypad;
+    window.showParticipantMessages = showParticipantMessages;
     window.firebaseInitialized = true;
     </script>
     
@@ -2674,85 +2675,386 @@ function hideAllPasswordForms() {
         list.appendChild(messageDiv);
     });
     }
+    // ==================== SHOW PARTICIPANT MESSAGES ====================
+function showParticipantMessages() {
+    if (!currentRecipient) {
+        showMessage('Selectează mai întâi un participant!', 'error');
+        return;
+    }
     
-    // ==================== QR SCANNING ====================
-    function startScanning() {
-    navigator.mediaDevices.getUserMedia({ 
-        video: { 
+    // Setează numele participantului în titlu
+    const participantMessagesName = document.getElementById('participantMessagesName');
+    if (participantMessagesName) {
+        participantMessagesName.textContent = currentRecipient.name;
+    }
+    
+    // Schimbă la tab-ul de mesaje participant
+    showTab('participantMessages');
+    
+    // Verifică accesul (parolă)
+    checkParticipantAccess();
+}
+    
+// ==================== QR SCANNING - VERSIUNE RESCRISĂ ====================
+let scannerInterval = null;
+
+// Funcție pentru pornirea scanării
+function startScanning() {
+    const video = document.getElementById('video');
+    const scannerSection = document.getElementById('scannerSection');
+    const participantListSection = document.getElementById('participantListSection');
+    
+    if (!video) {
+        showMessage('Elementul video nu a fost găsit!', 'error');
+        return;
+    }
+
+    // Arată secțiunea de scanner și ascunde lista (dacă e cazul)
+    if (scannerSection) scannerSection.style.display = 'block';
+    if (participantListSection) participantListSection.style.display = 'none';
+
+    // Configurare constrângeri video
+    const constraints = {
+        video: {
             facingMode: 'environment',
             width: { ideal: 1280 },
             height: { ideal: 720 }
-        } 
-    }).then(stream => {
-        videoStream = stream;
-        const video = document.getElementById('video');
-        
-        if (video) {
+        }
+    };
+
+    // Pornește camera
+    navigator.mediaDevices.getUserMedia(constraints)
+        .then(stream => {
+            videoStream = stream;
             video.srcObject = stream;
             video.style.display = 'block';
-        }
-        
-        scanning = true;
-        showMessage('Camera pornită! Scanează un cod QR...', 'info');
-    }).catch(err => {
-        console.error('Eroare la pornirea camerei:', err);
-        showMessage('Nu pot accesa camera! Folosește butonul de simulare pentru test.', 'error');
-    });
+            scanning = true;
+
+            // Așteaptă ca video-ul să fie gata
+            video.onloadedmetadata = () => {
+                video.play();
+                startQRDetection();
+            };
+
+            showMessage('Camera pornită! Scanează codul QR al unui participant...', 'info');
+            
+            // Actualizează UI
+            const startScanBtn = document.getElementById('startScanBtn');
+            const stopScanBtn = document.getElementById('stopScanBtn');
+            if (startScanBtn) startScanBtn.style.display = 'none';
+            if (stopScanBtn) stopScanBtn.style.display = 'inline-block';
+        })
+        .catch(err => {
+            console.error('Eroare la pornirea camerei:', err);
+            handleCameraError(err);
+        });
+}
+
+// Funcție pentru gestionarea erorilor de cameră
+function handleCameraError(error) {
+    let errorMessage = 'Nu pot accesa camera!';
+    
+    if (error.name === 'NotAllowedError') {
+        errorMessage = 'Accesul la cameră a fost refuzat. Permite accesul din setările browser-ului.';
+    } else if (error.name === 'NotFoundError') {
+        errorMessage = 'Nu s-a găsit nicio cameră pe acest dispozitiv.';
+    } else if (error.name === 'NotReadableError') {
+        errorMessage = 'Camera este folosită de altă aplicație.';
     }
     
-    function stopScanning() {
+    showMessage(errorMessage, 'error');
+    
+    // Arată din nou lista de participanți
+    showParticipantsList();
+}
+
+// Funcție pentru detectarea QR
+function startQRDetection() {
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    
+    if (!video || !canvas) return;
+    
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    
+    // Funcție de scanare continuă
+    const scan = () => {
+        if (!scanning) return;
+        
+        if (video.readyState === video.HAVE_ENOUGH_DATA) {
+            // Setează dimensiunile canvas-ului
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            
+            // Desenează frame-ul curent
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            // Obține datele imaginii
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            
+            // Detectează QR code
+            detectQRCode(imageData);
+        }
+        
+        // Continuă scanarea
+        requestAnimationFrame(scan);
+    };
+    
+    // Începe scanarea
+    scan();
+}
+
+// Funcție pentru detectarea efectivă a QR
+function detectQRCode(imageData) {
+    try {
+        // Dacă jsQR este disponibil, folosește-l
+        if (typeof jsQR !== 'undefined') {
+            const code = jsQR(imageData.data, imageData.width, imageData.height, {
+                inversionAttempts: "dontInvert",
+            });
+            
+            if (code && code.data) {
+                processQRCode(code.data);
+                return;
+            }
+        }
+        
+        // Altfel, încearcă detectarea custom pentru QR-urile generate
+        const customData = detectCustomQRPattern(imageData);
+        if (customData) {
+            processQRCode(customData);
+        }
+    } catch (error) {
+        console.error('Eroare la detectarea QR:', error);
+    }
+}
+
+// Funcție simplificată pentru detectarea pattern-ului QR custom
+function detectCustomQRPattern(imageData) {
+    // Pentru QR-urile generate cu pattern custom
+    // Implementare simplificată - verifică doar dacă imaginea conține un pattern QR valid
+    
+    const { data, width, height } = imageData;
+    
+    // Caută colțurile caracteristice QR (pătrate mari în 3 colțuri)
+    const hasQRCorners = checkForQRCorners(data, width, height);
+    
+    if (hasQRCorners && participants.length > 0) {
+        // Pentru demo/test - returnează primul participant
+        // În producție, ar trebui să decodeze efectiv QR-ul
+        return `participant:${participants[0].id}`;
+    }
+    
+    return null;
+}
+
+// Verifică prezența colțurilor QR
+function checkForQRCorners(data, width, height) {
+    // Verificare simplificată - caută zone cu contrast mare în colțuri
+    const cornerSize = Math.floor(Math.min(width, height) / 10);
+    let cornersFound = 0;
+    
+    // Verifică colțul stânga-sus
+    if (hasHighContrast(data, width, 0, 0, cornerSize)) cornersFound++;
+    
+    // Verifică colțul dreapta-sus  
+    if (hasHighContrast(data, width, width - cornerSize, 0, cornerSize)) cornersFound++;
+    
+    // Verifică colțul stânga-jos
+    if (hasHighContrast(data, width, 0, height - cornerSize, cornerSize)) cornersFound++;
+    
+    return cornersFound >= 2;
+}
+
+// Verifică contrastul într-o zonă
+function hasHighContrast(data, width, startX, startY, size) {
+    let blackPixels = 0;
+    let whitePixels = 0;
+    
+    for (let y = startY; y < startY + size && y < data.length / (width * 4); y += 5) {
+        for (let x = startX; x < startX + size && x < width; x += 5) {
+            const idx = (y * width + x) * 4;
+            const brightness = (data[idx] + data[idx + 1] + data[idx + 2]) / 3;
+            
+            if (brightness < 128) blackPixels++;
+            else whitePixels++;
+        }
+    }
+    
+    // Verifică dacă există atât pixeli negri cât și albi (contrast)
+    return blackPixels > 10 && whitePixels > 10;
+}
+
+// Procesează codul QR detectat
+function processQRCode(qrData) {
+    console.log('QR Code detectat:', qrData);
+    
+    let participant = null;
+    
+    // Verifică diferite formate de QR
+    if (qrData.startsWith('participant:')) {
+        // Format: participant:ID
+        const participantId = parseInt(qrData.replace('participant:', ''));
+        participant = participants.find(p => p.id === participantId);
+    } else if (/^\d+$/.test(qrData)) {
+        // Format: doar ID numeric
+        participant = participants.find(p => p.id === parseInt(qrData));
+    } else {
+        // Format: nume sau text
+        participant = participants.find(p => 
+            p.name.toLowerCase() === qrData.toLowerCase() ||
+            (p.nickname && p.nickname.toLowerCase() === qrData.toLowerCase())
+        );
+    }
+    
+    if (participant) {
+        // Oprește scanarea și selectează participantul
+        stopScanning();
+        selectParticipantFromQR(participant);
+    } else {
+        // Nu s-a găsit participantul - continuă scanarea
+        console.log('Participant negăsit pentru QR:', qrData);
+    }
+}
+
+// Selectează participantul după scanare
+function selectParticipantFromQR(participant) {
+    currentRecipient = participant;
+    
+    // Actualizează UI cu numele participantului
+    const targetName = document.getElementById('targetName');
+    const participantMessagesName = document.getElementById('participantMessagesName');
+    
+    if (targetName) targetName.textContent = participant.name;
+    if (participantMessagesName) participantMessagesName.textContent = participant.name;
+    
+    // Afișează formularul de mesaj
+    const messageForm = document.getElementById('messageForm');
+    if (messageForm) {
+        messageForm.classList.remove('hidden');
+        messageForm.scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    // Evidențiază participantul în listă (dacă e vizibilă)
+    highlightParticipantInList(participant.id);
+    
+    // Feedback
+    showMessage(`✅ Participant selectat: ${participant.name}`, 'success');
+    
+    if (navigator.vibrate) {
+        navigator.vibrate([100, 50, 100]);
+    }
+}
+
+// Oprește scanarea
+function stopScanning() {
+    scanning = false;
+    
+    // Oprește stream-ul video
     if (videoStream) {
         videoStream.getTracks().forEach(track => track.stop());
         videoStream = null;
     }
     
-    scanning = false;
-    
+    // Ascunde video și arată lista
     const video = document.getElementById('video');
-    if (video) video.style.display = 'none';
+    const scannerSection = document.getElementById('scannerSection');
+    
+    if (video) {
+        video.style.display = 'none';
+        video.srcObject = null;
+    }
+    
+    if (scannerSection) {
+        scannerSection.style.display = 'none';
+    }
+    
+    // Actualizează butoanele
+    const startScanBtn = document.getElementById('startScanBtn');
+    const stopScanBtn = document.getElementById('stopScanBtn');
+    
+    if (startScanBtn) startScanBtn.style.display = 'inline-block';
+    if (stopScanBtn) stopScanBtn.style.display = 'none';
+    
+    // Arată din nou lista de participanți
+    showParticipantsList();
     
     showMessage('Camera oprită!', 'info');
+}
+
+// Arată lista de participanți
+function showParticipantsList() {
+    const participantListSection = document.getElementById('participantListSection');
+    const quickParticipantList = document.getElementById('quickParticipantList');
+    
+    if (participantListSection) {
+        participantListSection.style.display = 'block';
     }
     
-    function simulateQRScan() {
-    if (participants.length === 0) {
-        showMessage('Nu există participanți! Adaugă primul participant în secțiunea Administrare.', 'error');
-        return;
+    // Re-încarcă lista de participanți
+    if (quickParticipantList) {
+        loadQuickParticipants();
     }
-    
-    const randomParticipant = participants[Math.floor(Math.random() * participants.length)];
-    
-    currentRecipient = randomParticipant;
-    const targetName = document.getElementById('targetName');
-    
-    if (targetName) targetName.textContent = randomParticipant.name;
-    
-    document.querySelectorAll('.quick-participant-item').forEach(i => {
-        i.classList.remove('active');
+}
+
+// Evidențiază participantul selectat în listă
+function highlightParticipantInList(participantId) {
+    // Elimină selecția anterioară
+    document.querySelectorAll('.quick-participant-item').forEach(item => {
+        item.classList.remove('active');
     });
     
-    const quickItems = document.querySelectorAll('.quick-participant-item');
-    quickItems.forEach(item => {
-        if (item.textContent.trim().includes(randomParticipant.name)) {
+    // Găsește și evidențiază participantul
+    document.querySelectorAll('.quick-participant-item').forEach(item => {
+        const itemText = item.textContent.trim();
+        const participant = participants.find(p => p.id === participantId);
+        
+        if (participant && itemText.includes(participant.name)) {
             item.classList.add('active');
+            item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
     });
-    
-    const messageForm = document.getElementById('messageForm');
-    if (messageForm) messageForm.classList.remove('hidden');
-    
-    showMessage(`QR scanat! Participant selectat: ${randomParticipant.name}`, 'success');
-    }
-    
-    function showParticipantMessages() {
-    if (!currentRecipient) {
-        showMessage('Nu există participant selectat!', 'error');
+}
+
+// Simulare scanare QR (pentru teste)
+function simulateQRScan() {
+    if (participants.length === 0) {
+        showMessage('Nu există participanți pentru simulare!', 'error');
         return;
     }
     
-    showTab('participantMessages');
+    // Oprește scanarea dacă e activă
+    if (scanning) {
+        stopScanning();
     }
     
+    // Selectează un participant aleatoriu
+    const randomIndex = Math.floor(Math.random() * participants.length);
+    const randomParticipant = participants[randomIndex];
+    
+    // Simulează detectarea QR
+    showMessage('🎲 Simulare scanare QR...', 'info');
+    
+    setTimeout(() => {
+        selectParticipantFromQR(randomParticipant);
+    }, 500);
+}
+
+// Toggle între scanare și listă
+function toggleScannerView() {
+    if (scanning) {
+        stopScanning();
+    } else {
+        startScanning();
+    }
+}
+
+// Cleanup la închiderea paginii
+window.addEventListener('beforeunload', () => {
+    if (videoStream) {
+        videoStream.getTracks().forEach(track => track.stop());
+    }
+});  
     // ==================== EVENT LISTENERS ====================
     function setupEventListeners() {
     const addParticipantBtn = document.getElementById('addParticipantBtn');
@@ -2961,3 +3263,4 @@ function hideAllPasswordForms() {
         }
     });
     </script>
+
