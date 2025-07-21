@@ -1935,7 +1935,7 @@ return card;
 }
 
     
-    function generateQRCode(participantId, name) {
+function generateQRCode(participantId, name) {
     const qrCodeDiv = document.getElementById(`qr-${participantId}`);
     if (!qrCodeDiv) return;
     
@@ -1951,7 +1951,7 @@ return card;
         colorLight: "#ffffff",
         correctLevel: QRCode.CorrectLevel.H
     });
-}  
+} 
 
 async function downloadQRCodes() {
     const doc = new jspdf.jsPDF();
@@ -1974,7 +1974,7 @@ async function downloadQRCodes() {
         const x = margin + (qrCount % Math.floor((pageWidth - 2 * margin) / (qrSize + margin))) * (qrSize + margin);
         const y = margin + Math.floor(qrCount / Math.floor((pageWidth - 2 * margin) / (qrSize + margin))) * (qrSize + margin);
 
-        const qrCodeDataUrl = await generateQRCodeDataUrl(participant.id);
+        const qrCodeDataUrl = `${window.location.origin}${window.location.pathname}?tab=scan&participantId=${participantId}`;
         doc.addImage(qrCodeDataUrl, 'PNG', x, y, qrSize, qrSize);
         doc.text(participant.name, x, y + qrSize + 5);
 
