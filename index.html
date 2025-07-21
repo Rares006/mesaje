@@ -1973,10 +1973,10 @@ async function downloadQRCodes() {
     const doc = new jspdf.jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
-    const margin = 10;
-    const qrSize = 50;
+    const margin = 4;
+    const qrSize = 23;
     const qrsPerRow = Math.floor((pageWidth - 2 * margin) / (qrSize + margin));
-    const qrsPerColumn = Math.floor((pageHeight - 2 * margin) / (qrSize + margin + 10));
+    const qrsPerColumn = Math.floor((pageHeight - 2 * margin) / (qrSize + margin));
     const maxQRsPerPage = qrsPerRow * qrsPerColumn;
 
     let qrCount = 0;
@@ -1995,7 +1995,7 @@ async function downloadQRCodes() {
             const row = Math.floor(qrCount / qrsPerRow);
             const col = qrCount % qrsPerRow;
             const x = margin + col * (qrSize + margin);
-            const y = margin + row * (qrSize + margin + 10);
+            const y =row * (qrSize + margin + 10);
 
             try {
                 const qrCodeDiv = document.getElementById(`qr-${participant.id}`);
@@ -2009,10 +2009,10 @@ async function downloadQRCodes() {
                             `${participant.name} (${participant.nickname})` : 
                             participant.name;
                         
-                        doc.setFontSize(8);
+                        doc.setFontSize(10);
                         const textWidth = doc.getTextWidth(displayName);
                         const textX = x + (qrSize - textWidth) / 2;
-                        doc.text(displayName, textX, y + qrSize + 8);
+                        doc.text(displayName, textX, y + qrSize + 4);
 
                         qrCount++;
                     }
